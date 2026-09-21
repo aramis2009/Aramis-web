@@ -22,11 +22,11 @@ const GLITCH_COLORS = ["#00e5ff", "#ff2a6d", "#b6ff00", "#ffe600", "#a855f7"];
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const rnd = (min, max) => Math.random() * (max - min) + min;
 
-function jitter(el) {
+function jitter(el, colors = GLITCH_COLORS) {
   const s = el.style;
-  const c1 = pick(GLITCH_COLORS);
-  let c2 = pick(GLITCH_COLORS);
-  while (c2 === c1) c2 = pick(GLITCH_COLORS);
+  const c1 = pick(colors);
+  let c2 = pick(colors);
+  while (c2 === c1) c2 = pick(colors);
   s.setProperty("--g1", c1);
   s.setProperty("--g2", c2);
   s.setProperty("--dx1", rnd(-6, 6).toFixed(1) + "px");
@@ -84,6 +84,31 @@ if (!reduce) {
     const loop = () => setTimeout(() => { run(); loop(); }, rnd(4500, 8000));
     setTimeout(loop, first);
     el.parentElement.addEventListener("mouseenter", run);
+  });
+
+  // Links: glitch corto en dorado y morado al pasar el mouse o con el teclado
+  const LINK_COLORS = ["#f5c542", "#ffb000", "#a855f7", "#c084fc"];
+  document.querySelectorAll(".block a").forEach((a) => {
+    a.classList.add("link-glitch");
+    a.dataset.text = a.textContent.trim();
+    let running = false;
+    const run = () => {
+      a.querySelectorAll(".w").forEach(reveal);
+      if (running) return;
+      running = true;
+      a.classList.add("glitching");
+      let i = 0;
+      const id = setInterval(() => {
+        jitter(a, LINK_COLORS);
+        if (++i >= 9) {
+          clearInterval(id);
+          a.classList.remove("glitching");
+          running = false;
+        }
+      }, 50);
+    };
+    a.addEventListener("mouseenter", run);
+    a.addEventListener("focus", run);
   });
 }
 
