@@ -101,6 +101,7 @@ body {
   display: flex;
   gap: 10px;
 }
+.dot { opacity: .5; }
 
 .theme-toggle {
   background: none;
@@ -202,6 +203,24 @@ p a:focus-visible {
   mix-blend-mode: screen;
 }
 :root[data-theme="light"] .link-glitch.glitching::after { mix-blend-mode: multiply; }
+
+/* Aviso de "copiado" */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 32px;
+  transform: translate(-50%, 12px);
+  padding: 10px 16px;
+  background: var(--fg);
+  color: var(--bg);
+  font-size: 12px;
+  letter-spacing: .08em;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease, transform .25s ease;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
 
 /* Motion */
 @keyframes blink { 50% { opacity: 0; } }

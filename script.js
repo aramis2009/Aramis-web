@@ -15,6 +15,29 @@ toggle.addEventListener("click", () => {
 const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+=/<>";
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+// Copiar el email al hacer clic (mailto no funciona sin app de correo)
+const toast = document.getElementById("toast");
+let toastTimer;
+function showToast(text) {
+  toast.textContent = text;
+  toast.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove("show"), 2200);
+}
+document.querySelectorAll("[data-copy]").forEach((a) => {
+  a.addEventListener("click", async (e) => {
+    e.preventDefault();
+    const value = a.dataset.copy;
+    try {
+      await navigator.clipboard.writeText(value);
+      showToast(`Copied ✓ ${value}`);
+    } catch {
+      // Sin acceso al portapapeles: se abre la app de correo con mailto
+      location.href = a.href;
+    }
+  });
+});
+
 // Glitch automático: cada elemento [data-glitch] salta a su texto
 // alternativo (data-alt) con separación de colores y vuelve al real.
 const GLITCH_COLORS = ["#00e5ff", "#ff2a6d", "#b6ff00", "#ffe600", "#a855f7"];
