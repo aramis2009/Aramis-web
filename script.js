@@ -63,6 +63,33 @@ function jitter(el, colors = GLITCH_COLORS) {
   s.setProperty("--skew", rnd(-8, 8).toFixed(1) + "deg");
 }
 
+// Links: glitch corto en dorado y morado al pasar el mouse o con el teclado
+const LINK_COLORS = ["#f5c542", "#ffb000", "#a855f7", "#c084fc"];
+
+function addLinkGlitch(a) {
+  if (reduce) return;
+  a.classList.add("link-glitch");
+  a.dataset.text = a.textContent.trim();
+  let running = false;
+  const run = () => {
+    a.querySelectorAll(".w").forEach(reveal);
+    if (running) return;
+    running = true;
+    a.classList.add("glitching");
+    let i = 0;
+    const id = setInterval(() => {
+      jitter(a, LINK_COLORS);
+      if (++i >= 9) {
+        clearInterval(id);
+        a.classList.remove("glitching");
+        running = false;
+      }
+    }, 50);
+  };
+  a.addEventListener("mouseenter", run);
+  a.addEventListener("focus", run);
+}
+
 function setupGlitch(el) {
   const real = el.textContent;
   const alt = el.dataset.alt;
@@ -109,30 +136,7 @@ if (!reduce) {
     el.parentElement.addEventListener("mouseenter", run);
   });
 
-  // Links: glitch corto en dorado y morado al pasar el mouse o con el teclado
-  const LINK_COLORS = ["#f5c542", "#ffb000", "#a855f7", "#c084fc"];
-  document.querySelectorAll(".block a").forEach((a) => {
-    a.classList.add("link-glitch");
-    a.dataset.text = a.textContent.trim();
-    let running = false;
-    const run = () => {
-      a.querySelectorAll(".w").forEach(reveal);
-      if (running) return;
-      running = true;
-      a.classList.add("glitching");
-      let i = 0;
-      const id = setInterval(() => {
-        jitter(a, LINK_COLORS);
-        if (++i >= 9) {
-          clearInterval(id);
-          a.classList.remove("glitching");
-          running = false;
-        }
-      }, 50);
-    };
-    a.addEventListener("mouseenter", run);
-    a.addEventListener("focus", run);
-  });
+  document.querySelectorAll(".block a").forEach(addLinkGlitch);
 }
 
 // Texto "encriptado": todo aparece revuelto y cada palabra se arregla
@@ -218,3 +222,127 @@ if (!reduce) {
   addEventListener("scroll", atBottom, { passive: true });
   atBottom();
 }
+
+// "Último commit": hora exacta si el último push es público; si no, el día
+// según el gráfico (que también cuenta repos privados).
+function lastCommitText(days, events) {
+  const lastDay = [...days].reverse().find((d) => d.count > 0)?.date;
+  const pushes = events.filter((e) => e.type === "PushEvent").map((e) => new Date(e.created_at));
+  const lastPush = pushes.length ? new Date(Math.max(...pushes)) : null;
+  const localDate = (d) => d.toLocaleDateString("en-CA"); // YYYY-MM-DD
+
+  if (lastPush && (!lastDay || localDate(lastPush) >= lastDay)) {
+    const mins = Math.round((Date.now() - lastPush) / 60000);
+    if (mins < 1) return "now";
+    if (mins < 60) return `${mins}m ago`;
+    if (mins < 60 * 24) return `${Math.round(mins / 60)}h ago`;
+    return `${Math.round(mins / 1440)}d ago`;
+  }
+  if (!lastDay) return null;
+  const today = new Date(localDate(new Date()) + "T00:00:00");
+  const diff = Math.round((today - new Date(lastDay + "T00:00:00")) / 86400000);
+  return diff === 0 ? "today" : `${diff}d ago`;
+}
+
+// Contribuciones de GitHub dibujadas con caracteres
+(async function contributions() {
+  const fig = document.getElementById("contrib");
+  const grid = document.getElementById("contribGrid");
+  const meta = document.getElementById("contribMeta");
+  const user = fig.dataset.user;
+  const GLYPHS = ["░", "░", "▒", "▓", "█"];
+  const fmtDate = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" });
+
+  // Pushes públicos: dan la hora exacta del último commit
+  const eventsReq = fetch(`https://api.github.com/users/${user}/events/public?per_page=100`)
+    .then((r) => (r.ok ? r.json() : []))
+    .catch(() => []);
+
+  try {
+    const res = await fetch(`https://github-contributions-api.jogruber.de/v4/${user}?y=last`);
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+    const days = data.contributions;
+
+    // Columnas = semanas, filas = días (domingo arriba), como en GitHub
+    const offset = new Date(days[0].date + "T00:00:00").getDay();
+    const weeks = Math.ceil((days.length + offset) / 7);
+    const rows = Array.from({ length: 7 }, () => Array(weeks).fill(null));
+    days.forEach((d, i) => {
+      const k = i + offset;
+      rows[k % 7][Math.floor(k / 7)] = d;
+    });
+
+    rows.forEach((row, y) => {
+      row.forEach((d, x) => {
+        const s = document.createElement("span");
+        if (!d) {
+          s.textContent = " ";
+        } else {
+          s.textContent = GLYPHS[d.level];
+          s.className = "l" + d.level;
+          s.title = `${d.count} contribution${d.count === 1 ? "" : "s"} · ${fmtDate.format(new Date(d.date + "T00:00:00"))}`;
+        }
+        s.style.setProperty("--x", x);
+        s.style.setProperty("--y", y);
+        grid.append(s);
+      });
+      grid.append("\n");
+    });
+
+    const total = data.total.lastYear ?? days.reduce((n, d) => n + d.count, 0);
+    const last = lastCommitText(days, await eventsReq);
+    meta.innerHTML =
+      `<a href="https://github.com/${user}" target="_blank" rel="noopener">@${user}</a>` +
+      (last ? `<span>last commit ${last}</span>` : "");
+    grid.title = `${total} contributions in the last year`;
+    meta.querySelectorAll("a").forEach(addLinkGlitch);
+    fig.setAttribute("aria-label", `${total} GitHub contributions in the last year`);
+    fig.hidden = false;
+
+    if (reduce) return;
+    new IntersectionObserver((entries, io) => {
+      if (entries[0].isIntersecting) {
+        fig.classList.add("in");
+        io.disconnect();
+        setTimeout(glitchLoop, 2500);
+      }
+    }).observe(fig);
+
+    // Glitch cada pocos segundos, en dorado y morado como los links
+    const cells = [...grid.querySelectorAll("span[class]")];
+    grid.dataset.text = grid.textContent;
+    const GRAPH_COLORS = LINK_COLORS;
+
+    function glitchGraph() {
+      if (document.hidden) return;
+      grid.classList.add("glitching");
+      const swapped = [];
+      let i = 0;
+      const id = setInterval(() => {
+        jitter(grid, GRAPH_COLORS);
+        grid.style.setProperty("--shift", rnd(-4, 4).toFixed(1) + "px");
+        // Algunos caracteres cambian de forma por un instante
+        swapped.forEach(([s, g]) => (s.textContent = g));
+        swapped.length = 0;
+        for (let n = 0; n < 18; n++) {
+          const s = pick(cells);
+          swapped.push([s, s.textContent]);
+          s.textContent = pick(GLYPHS.slice(1));
+        }
+        if (++i >= 10) {
+          clearInterval(id);
+          swapped.forEach(([s, g]) => (s.textContent = g));
+          grid.classList.remove("glitching");
+        }
+      }, 55);
+    }
+
+    function glitchLoop() {
+      glitchGraph();
+      setTimeout(glitchLoop, rnd(18000, 22000));
+    }
+  } catch {
+    // Si la API falla, la sección queda sin gráfico
+  }
+})();
