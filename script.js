@@ -223,11 +223,12 @@ if (!reduce) {
   atBottom();
 }
 
-// "Último commit": hora exacta si el último push es público; si no, el día
-// según el gráfico (que también cuenta repos privados).
-function lastCommitText(days, events) {
+// "Último commit": hora exacta del último push (incluye privados si la función
+// /api/last-commit está configurada; si no, solo los públicos). Si el gráfico
+// muestra actividad más reciente que ese push, se usa el día del gráfico.
+function lastCommitText(days, pushTimes) {
   const lastDay = [...days].reverse().find((d) => d.count > 0)?.date;
-  const pushes = events.filter((e) => e.type === "PushEvent").map((e) => new Date(e.created_at));
+  const pushes = pushTimes.map((s) => new Date(s));
   const lastPush = pushes.length ? new Date(Math.max(...pushes)) : null;
   const localDate = (d) => d.toLocaleDateString("en-CA"); // YYYY-MM-DD
 
@@ -253,10 +254,17 @@ function lastCommitText(days, events) {
   const GLYPHS = ["░", "░", "▒", "▓", "█"];
   const fmtDate = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" });
 
-  // Pushes públicos: dan la hora exacta del último commit
-  const eventsReq = fetch(`https://api.github.com/users/${user}/events/public?per_page=100`)
-    .then((r) => (r.ok ? r.json() : []))
-    .catch(() => []);
+  // Hora exacta del último push: primero la función de Vercel (incluye repos
+  // privados); si no está disponible, los pushes públicos
+  const pushesReq = fetch("/api/last-commit")
+    .then((r) => (r.ok ? r.json() : Promise.reject()))
+    .then((d) => (d.lastCommit ? [d.lastCommit] : Promise.reject()))
+    .catch(() =>
+      fetch(`https://api.github.com/users/${user}/events/public?per_page=100`)
+        .then((r) => (r.ok ? r.json() : []))
+        .then((events) => events.filter((e) => e.type === "PushEvent").map((e) => e.created_at))
+        .catch(() => [])
+    );
 
   try {
     const res = await fetch(`https://github-contributions-api.jogruber.de/v4/${user}?y=last`);
@@ -291,7 +299,7 @@ function lastCommitText(days, events) {
     });
 
     const total = data.total.lastYear ?? days.reduce((n, d) => n + d.count, 0);
-    const last = lastCommitText(days, await eventsReq);
+    const last = lastCommitText(days, await pushesReq);
     meta.innerHTML =
       `<a href="https://github.com/${user}" target="_blank" rel="noopener">@${user}</a>` +
       (last ? `<span>last commit ${last}</span>` : "");
