@@ -250,8 +250,9 @@ function lastCommitText(days, pushTimes) {
   const fig = document.getElementById("contrib");
   const grid = document.getElementById("contribGrid");
   const meta = document.getElementById("contribMeta");
+  const legend = document.getElementById("contribLegend");
   const user = fig.dataset.user;
-  const GLYPHS = ["░", "░", "▒", "▓", "█"];
+  const GLYPHS = ["·", "░", "▒", "▓", "█"];
   const fmtDate = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" });
 
   // Hora exacta del último push: primero la función de Vercel (incluye repos
@@ -304,6 +305,8 @@ function lastCommitText(days, pushTimes) {
       `<a href="https://github.com/${user}" target="_blank" rel="noopener">@${user}</a>` +
       (last ? `<span>last commit ${last}</span>` : "");
     grid.title = `${total} contributions in the last year`;
+    legend.innerHTML =
+      "less" + GLYPHS.map((g, i) => `<span class="l${i}">${g}</span>`).join("") + "more";
     meta.querySelectorAll("a").forEach(addLinkGlitch);
     fig.setAttribute("aria-label", `${total} GitHub contributions in the last year`);
     fig.hidden = false;
