@@ -23,7 +23,7 @@ const ES_HTML = {
   h_edu: "Educación",
   h_links: "Enlaces",
   p_today:
-    'Ingeniero de software en <a data-link="reffactor">Reffactor</a>. Desarrollo un motor de comisiones: el software que calcula cuánto se le paga a cada vendedor de un equipo de seguros de salud. Corrijo errores en un sistema en producción y aprendo a moverme con cuidado donde un error significa dinero real.',
+    'Ingeniero de software en <a data-link="reffactor">Reffactor</a>. Desarrollo un motor de comisiones de seguros de salud. Corrijo errores en producción y aprendo a moverme con cuidado donde un error significa dinero real.',
   p_edu:
     'Actualmente soy estudiante de secundaria en <a data-link="brs">British Royal School</a>. El próximo año dejo el colegio para dar exámenes libres, así puedo dedicarle más tiempo a mis proyectos y a mi trabajo.',
   p_links:
