@@ -15,6 +15,86 @@ toggle.addEventListener("click", () => {
 const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+=/<>";
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+// ---------- Idioma (EN / ES) ----------
+// El inglés es el que está escrito en el HTML; aquí solo vive el español.
+const ES_HTML = {
+  age: "17 años",
+  h_today: "Hoy",
+  h_edu: "Educación",
+  h_links: "Enlaces",
+  p_today:
+    'Ingeniero de software en <a data-link="reffactor">Reffactor</a>. Desarrollo un motor de comisiones: el software que calcula cuánto se le paga a cada vendedor de un equipo de seguros de salud. Corrijo errores en un sistema en producción y aprendo a moverme con cuidado donde un error significa dinero real.',
+  p_edu:
+    'Actualmente soy estudiante de secundaria en <a data-link="brs">British Royal School</a>. El próximo año dejo el colegio para dar exámenes libres, así puedo dedicarle más tiempo a mis proyectos y a mi trabajo.',
+  p_links:
+    'No dudes en escribirme por <a data-link="email">email</a>, o encuéntrame en <a data-link="x">X</a>, <a data-link="instagram">Instagram</a> y <a data-link="linkedin">LinkedIn</a>.',
+};
+
+// Textos sueltos (gráfico de GitHub, avisos, etiquetas de accesibilidad)
+const STR = {
+  en: {
+    copied: "Copied ✓",
+    themeLabel: "Toggle theme",
+    langLabel: "Traducir al español",
+    lastCommit: "last commit",
+    less: "less",
+    more: "more",
+    now: "now",
+    today: "today",
+    ago: (n, u) => `${n}${u} ago`,
+    contributions: (n) => `${n} contribution${n === 1 ? "" : "s"}`,
+    inYear: (n) => `${n} contributions in the last year`,
+    ariaYear: (n) => `${n} GitHub contributions in the last year`,
+    dateLocale: "en-US",
+    description: "Software engineer at Reffactor.",
+  },
+  es: {
+    copied: "Copiado ✓",
+    themeLabel: "Cambiar tema",
+    langLabel: "Translate to English",
+    lastCommit: "último commit",
+    less: "menos",
+    more: "más",
+    now: "ahora",
+    today: "hoy",
+    ago: (n, u) => `hace ${n} ${u === "m" ? "min" : u}`,
+    contributions: (n) => `${n} ${n === 1 ? "contribución" : "contribuciones"}`,
+    inYear: (n) => `${n} contribuciones en el último año`,
+    ariaYear: (n) => `${n} contribuciones en GitHub en el último año`,
+    dateLocale: "es",
+    description: "Ingeniero de software en Reffactor.",
+  },
+};
+
+let LANG = "en";
+try { if (localStorage.getItem("lang") === "es") LANG = "es"; } catch (e) {}
+const strs = () => STR[LANG];
+
+const i18nEls = [...document.querySelectorAll("[data-i18n]")];
+const EN_HTML = new Map(i18nEls.map((el) => [el, el.innerHTML]));
+// Los enlaces se escriben una sola vez en el HTML; el español los reutiliza
+const LINKS = {};
+document.querySelectorAll("[data-link]").forEach((a) => (LINKS[a.dataset.link] = a.cloneNode(false)));
+const langBtn = document.getElementById("langToggle");
+
+function applyLanguage(lang) {
+  LANG = lang;
+  i18nEls.forEach((el) => {
+    el.innerHTML = lang === "en" ? EN_HTML.get(el) : ES_HTML[el.dataset.i18n];
+    el.querySelectorAll("a[data-link]").forEach((a) => {
+      for (const { name, value } of LINKS[a.dataset.link].attributes) a.setAttribute(name, value);
+    });
+  });
+  root.lang = lang;
+  toggle.setAttribute("aria-label", strs().themeLabel);
+  langBtn.setAttribute("aria-label", strs().langLabel);
+  langBtn.querySelectorAll("[data-l]").forEach((s) => s.classList.toggle("on", s.dataset.l === lang));
+  for (const sel of ['meta[name="description"]', 'meta[property="og:description"]']) {
+    document.querySelector(sel)?.setAttribute("content", strs().description);
+  }
+}
+if (LANG !== "en") applyLanguage(LANG);
+
 // Copiar el email al hacer clic (mailto no funciona sin app de correo)
 const toast = document.getElementById("toast");
 let toastTimer;
@@ -24,18 +104,18 @@ function showToast(text) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toast.classList.remove("show"), 2200);
 }
-document.querySelectorAll("[data-copy]").forEach((a) => {
-  a.addEventListener("click", async (e) => {
-    e.preventDefault();
-    const value = a.dataset.copy;
-    try {
-      await navigator.clipboard.writeText(value);
-      showToast(`Copied ✓ ${value}`);
-    } catch {
-      // Sin acceso al portapapeles: se abre la app de correo con mailto
-      location.href = a.href;
-    }
-  });
+document.addEventListener("click", async (e) => {
+  const a = e.target.closest("[data-copy]");
+  if (!a) return;
+  e.preventDefault();
+  const value = a.dataset.copy;
+  try {
+    await navigator.clipboard.writeText(value);
+    showToast(`${strs().copied} ${value}`);
+  } catch {
+    // Sin acceso al portapapeles: se abre la app de correo con mailto
+    location.href = a.href;
+  }
 });
 
 // Glitch automático: cada elemento [data-glitch] salta a su texto
@@ -223,6 +303,21 @@ if (!reduce) {
   atBottom();
 }
 
+// Botón EN / ES: cambia todo el texto y lo vuelve a decodificar con el mismo efecto
+langBtn.addEventListener("click", () => {
+  const next = LANG === "en" ? "es" : "en";
+  applyLanguage(next);
+  try { localStorage.setItem("lang", next); } catch (e) {}
+
+  i18nEls.forEach((el) => el.querySelectorAll("a").forEach(addLinkGlitch));
+  if (!reduce) {
+    const before = words.length;
+    i18nEls.filter((el) => el.closest(".block")).forEach(encrypt);
+    words.slice(before).forEach((w, i) => setTimeout(() => reveal(w), i * 10));
+  }
+  window.__refreshGraphText?.();
+});
+
 // "Último commit": hora exacta del último push (incluye privados si la función
 // /api/last-commit está configurada; si no, solo los públicos). Si el gráfico
 // muestra actividad más reciente que ese push, se usa el día del gráfico.
@@ -234,15 +329,21 @@ function lastCommitText(days, pushTimes) {
 
   if (lastPush && (!lastDay || localDate(lastPush) >= lastDay)) {
     const mins = Math.round((Date.now() - lastPush) / 60000);
-    if (mins < 1) return "now";
-    if (mins < 60) return `${mins}m ago`;
-    if (mins < 60 * 24) return `${Math.round(mins / 60)}h ago`;
-    return `${Math.round(mins / 1440)}d ago`;
+    if (mins < 1) return { kind: "now" };
+    if (mins < 60) return { kind: "ago", n: mins, unit: "m" };
+    if (mins < 60 * 24) return { kind: "ago", n: Math.round(mins / 60), unit: "h" };
+    return { kind: "ago", n: Math.round(mins / 1440), unit: "d" };
   }
   if (!lastDay) return null;
   const today = new Date(localDate(new Date()) + "T00:00:00");
   const diff = Math.round((today - new Date(lastDay + "T00:00:00")) / 86400000);
-  return diff === 0 ? "today" : `${diff}d ago`;
+  return diff === 0 ? { kind: "today" } : { kind: "ago", n: diff, unit: "d" };
+}
+
+// Texto del último commit en el idioma actual ("2h ago" / "hace 2 h")
+function lastCommitLabel(info) {
+  const t = strs();
+  return info.kind === "ago" ? t.ago(info.n, info.unit) : t[info.kind];
 }
 
 // Contribuciones de GitHub dibujadas con caracteres
@@ -253,7 +354,6 @@ function lastCommitText(days, pushTimes) {
   const legend = document.getElementById("contribLegend");
   const user = fig.dataset.user;
   const GLYPHS = ["·", "░", "▒", "▓", "█"];
-  const fmtDate = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" });
 
   // Hora exacta del último push: primero la función de Vercel (incluye repos
   // privados); si no está disponible, los pushes públicos
@@ -290,7 +390,8 @@ function lastCommitText(days, pushTimes) {
         } else {
           s.textContent = GLYPHS[d.level];
           s.className = "l" + d.level;
-          s.title = `${d.count} contribution${d.count === 1 ? "" : "s"} · ${fmtDate.format(new Date(d.date + "T00:00:00"))}`;
+          s.dataset.count = d.count;
+          s.dataset.date = d.date;
         }
         s.style.setProperty("--x", x);
         s.style.setProperty("--y", y);
@@ -300,15 +401,25 @@ function lastCommitText(days, pushTimes) {
     });
 
     const total = data.total.lastYear ?? days.reduce((n, d) => n + d.count, 0);
-    const last = lastCommitText(days, await pushesReq);
-    meta.innerHTML =
-      `<a href="https://github.com/${user}" target="_blank" rel="noopener">@${user}</a>` +
-      (last ? `<span>last commit ${last}</span>` : "");
-    grid.title = `${total} contributions in the last year`;
-    legend.innerHTML =
-      "less" + GLYPHS.map((g, i) => `<span class="l${i}">${g}</span>`).join("") + "more";
-    meta.querySelectorAll("a").forEach(addLinkGlitch);
-    fig.setAttribute("aria-label", `${total} GitHub contributions in the last year`);
+    const lastInfo = lastCommitText(days, await pushesReq);
+
+    // Todos los textos del gráfico; se vuelve a llamar al cambiar de idioma
+    window.__refreshGraphText = () => {
+      const t = strs();
+      const fmtDate = new Intl.DateTimeFormat(t.dateLocale, { month: "short", day: "numeric", year: "numeric" });
+      meta.innerHTML =
+        `<a href="https://github.com/${user}" target="_blank" rel="noopener">@${user}</a>` +
+        (lastInfo ? `<span>${t.lastCommit} ${lastCommitLabel(lastInfo)}</span>` : "");
+      meta.querySelectorAll("a").forEach(addLinkGlitch);
+      legend.innerHTML =
+        t.less + GLYPHS.map((g, i) => `<span class="l${i}">${g}</span>`).join("") + t.more;
+      grid.title = t.inYear(total);
+      fig.setAttribute("aria-label", t.ariaYear(total));
+      grid.querySelectorAll("span[data-date]").forEach((s) => {
+        s.title = `${t.contributions(+s.dataset.count)} · ${fmtDate.format(new Date(s.dataset.date + "T00:00:00"))}`;
+      });
+    };
+    window.__refreshGraphText();
     fig.hidden = false;
 
     if (reduce) return;

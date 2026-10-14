@@ -113,6 +113,26 @@ body {
 }
 .dot { opacity: .5; }
 
+.controls { display: flex; align-items: center; gap: 20px; }
+
+.lang-toggle {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  padding: 6px;
+  margin: -6px;
+  font: inherit;
+  font-size: 12px;
+  letter-spacing: .1em;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: color .2s;
+}
+.lang-toggle .on { color: var(--fg); }
+.lang-toggle:hover { color: var(--fg); }
+
 .theme-toggle {
   background: none;
   border: 0;
