@@ -1,21 +1,5 @@
 // Rebuild the portrait as a color halftone made of small dots.
 const dotPortraitPixels = new WeakMap();
-const portraitSilhouette = [
-  [0.11, 1], [0.12, 0.86], [0.19, 0.77], [0.28, 0.67], [0.3, 0.57],
-  [0.31, 0.47], [0.32, 0.4], [0.35, 0.34], [0.4, 0.3], [0.52, 0.3],
-  [0.59, 0.34], [0.62, 0.4], [0.63, 0.5], [0.64, 0.57], [0.64, 0.69],
-  [0.7, 0.84], [0.74, 1],
-];
-
-function isInsidePortraitSilhouette(x, y) {
-  let inside = false;
-  for (let i = 0, j = portraitSilhouette.length - 1; i < portraitSilhouette.length; j = i++) {
-    const [xi, yi] = portraitSilhouette[i];
-    const [xj, yj] = portraitSilhouette[j];
-    if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
-  }
-  return inside;
-}
 
 function makeDotPortrait(img) {
   const width = 480;
@@ -49,13 +33,9 @@ function makeDotPortrait(img) {
       const green = pixels[offset + 1];
       const blue = pixels[offset + 2];
       const brightness = (red * 0.299 + green * 0.587 + blue * 0.114) / 255;
-      const nx = x / width;
-      const ny = y / height;
-      const onUser = isInsidePortraitSilhouette(nx, ny);
-      let level = Math.min(4, Math.floor(brightness * 5));
-      if (onUser) level = Math.max(1, Math.min(2, level));
-      const radius = 0.5 + (1 - brightness) * 2.2 + (onUser ? 0.3 : 0);
-      context.globalAlpha = onUser ? 1 : 0.55 + (1 - brightness) * 0.45;
+      const level = Math.min(4, Math.floor(brightness * 5));
+      const radius = 0.5 + (1 - brightness) * 2.2;
+      context.globalAlpha = 0.55 + (1 - brightness) * 0.45;
       context.fillStyle = palette[level];
       context.beginPath();
       context.arc(x, y, radius, 0, Math.PI * 2);
