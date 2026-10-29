@@ -56,6 +56,7 @@ function makeDotPortrait(img) {
         brightness > 0.28 && red > green * 0.93 && red > blue * 1.02;
       let level = Math.min(4, Math.floor(brightness * 5));
       if (onUser && brightness < 0.45) level = 2;
+      if (!isFace) level = Math.min(level, 2);
       if (isFace) level = 4;
       const radius = 0.5 + (1 - brightness) * 2.2 + (onUser ? 0.3 : 0);
       context.globalAlpha = onUser ? 1 : 0.55 + (1 - brightness) * 0.45;
