@@ -37,11 +37,13 @@ function makeDotPortrait(img) {
       const ny = y / height;
       const faceHighlight = nx > 0.34 && nx < 0.64 && ny > 0.46 && ny < 0.93 &&
         brightness > 0.28 && red > green * 1.01 && red > blue * 1.04;
-      const level = Math.min(4, Math.floor(brightness * 5));
-      const faceLevel = faceHighlight ? Math.min(4, level + 1) : level;
+      const clothingShadow = nx > 0.12 && nx < 0.66 && ny > 0.5 && brightness < 0.32;
+      let level = Math.min(4, Math.floor(brightness * 5));
+      if (clothingShadow) level = Math.max(1, level);
+      if (faceHighlight) level = Math.min(3, level);
       const radius = 0.38 + (1 - brightness) * 1.62;
-      context.globalAlpha = faceHighlight ? 1 : 0.55 + (1 - brightness) * 0.45;
-      context.fillStyle = palette[faceLevel];
+      context.globalAlpha = 0.55 + (1 - brightness) * 0.45;
+      context.fillStyle = palette[level];
       context.beginPath();
       context.arc(x, y, radius, 0, Math.PI * 2);
       context.fill();
