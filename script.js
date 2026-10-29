@@ -2,7 +2,8 @@
 const dotPortraitPixels = new WeakMap();
 const portraitSilhouette = [
   [0.11, 1], [0.12, 0.86], [0.19, 0.77], [0.28, 0.67], [0.3, 0.57],
-  [0.34, 0.51], [0.4, 0.48], [0.53, 0.5], [0.6, 0.57], [0.64, 0.69],
+  [0.31, 0.47], [0.32, 0.4], [0.35, 0.34], [0.4, 0.3], [0.52, 0.3],
+  [0.59, 0.34], [0.62, 0.4], [0.63, 0.5], [0.64, 0.57], [0.64, 0.69],
   [0.7, 0.84], [0.74, 1],
 ];
 
@@ -28,7 +29,7 @@ function makeDotPortrait(img) {
     const sourceContext = source.getContext("2d", { willReadFrequently: true });
     const cropSize = Math.min(img.naturalWidth, img.naturalHeight);
     const cropX = (img.naturalWidth - cropSize) / 2;
-    const cropY = img.naturalHeight - cropSize;
+    const cropY = (img.naturalHeight - cropSize) * 0.82;
     sourceContext.drawImage(img, cropX, cropY, cropSize, cropSize, 0, 0, width, height);
     pixels = sourceContext.getImageData(0, 0, width, height).data;
     dotPortraitPixels.set(img, pixels);
@@ -51,7 +52,7 @@ function makeDotPortrait(img) {
       const nx = x / width;
       const ny = y / height;
       const onUser = isInsidePortraitSilhouette(nx, ny);
-      const isFace = nx > 0.37 && nx < 0.61 && ny > 0.58 && ny < 0.92 &&
+      const isFace = nx > 0.35 && nx < 0.61 && ny > 0.48 && ny < 0.92 &&
         brightness > 0.28 && red > green * 0.93 && red > blue * 1.02;
       let level = Math.min(4, Math.floor(brightness * 5));
       if (onUser && brightness < 0.45) level = 2;
