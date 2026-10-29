@@ -25,6 +25,11 @@ function makeDotPortrait(img) {
   const palette = ["--c0", "--c1", "--c2", "--c3", "--c4"].map((name) =>
     getComputedStyle(document.documentElement).getPropertyValue(name).trim()
   );
+  const paletteChannels = palette.map((color) => [
+    parseInt(color.slice(1, 3), 16),
+    parseInt(color.slice(3, 5), 16),
+    parseInt(color.slice(5, 7), 16),
+  ]);
 
   for (let y = cell / 2; y < height; y += cell) {
     for (let x = cell / 2; x < width; x += cell) {
@@ -36,14 +41,22 @@ function makeDotPortrait(img) {
       const nx = x / width;
       const ny = y / height;
       const faceHighlight = nx > 0.34 && nx < 0.64 && ny > 0.46 && ny < 0.93 &&
-        brightness > 0.28 && red > green * 1.01 && red > blue * 1.04;
+        brightness > 0.28 && red > green * 0.98 && red > blue * 1.02;
       const clothingShadow = nx > 0.12 && nx < 0.66 && ny > 0.5 && brightness < 0.32;
       let level = Math.min(4, Math.floor(brightness * 5));
       if (clothingShadow) level = Math.max(1, level);
-      if (faceHighlight) level = Math.min(3, level);
+      if (faceHighlight) level = Math.min(3, Math.max(2, level));
       const radius = 0.38 + (1 - brightness) * 1.62;
       context.globalAlpha = 0.55 + (1 - brightness) * 0.45;
-      context.fillStyle = palette[level];
+      let color = palette[level];
+      if (faceHighlight) {
+        const nextLevel = Math.min(4, level + 1);
+        const faceColor = paletteChannels[level].map((channel, index) =>
+          Math.round(channel + (paletteChannels[nextLevel][index] - channel) * 0.3)
+        );
+        color = `rgb(${faceColor.join(", ")})`;
+      }
+      context.fillStyle = color;
       context.beginPath();
       context.arc(x, y, radius, 0, Math.PI * 2);
       context.fill();
