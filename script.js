@@ -1,3 +1,45 @@
+// Render the portrait as a color halftone.
+function makeDotPortrait(img) {
+  const width = 480;
+  const height = 480;
+  const cell = 4;
+  const source = document.createElement("canvas");
+  source.width = width;
+  source.height = height;
+  const sourceContext = source.getContext("2d", { willReadFrequently: true });
+  const cropSize = Math.min(img.naturalWidth, img.naturalHeight);
+  const cropX = (img.naturalWidth - cropSize) / 2;
+  const cropY = (img.naturalHeight - cropSize) * 0.62;
+  sourceContext.drawImage(img, cropX, cropY, cropSize, cropSize, 0, 0, width, height);
+  const pixels = sourceContext.getImageData(0, 0, width, height).data;
+  const art = document.createElement("canvas");
+  art.width = width;
+  art.height = height;
+  const context = art.getContext("2d");
+
+  for (let y = cell / 2; y < height; y += cell) {
+    for (let x = cell / 2; x < width; x += cell) {
+      const offset = (Math.floor(y) * width + Math.floor(x)) * 4;
+      const red = pixels[offset];
+      const green = pixels[offset + 1];
+      const blue = pixels[offset + 2];
+      const brightness = (red * 0.299 + green * 0.587 + blue * 0.114) / 255;
+      const radius = 0.5 + (1 - brightness) * 2.2;
+      context.fillStyle = `rgb(${red}, ${green}, ${blue})`;
+      context.beginPath();
+      context.arc(x, y, radius, 0, Math.PI * 2);
+      context.fill();
+    }
+  }
+
+  img.src = art.toDataURL("image/png");
+}
+
+document.querySelectorAll("[data-dot-art]").forEach((img) => {
+  if (img.complete && img.naturalWidth) makeDotPortrait(img);
+  else img.addEventListener("load", () => makeDotPortrait(img), { once: true });
+});
+
 // Tema claro / oscuro
 const root = document.documentElement;
 const toggle = document.getElementById("themeToggle");
@@ -9,6 +51,9 @@ function currentTheme() {
 toggle.addEventListener("click", () => {
   const next = currentTheme() === "dark" ? "light" : "dark";
   root.dataset.theme = next;
+  document.querySelectorAll("[data-dot-art]").forEach((img) => {
+    if (img.complete && img.naturalWidth) makeDotPortrait(img);
+  });
   try { localStorage.setItem("theme", next); } catch (e) {}
 });
 
