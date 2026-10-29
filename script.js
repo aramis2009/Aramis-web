@@ -52,11 +52,8 @@ function makeDotPortrait(img) {
       const nx = x / width;
       const ny = y / height;
       const onUser = isInsidePortraitSilhouette(nx, ny);
-      const isFace = nx > 0.35 && nx < 0.61 && ny > 0.48 && ny < 0.92 &&
-        brightness > 0.28 && red > green * 0.93 && red > blue * 1.02;
       let level = Math.min(4, Math.floor(brightness * 5));
-      if (onUser && brightness < 0.45) level = 2;
-      if (isFace) level = 4;
+      if (onUser) level = Math.max(1, Math.min(2, level));
       const radius = 0.5 + (1 - brightness) * 2.2 + (onUser ? 0.3 : 0);
       context.globalAlpha = onUser ? 1 : 0.55 + (1 - brightness) * 0.45;
       context.fillStyle = palette[level];
