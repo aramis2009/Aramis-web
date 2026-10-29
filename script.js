@@ -2,9 +2,9 @@
 const dotPortraitPixels = new WeakMap();
 
 function makeDotPortrait(img) {
-  const width = 480;
-  const height = 480;
-  const cell = 4;
+  const width = 720;
+  const height = 720;
+  const cell = 3;
   let pixels = dotPortraitPixels.get(img);
   if (!pixels) {
     const source = document.createElement("canvas");
@@ -39,7 +39,7 @@ function makeDotPortrait(img) {
         brightness > 0.28 && red > green * 1.01 && red > blue * 1.04;
       const level = Math.min(4, Math.floor(brightness * 5));
       const faceLevel = faceHighlight ? Math.min(4, level + 1) : level;
-      const radius = 0.5 + (1 - brightness) * 2.2;
+      const radius = 0.38 + (1 - brightness) * 1.62;
       context.globalAlpha = faceHighlight ? 1 : 0.55 + (1 - brightness) * 0.45;
       context.fillStyle = palette[faceLevel];
       context.beginPath();
