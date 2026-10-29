@@ -100,9 +100,9 @@ const ES_HTML = {
   h_edu: "Educación",
   h_links: "Enlaces",
   p_today:
-    'Ingeniero de software en <a data-link="reffactor">Reffactor</a>. Desarrollo un motor de comisiones de seguros de salud. Corrijo errores en producción y aprendo a moverme con cuidado donde un error significa dinero real.',
+    'Soy ingeniero de software en <a data-link="reffactor">Reffactor</a> desde los 16 años. Estoy a cargo de principio a fin de un motor de pago de comisiones para seguros de salud: desde escribir el código hasta hablar directamente con el cliente.',
   p_edu:
-    'Actualmente soy estudiante de secundaria en <a data-link="brs">British Royal School</a>. El próximo año dejo el colegio para dar exámenes libres, así puedo dedicarle más tiempo a mis proyectos y a mi trabajo.',
+    'Dejé el colegio en 2.º medio y ahora doy exámenes libres para terminar la enseñanza media. Así puedo organizar mejor mi tiempo y dedicar más tiempo a mis proyectos y al trabajo.',
   p_links:
     'No dudes en escribirme por <a data-link="email">email</a>, o encuéntrame en <a data-link="x">X</a>, <a data-link="instagram">Instagram</a> y <a data-link="linkedin">LinkedIn</a>.',
 };
