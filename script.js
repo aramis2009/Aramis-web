@@ -1,17 +1,38 @@
-// Render the portrait as a color halftone.
+// Rebuild the portrait as a color halftone made of small dots.
+const dotPortraitPixels = new WeakMap();
+const portraitSilhouette = [
+  [0.11, 1], [0.12, 0.86], [0.19, 0.77], [0.28, 0.67], [0.3, 0.57],
+  [0.34, 0.51], [0.4, 0.48], [0.53, 0.5], [0.6, 0.57], [0.64, 0.69],
+  [0.7, 0.84], [0.74, 1],
+];
+
+function isInsidePortraitSilhouette(x, y) {
+  let inside = false;
+  for (let i = 0, j = portraitSilhouette.length - 1; i < portraitSilhouette.length; j = i++) {
+    const [xi, yi] = portraitSilhouette[i];
+    const [xj, yj] = portraitSilhouette[j];
+    if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+
 function makeDotPortrait(img) {
   const width = 480;
   const height = 480;
   const cell = 4;
-  const source = document.createElement("canvas");
-  source.width = width;
-  source.height = height;
-  const sourceContext = source.getContext("2d", { willReadFrequently: true });
-  const cropSize = Math.min(img.naturalWidth, img.naturalHeight);
-  const cropX = (img.naturalWidth - cropSize) / 2;
-  const cropY = (img.naturalHeight - cropSize) * 0.62;
-  sourceContext.drawImage(img, cropX, cropY, cropSize, cropSize, 0, 0, width, height);
-  const pixels = sourceContext.getImageData(0, 0, width, height).data;
+  let pixels = dotPortraitPixels.get(img);
+  if (!pixels) {
+    const source = document.createElement("canvas");
+    source.width = width;
+    source.height = height;
+    const sourceContext = source.getContext("2d", { willReadFrequently: true });
+    const cropSize = Math.min(img.naturalWidth, img.naturalHeight);
+    const cropX = (img.naturalWidth - cropSize) / 2;
+    const cropY = (img.naturalHeight - cropSize) * 0.62;
+    sourceContext.drawImage(img, cropX, cropY, cropSize, cropSize, 0, 0, width, height);
+    pixels = sourceContext.getImageData(0, 0, width, height).data;
+    dotPortraitPixels.set(img, pixels);
+  }
   const art = document.createElement("canvas");
   art.width = width;
   art.height = height;
@@ -24,13 +45,23 @@ function makeDotPortrait(img) {
       const green = pixels[offset + 1];
       const blue = pixels[offset + 2];
       const brightness = (red * 0.299 + green * 0.587 + blue * 0.114) / 255;
-      const radius = 0.5 + (1 - brightness) * 2.2;
-      context.fillStyle = `rgb(${red}, ${green}, ${blue})`;
+      const nx = x / width;
+      const ny = y / height;
+      const onUser = isInsidePortraitSilhouette(nx, ny);
+      const isFace = nx > 0.37 && nx < 0.61 && ny > 0.58 && ny < 0.92 &&
+        brightness > 0.28 && red > green * 0.93 && red > blue * 1.02;
+      const radius = 0.5 + (1 - brightness) * 2.2 + (onUser ? 0.3 : 0);
+      context.globalAlpha = onUser ? 1 : 0.55 + (1 - brightness) * 0.45;
+      let color = `rgb(${red}, ${green}, ${blue})`;
+      if (onUser && brightness < 0.45) color = "#a066f5";
+      if (isFace) color = "#ffd45c";
+      context.fillStyle = color;
       context.beginPath();
       context.arc(x, y, radius, 0, Math.PI * 2);
       context.fill();
     }
   }
+  context.globalAlpha = 1;
 
   img.src = art.toDataURL("image/png");
 }
@@ -51,9 +82,6 @@ function currentTheme() {
 toggle.addEventListener("click", () => {
   const next = currentTheme() === "dark" ? "light" : "dark";
   root.dataset.theme = next;
-  document.querySelectorAll("[data-dot-art]").forEach((img) => {
-    if (img.complete && img.naturalWidth) makeDotPortrait(img);
-  });
   try { localStorage.setItem("theme", next); } catch (e) {}
 });
 
