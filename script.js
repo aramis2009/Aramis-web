@@ -37,6 +37,9 @@ function makeDotPortrait(img) {
   art.width = width;
   art.height = height;
   const context = art.getContext("2d");
+  const palette = ["--c0", "--c1", "--c2", "--c3", "--c4"].map((name) =>
+    getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+  );
 
   for (let y = cell / 2; y < height; y += cell) {
     for (let x = cell / 2; x < width; x += cell) {
@@ -50,12 +53,12 @@ function makeDotPortrait(img) {
       const onUser = isInsidePortraitSilhouette(nx, ny);
       const isFace = nx > 0.37 && nx < 0.61 && ny > 0.58 && ny < 0.92 &&
         brightness > 0.28 && red > green * 0.93 && red > blue * 1.02;
+      let level = Math.min(4, Math.floor(brightness * 5));
+      if (onUser && brightness < 0.45) level = 2;
+      if (isFace) level = 4;
       const radius = 0.5 + (1 - brightness) * 2.2 + (onUser ? 0.3 : 0);
       context.globalAlpha = onUser ? 1 : 0.55 + (1 - brightness) * 0.45;
-      let color = `rgb(${red}, ${green}, ${blue})`;
-      if (onUser && brightness < 0.45) color = "#a066f5";
-      if (isFace) color = "#ffd45c";
-      context.fillStyle = color;
+      context.fillStyle = palette[level];
       context.beginPath();
       context.arc(x, y, radius, 0, Math.PI * 2);
       context.fill();
@@ -82,6 +85,9 @@ function currentTheme() {
 toggle.addEventListener("click", () => {
   const next = currentTheme() === "dark" ? "light" : "dark";
   root.dataset.theme = next;
+  document.querySelectorAll("[data-dot-art]").forEach((img) => {
+    if (img.complete && img.naturalWidth) makeDotPortrait(img);
+  });
   try { localStorage.setItem("theme", next); } catch (e) {}
 });
 
