@@ -40,11 +40,7 @@ function makeDotPortrait(img) {
   const context = art.getContext("2d");
   const palette = ["--c0", "--c1", "--c2", "--c3", "--c4"].map((name) =>
     getComputedStyle(document.documentElement).getPropertyValue(name).trim()
-  ).map((color) => [
-    parseInt(color.slice(1, 3), 16),
-    parseInt(color.slice(3, 5), 16),
-    parseInt(color.slice(5, 7), 16),
-  ]);
+  );
 
   for (let y = cell / 2; y < height; y += cell) {
     for (let x = cell / 2; x < width; x += cell) {
@@ -58,18 +54,13 @@ function makeDotPortrait(img) {
       const onUser = isInsidePortraitSilhouette(nx, ny);
       const isFace = nx > 0.35 && nx < 0.61 && ny > 0.48 && ny < 0.92 &&
         brightness > 0.28 && red > green * 0.93 && red > blue * 1.02;
-      const palettePosition = brightness * (palette.length - 1);
-      const lowerLevel = Math.floor(palettePosition);
-      const upperLevel = Math.min(lowerLevel + 1, palette.length - 1);
-      const blend = palettePosition - lowerLevel;
-      let color = palette[lowerLevel].map((channel, index) =>
-        Math.round(channel + (palette[upperLevel][index] - channel) * blend)
-      );
+      let level = Math.min(4, Math.floor(brightness * 5));
+      if (onUser && brightness < 0.45) level = 2;
+      if (!isFace) level = Math.min(level, 2);
+      if (isFace) level = 4;
       const radius = 0.5 + (1 - brightness) * 2.2 + (onUser ? 0.3 : 0);
       context.globalAlpha = onUser ? 1 : 0.55 + (1 - brightness) * 0.45;
-      if (onUser && brightness < 0.45) color = palette[2];
-      if (isFace) color = palette[4];
-      context.fillStyle = `rgb(${color.join(", ")})`;
+      context.fillStyle = palette[level];
       context.beginPath();
       context.arc(x, y, radius, 0, Math.PI * 2);
       context.fill();
