@@ -28,7 +28,7 @@ function makeDotPortrait(img) {
     const sourceContext = source.getContext("2d", { willReadFrequently: true });
     const cropSize = Math.min(img.naturalWidth, img.naturalHeight);
     const cropX = (img.naturalWidth - cropSize) / 2;
-    const cropY = (img.naturalHeight - cropSize) * 0.62;
+    const cropY = img.naturalHeight - cropSize;
     sourceContext.drawImage(img, cropX, cropY, cropSize, cropSize, 0, 0, width, height);
     pixels = sourceContext.getImageData(0, 0, width, height).data;
     dotPortraitPixels.set(img, pixels);
