@@ -418,9 +418,33 @@ html[data-view="journey"] .route [data-nav="journey"] { display: none; }
 .timeline h4 { font-size: 14px; font-weight: 400; letter-spacing: .06em; color: var(--c4); margin: 4px 0 6px; }
 .timeline p { color: var(--muted); max-width: 70ch; }
 
-/* Videos cortos de los juegos: se descargan recién al darle play */
-.clips { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 14px; }
-.clip { margin: 0; width: min(220px, 100%); }
+/* Videos cortos de los juegos: cerrados por defecto (miniatura + nombre); el clic despliega el video */
+.clips { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; margin-top: 14px; }
+.clip { width: min(260px, 100%); scroll-margin-bottom: 28px; }
+.clip summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0;
+  cursor: pointer;
+  list-style: none;
+}
+.clip summary::-webkit-details-marker { display: none; }
+.clip summary::after { content: "+"; margin-left: auto; font-size: 18px; line-height: 1; color: var(--c4); }
+.clip[open] summary::after { content: "\2212"; }
+.clip summary:focus-visible { outline: 1px solid var(--c4); outline-offset: 4px; }
+.clip-thumb {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  object-position: center 55%;
+  border: 1px solid var(--c4);
+}
+.clip-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.clip-name { font-size: 14px; letter-spacing: .06em; color: var(--c4); }
+.clip-action { font-size: 12px; letter-spacing: .1em; color: var(--muted); }
+.clip summary:hover .clip-action { color: var(--fg); }
 .clip video {
   display: block;
   width: 100%;
@@ -428,8 +452,8 @@ html[data-view="journey"] .route [data-nav="journey"] { display: none; }
   object-fit: cover;
   background: #000;
   border: 1px solid var(--c4);
+  margin-top: 10px;
 }
-.clip figcaption { margin-top: 6px; font-size: 12px; letter-spacing: .1em; color: var(--muted); }
 .timeline .entry-link { display: inline-block; margin-top: 8px; font-size: 12px; letter-spacing: .1em; color: var(--muted); }
 
 /* Glitch grande al cambiar de vista: dos copias de la página (morada y dorada)

@@ -115,6 +115,7 @@ const ES_HTML = {
   alfi_text:
     "Un agente que vive dentro de tu chat y te ayuda a no perder el contexto de la conversación, pensado para trabajos en grupo.",
   visit_site: "Ver sitio →",
+  watch_video: "Ver video",
   crm_when: "Principios de 2026",
   crm_title: "CRM para una óptica",
   crm_text:
@@ -331,6 +332,7 @@ if (!reduce) {
   });
 
   document.querySelectorAll(".block a").forEach(addLinkGlitch);
+  document.querySelectorAll(".clip-action").forEach(addLinkGlitch);
 
   // Años de la trayectoria: glitch morado cada tanto (solo si la vista está a la vista) y al pasar el mouse
   const YEAR_COLORS = ["#a855f7", "#c084fc", "#8b3fe0"];
@@ -360,6 +362,19 @@ if (!reduce) {
     setTimeout(loop, 1200 + n * 700); // desfasados para que no coincidan
   });
 }
+
+// Videos de los juegos: cerrados por defecto; al abrirlos arrancan solos y al cerrarlos se pausan
+document.querySelectorAll("details.clip").forEach((d) => {
+  const v = d.querySelector("video");
+  d.addEventListener("toggle", () => {
+    if (d.open) {
+      v.play().catch(() => {});
+      d.scrollIntoView({ block: "nearest", behavior: reduce ? "auto" : "smooth" });
+    } else {
+      v.pause();
+    }
+  });
+});
 
 // Texto "encriptado": todo aparece revuelto y cada palabra se arregla
 // (una sola vez) cuando entra en pantalla al hacer scroll. El texto original queda para lectores de pantalla.
