@@ -99,6 +99,20 @@ const ES_HTML = {
   h_today: "Hoy",
   h_edu: "Educación",
   h_links: "Enlaces",
+  nav_journey: "Trayectoria →",
+  nav_home: "← Inicio",
+  h_journey: "Trayectoria",
+  j1_when: "Hoy",
+  j1_title: "Ingeniero de software · Reffactor",
+  j1_text:
+    "A cargo de principio a fin de un motor de pago de comisiones para seguros de salud: desde escribir código hasta hablar directamente con el cliente.",
+  j2_when: "A los 16",
+  j2_title: "Entré a Reffactor",
+  j2_text: "Empecé a trabajar como ingeniero de software.",
+  j3_when: "2.º medio",
+  j3_title: "Dejé el colegio",
+  j3_text:
+    "Dejé el colegio para enfocarme en el trabajo y en mis proyectos, y ahora termino la enseñanza media con exámenes libres.",
   p_today:
     'Soy ingeniero de software en <a data-link="reffactor">Reffactor</a> desde los 16 años. Estoy a cargo de principio a fin de un motor de pago de comisiones para seguros de salud: desde escribir el código hasta hablar directamente con el cliente.',
   p_edu:
@@ -124,6 +138,7 @@ const STR = {
     ariaYear: (n) => `${n} GitHub contributions in the last year`,
     dateLocale: "en-US",
     description: "Software engineer at Reffactor.",
+    journeyTitle: "Journey",
   },
   es: {
     copied: "Copiado ✓",
@@ -140,6 +155,7 @@ const STR = {
     ariaYear: (n) => `${n} contribuciones en GitHub en el último año`,
     dateLocale: "es",
     description: "Ingeniero de software en Reffactor.",
+    journeyTitle: "Trayectoria",
   },
 };
 
@@ -169,6 +185,13 @@ function applyLanguage(lang) {
   for (const sel of ['meta[name="description"]', 'meta[property="og:description"]']) {
     document.querySelector(sel)?.setAttribute("content", strs().description);
   }
+  updateTitle();
+  // El glitch de los enlaces de navegación copia su texto: ponerlo al día
+  document.querySelectorAll("a.link-glitch[data-i18n]").forEach((a) => (a.dataset.text = a.textContent.trim()));
+}
+
+function updateTitle() {
+  document.title = root.dataset.view === "journey" ? `${strs().journeyTitle} — Aramis Berton` : "Aramis Berton";
 }
 if (LANG !== "en") applyLanguage(LANG);
 
@@ -394,6 +417,154 @@ langBtn.addEventListener("click", () => {
   }
   window.__refreshGraphText?.();
 });
+
+// ---------- Vistas (home / journey) con un glitch grande entre las dos ----------
+// El nombre y el retrato se quedan arriba; cambia todo lo de abajo. La vista actual
+// vive en root.dataset.view y se refleja en la URL (#journey), así que el botón
+// "atrás" y los enlaces compartidos funcionan.
+
+// Varias franjas horizontales a la vez, como un clip-path (un solo polígono en zigzag)
+function bands(strength) {
+  const n = 2 + Math.floor(strength * 6);
+  const ys = Array.from({ length: n }, () => {
+    const y = rnd(0, 96);
+    return [y, Math.min(100, y + rnd(2, 6 + strength * 16))];
+  }).sort((a, b) => a[0] - b[0]);
+  const pts = ys.flatMap(([a, b]) => [`0% ${a}%`, `100% ${a}%`, `100% ${b}%`, `0% ${b}%`]);
+  return `polygon(${pts.join(", ")})`;
+}
+
+// Dos copias de la página (una morada, otra dorada) encima de la real
+function createGlitchRig() {
+  const page = document.querySelector(".page");
+  const wrap = document.createElement("div");
+  wrap.className = "bigglitch";
+  wrap.setAttribute("aria-hidden", "true");
+  wrap.inert = true;
+  const layers = ["purple", "gold"].map((tint) => {
+    const layer = document.createElement("div");
+    layer.className = `bg-layer bg-${tint}`;
+    const copy = page.cloneNode(true);
+    copy.querySelectorAll("[id]").forEach((n) => n.removeAttribute("id"));
+    copy.style.transform = `translateY(${-scrollY}px)`;
+    layer.append(copy);
+    wrap.append(layer);
+    return { layer, copy };
+  });
+  const noise = document.createElement("div");
+  noise.className = "bg-noise";
+  wrap.append(noise);
+  document.body.append(wrap);
+
+  return {
+    resetScroll() {
+      layers.forEach(({ copy }) => (copy.style.transform = "translateY(0)"));
+    },
+    flash(on) {
+      wrap.style.background = on ? "rgba(168, 85, 247, .4)" : "";
+    },
+    step(strength) {
+      layers.forEach(({ layer }, i) => {
+        const dir = i ? 1 : -1;
+        layer.style.transform = `translateX(${(dir * (6 + strength * 90) * rnd(0.35, 1)).toFixed(1)}px)`;
+        layer.style.clipPath = bands(strength);
+      });
+      // La página real también se desgarra y tiembla
+      page.style.transform =
+        `translate(${(rnd(-1, 1) * strength * 16).toFixed(1)}px, ${(rnd(-1, 1) * strength * 4).toFixed(1)}px) ` +
+        `skewX(${(rnd(-1, 1) * strength * 7).toFixed(1)}deg)`;
+      page.style.clipPath = strength > 0.55 && Math.random() < 0.75 ? bands(strength) : "";
+      wrap.style.setProperty("--scan", (strength * 0.9).toFixed(2));
+      noise.replaceChildren(
+        ...Array.from({ length: Math.floor(strength * 9) }, () => {
+          const b = document.createElement("i");
+          b.style.cssText =
+            `left:${rnd(0, 90)}%;top:${rnd(0, 98)}%;width:${rnd(6, 45)}%;height:${rnd(0.4, 5)}%;` +
+            `background:${pick(["#a855f7", "#f5c542", "#ededed"])};opacity:${rnd(0.35, 0.9)}`;
+          return b;
+        })
+      );
+    },
+    destroy() {
+      wrap.remove();
+      page.style.transform = "";
+      page.style.clipPath = "";
+    },
+  };
+}
+
+// La intensidad sube hasta el medio (ahí se cambia la vista) y baja de nuevo
+function bigGlitch(onMid) {
+  return new Promise((resolve) => {
+    if (document.hidden) { onMid(); resolve(); return; }
+    const rig = createGlitchRig();
+    const TOTAL = 1100, MID = 480, STEP = 55;
+    const start = performance.now();
+    let swapped = false;
+    const tick = () => {
+      const t = performance.now() - start;
+      if (!swapped && t >= MID) {
+        swapped = true;
+        rig.resetScroll();
+        onMid();
+        rig.flash(true);
+        setTimeout(() => rig.flash(false), 60);
+      }
+      if (t >= TOTAL) { rig.destroy(); resolve(); return; }
+      const k = t < MID ? t / MID : 1 - (t - MID) / (TOTAL - MID);
+      rig.step(Math.pow(Math.max(0, Math.min(1, k)), 0.85));
+      setTimeout(tick, STEP);
+    };
+    tick();
+  });
+}
+
+const viewFromHash = () => (location.hash === "#journey" ? "journey" : "home");
+let switching = false;
+
+function setView(name) {
+  root.dataset.view = name;
+  updateTitle();
+  window.scrollTo(0, 0);
+  const h = document.querySelector(`.view[data-view="${name}"] h2`);
+  if (h) { h.setAttribute("tabindex", "-1"); h.focus({ preventScroll: true }); }
+}
+
+// La vista nueva llega revuelta y se decodifica, como continuación del glitch
+function redecode(name) {
+  const ws = [...document.querySelectorAll(`.view[data-view="${name}"] .w`)];
+  ws.forEach((w) => {
+    delete w.dataset.done;
+    w.classList.remove("done");
+    w.textContent = randomize(w.dataset.o);
+  });
+  ws.forEach((w, i) => setTimeout(() => reveal(w), 250 + i * 6));
+}
+
+function goTo(name, { push = true } = {}) {
+  if (name === root.dataset.view || switching) return;
+  switching = true;
+  if (push) history.pushState(null, "", name === "journey" ? "#journey" : location.pathname + location.search);
+  const swap = () => { setView(name); redecode(name); };
+  const done = () => {
+    switching = false;
+    // Si pulsaron "atrás" en pleno glitch, ponerse al día
+    if (viewFromHash() !== root.dataset.view) goTo(viewFromHash(), { push: false });
+  };
+  if (reduce) { swap(); done(); return; }
+  bigGlitch(swap).then(done);
+}
+
+root.dataset.view = viewFromHash();
+updateTitle();
+document.querySelectorAll("a[data-nav]").forEach(addLinkGlitch);
+document.addEventListener("click", (e) => {
+  const a = e.target.closest("a[data-nav]");
+  if (!a) return;
+  e.preventDefault();
+  goTo(a.dataset.nav);
+});
+addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
 
 // "Último commit": hora exacta del último push (incluye privados si la función
 // /api/last-commit está configurada; si no, solo los públicos). Si el gráfico

@@ -21,6 +21,7 @@
       const t = localStorage.getItem("theme");
       if (t) document.documentElement.dataset.theme = t;
     } catch (e) {}
+    if (location.hash === "#journey") document.documentElement.dataset.view = "journey";
   </script>
 </head>
 <body>
@@ -40,6 +41,11 @@
             <span class="dot" aria-hidden="true">·</span>
             <span>Concepción, Chile</span>
           </p>
+
+          <nav class="route" aria-label="Sections">
+            <a href="#journey" data-nav="journey" data-i18n="nav_journey">Journey →</a>
+            <a href="./" data-nav="home" data-i18n="nav_home">← Home</a>
+          </nav>
         </div>
       </div>
 
@@ -67,45 +73,79 @@
       </div>
     </header>
 
-    <section class="block">
-      <h2 data-i18n="h_today">Today</h2>
-      <p data-i18n="p_today">
-        Software engineer at
-        <a data-link="reffactor" href="https://reffactor.com/" target="_blank" rel="noopener">Reffactor</a>
-        since I was 16. I’m responsible for the end-to-end development of a health insurance
-        commission payment engine, from writing code to speaking directly with the client.
-      </p>
-    </section>
+    <div class="view" data-view="home">
+      <section class="block">
+        <h2 data-i18n="h_today">Today</h2>
+        <p data-i18n="p_today">
+          Software engineer at
+          <a data-link="reffactor" href="https://reffactor.com/" target="_blank" rel="noopener">Reffactor</a>
+          since I was 16. I’m responsible for the end-to-end development of a health insurance
+          commission payment engine, from writing code to speaking directly with the client.
+        </p>
+      </section>
 
-    <section class="block">
-      <h2 data-i18n="h_edu">Education</h2>
-      <p data-i18n="p_edu">
-        I left school during my second year of high school and am now completing high school
-        through independent exams. This gives me more flexibility to focus on my projects and work.
-      </p>
-    </section>
+      <section class="block">
+        <h2 data-i18n="h_edu">Education</h2>
+        <p data-i18n="p_edu">
+          I left school during my second year of high school and am now completing high school
+          through independent exams. This gives me more flexibility to focus on my projects and work.
+        </p>
+      </section>
 
-    <section class="block">
-      <h2 data-i18n="h_links">Links</h2>
-      <p data-i18n="p_links">
-        Feel free to reach out by
-        <a data-link="email" href="mailto:aramisdevv@gmail.com"
-          data-copy="aramisdevv@gmail.com">email</a>,
-        or find me on
-        <a data-link="x" href="https://x.com/AramisBerton" target="_blank" rel="noopener">X</a>,
-        <a data-link="instagram" href="https://www.instagram.com/aramis.berton"
-          target="_blank" rel="noopener">Instagram</a>
-        &amp;
-        <a data-link="linkedin" href="https://www.linkedin.com/in/aramis-berton"
-          target="_blank" rel="noopener">LinkedIn</a>.
-      </p>
+      <section class="block">
+        <h2 data-i18n="h_links">Links</h2>
+        <p data-i18n="p_links">
+          Feel free to reach out by
+          <a data-link="email" href="mailto:aramisdevv@gmail.com"
+            data-copy="aramisdevv@gmail.com">email</a>,
+          or find me on
+          <a data-link="x" href="https://x.com/AramisBerton" target="_blank" rel="noopener">X</a>,
+          <a data-link="instagram" href="https://www.instagram.com/aramis.berton"
+            target="_blank" rel="noopener">Instagram</a>
+          &amp;
+          <a data-link="linkedin" href="https://www.linkedin.com/in/aramis-berton"
+            target="_blank" rel="noopener">LinkedIn</a>.
+        </p>
 
-      <figure class="contrib" id="contrib" data-user="aramis2009" hidden>
-        <pre class="contrib-grid" id="contribGrid" aria-hidden="true"></pre>
-        <figcaption class="contrib-meta" id="contribMeta"></figcaption>
-        <div class="contrib-legend" id="contribLegend" aria-hidden="true"></div>
-      </figure>
-    </section>
+        <figure class="contrib" id="contrib" data-user="aramis2009" hidden>
+          <pre class="contrib-grid" id="contribGrid" aria-hidden="true"></pre>
+          <figcaption class="contrib-meta" id="contribMeta"></figcaption>
+          <div class="contrib-legend" id="contribLegend" aria-hidden="true"></div>
+        </figure>
+      </section>
+    </div>
+
+    <div class="view" data-view="journey">
+      <section class="block">
+        <h2 data-i18n="h_journey">Journey</h2>
+
+        <!-- Para agregar un hito: copia un <li> y suma sus textos (EN aquí, ES en ES_HTML de script.js).
+             Van del más reciente al más antiguo. -->
+        <ol class="timeline">
+          <li>
+            <span class="when" data-i18n="j1_when">Now</span>
+            <h3 data-i18n="j1_title">Software engineer · Reffactor</h3>
+            <p data-i18n="j1_text">
+              Owning a health insurance commission payment engine end to end,
+              from writing code to speaking directly with the client.
+            </p>
+          </li>
+          <li>
+            <span class="when" data-i18n="j2_when">Age 16</span>
+            <h3 data-i18n="j2_title">Joined Reffactor</h3>
+            <p data-i18n="j2_text">Started working as a software engineer.</p>
+          </li>
+          <li>
+            <span class="when" data-i18n="j3_when">2nd year of high school</span>
+            <h3 data-i18n="j3_title">Left school</h3>
+            <p data-i18n="j3_text">
+              Left school to focus on work and projects, and now finishing high school
+              through independent exams.
+            </p>
+          </li>
+        </ol>
+      </section>
+    </div>
   </main>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
