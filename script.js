@@ -197,7 +197,7 @@ function applyLanguage(lang) {
   }
   updateTitle();
   // El glitch de los enlaces de navegación copia su texto: ponerlo al día
-  document.querySelectorAll("a.link-glitch[data-i18n]").forEach((a) => (a.dataset.text = a.textContent.trim()));
+  document.querySelectorAll(".link-glitch[data-i18n]").forEach((a) => (a.dataset.text = a.textContent.trim()));
 }
 
 function updateTitle() {
@@ -327,6 +327,34 @@ if (!reduce) {
   });
 
   document.querySelectorAll(".block a").forEach(addLinkGlitch);
+
+  // Años de la trayectoria: glitch morado cada tanto (solo si la vista está a la vista) y al pasar el mouse
+  const YEAR_COLORS = ["#a855f7", "#c084fc", "#8b3fe0"];
+  document.querySelectorAll(".year-title").forEach((el, n) => {
+    el.classList.add("link-glitch");
+    el.dataset.text = el.textContent.trim();
+    let running = false;
+    const run = () => {
+      if (running) return;
+      running = true;
+      el.classList.add("glitching");
+      let i = 0;
+      const id = setInterval(() => {
+        jitter(el, YEAR_COLORS);
+        if (++i >= 9) {
+          clearInterval(id);
+          el.classList.remove("glitching");
+          running = false;
+        }
+      }, 50);
+    };
+    el.addEventListener("mouseenter", run);
+    const loop = () => setTimeout(() => {
+      if (root.dataset.view === "journey" && !document.hidden) run();
+      loop();
+    }, rnd(3500, 7000));
+    setTimeout(loop, 1200 + n * 700); // desfasados para que no coincidan
+  });
 }
 
 // Texto "encriptado": todo aparece revuelto y cada palabra se arregla

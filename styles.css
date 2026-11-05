@@ -401,9 +401,17 @@ html[data-view="journey"] .route [data-nav="journey"] { display: none; }
   width: 12px;
   height: 1px;
   border: 0;
-  background: var(--fg);
+  background: var(--purple);
 }
-.timeline .year-title { font-size: 15px; font-weight: 400; letter-spacing: .12em; color: var(--fg); }
+.timeline .year-title {
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: .12em;
+  color: var(--fg);
+  text-shadow: 2px 0 color-mix(in srgb, var(--purple) 60%, transparent);
+}
+.timeline .year-title.link-glitch::before,
+.timeline .year-title.link-glitch::after { text-shadow: none; }
 .timeline .when { display: block; font-size: 12px; letter-spacing: .1em; color: var(--muted); }
 .timeline h4 { font-size: 14px; font-weight: 400; letter-spacing: .06em; color: var(--c4); margin: 4px 0 6px; }
 .timeline p { color: var(--muted); max-width: 70ch; }
