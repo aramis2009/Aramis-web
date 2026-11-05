@@ -106,13 +106,23 @@ const ES_HTML = {
   j1_title: "Ingeniero de software · Reffactor",
   j1_text:
     "A cargo de principio a fin de un motor de pago de comisiones para seguros de salud: desde escribir código hasta hablar directamente con el cliente.",
-  j2_when: "A los 16",
-  j2_title: "Entré a Reffactor",
-  j2_text: "Empecé a trabajar como ingeniero de software.",
   j3_when: "2.º medio",
   j3_title: "Dejé el colegio",
   j3_text:
     "Dejé el colegio para enfocarme en el trabajo y en mis proyectos, y ahora termino la enseñanza media con exámenes libres.",
+  alfi_when: "Mediados de 2026",
+  alfi_title: "alfi.ai · proyecto propio",
+  alfi_text:
+    "Un agente que vive dentro de tu chat y te ayuda a no perder el contexto de la conversación, pensado para trabajos en grupo.",
+  crm_when: "Principios de 2026",
+  crm_title: "CRM para una óptica",
+  crm_text:
+    "Desarrollé mi primer CRM para una óptica en Temuco, Chile. Le ayudó al cliente a tener sus ventas, usuarios y más de forma ordenada, cuando antes lo tenía todo en papel.",
+  imp_title: "Impresos Berton",
+  imp_text: "Rediseñé toda la página web de la empresa de mi familia.",
+  water_title: "waterMarket · mi primer proyecto propio",
+  water_text:
+    "Un marketplace de recargas de bidones de agua y mi primer proyecto propio. Automatizaba la venta de las recargas para que el cliente no tuviera que gastar su tiempo haciéndolo a mano: solo 3 clics y compras.",
   p_today:
     'Soy ingeniero de software en <a data-link="reffactor">Reffactor</a> desde los 16 años. Estoy a cargo de principio a fin de un motor de pago de comisiones para seguros de salud: desde escribir el código hasta hablar directamente con el cliente.',
   p_edu:

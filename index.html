@@ -120,27 +120,67 @@
         <h2 data-i18n="h_journey">Journey</h2>
 
         <!-- Para agregar un hito: copia un <li> y suma sus textos (EN aquí, ES en ES_HTML de script.js).
-             Van del más reciente al más antiguo. -->
+             Los años son filas <li class="year">. Van del más reciente al más antiguo.
+             El <li class="origin"> es el que va en dorado. -->
         <ol class="timeline">
+          <li class="year">
+            <h3 class="year-title" data-i18n="j1_when">Now</h3>
+          </li>
           <li>
-            <span class="when" data-i18n="j1_when">Now</span>
-            <h3 data-i18n="j1_title">Software engineer · Reffactor</h3>
+            <h4 data-i18n="j1_title">Software engineer · Reffactor</h4>
             <p data-i18n="j1_text">
               Owning a health insurance commission payment engine end to end,
               from writing code to speaking directly with the client.
             </p>
           </li>
-          <li>
-            <span class="when" data-i18n="j2_when">Age 16</span>
-            <h3 data-i18n="j2_title">Joined Reffactor</h3>
-            <p data-i18n="j2_text">Started working as a software engineer.</p>
+
+          <li class="year">
+            <h3 class="year-title">2026</h3>
           </li>
           <li>
             <span class="when" data-i18n="j3_when">2nd year of high school</span>
-            <h3 data-i18n="j3_title">Left school</h3>
+            <h4 data-i18n="j3_title">Left school</h4>
             <p data-i18n="j3_text">
               Left school to focus on work and projects, and now finishing high school
               through independent exams.
+            </p>
+          </li>
+          <li>
+            <!-- Falta la URL de alfi.ai -->
+            <span class="when" data-i18n="alfi_when">Mid 2026</span>
+            <h4 data-i18n="alfi_title">alfi.ai · my own project</h4>
+            <p data-i18n="alfi_text">
+              An agent that lives inside your chat and helps you keep the context
+              of the conversation, built for group work.
+            </p>
+          </li>
+          <li>
+            <span class="when" data-i18n="crm_when">Early 2026</span>
+            <h4 data-i18n="crm_title">CRM for an optical shop</h4>
+            <p data-i18n="crm_text">
+              Built my first CRM for an optical shop in Temuco, Chile. It helped the client
+              keep their sales, customers and more organized; before, everything was on paper.
+            </p>
+          </li>
+
+          <li class="year">
+            <h3 class="year-title">2025</h3>
+          </li>
+          <li>
+            <!-- Falta la URL de Impresos Berton -->
+            <h4 data-i18n="imp_title">Impresos Berton</h4>
+            <p data-i18n="imp_text">Redesigned the whole website of my family's company.</p>
+          </li>
+
+          <li class="year">
+            <h3 class="year-title">2024</h3>
+          </li>
+          <li class="origin">
+            <h4 data-i18n="water_title">waterMarket · my first project</h4>
+            <p data-i18n="water_text">
+              A marketplace for water jug refills, and my first project of my own. It automated
+              selling the refills so customers didn't have to spend their time doing it by hand:
+              just 3 clicks and you buy.
             </p>
           </li>
         </ol>
