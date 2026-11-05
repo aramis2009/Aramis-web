@@ -372,7 +372,8 @@ html[data-view="journey"] .view[data-view="home"] { display: none; }
 html:not([data-view="journey"]) .route [data-nav="home"],
 html[data-view="journey"] .route [data-nav="journey"] { display: none; }
 
-/* Trayectoria: una sección por año. Solo lo que lleva .origin va en dorado. */
+/* Trayectoria: una sección por año. Todo va en dorado y solo el hito actual (.now)
+   lleva el marcador relleno, para mostrar dónde estás ahora. */
 .timeline {
   list-style: none;
   margin: 6px 0 0 4px;
@@ -389,16 +390,23 @@ html[data-view="journey"] .route [data-nav="journey"] { display: none; }
   width: 9px;
   height: 9px;
   background: var(--bg);
-  border: 1px solid var(--muted);
+  border: 1px solid var(--c4);
 }
+.timeline li.now::before { background: var(--c4); }
+/* Las filas de año llevan una rayita en vez de un cuadrado */
 .timeline li.year { padding-bottom: 12px; }
-.timeline li.year::before { background: var(--fg); border-color: var(--fg); }
+.timeline li.year::before {
+  left: -27px;
+  top: 12px;
+  width: 12px;
+  height: 1px;
+  border: 0;
+  background: var(--fg);
+}
 .timeline .year-title { font-size: 15px; font-weight: 400; letter-spacing: .12em; color: var(--fg); }
 .timeline .when { display: block; font-size: 12px; letter-spacing: .1em; color: var(--muted); }
-.timeline h4 { font-size: 14px; font-weight: 400; letter-spacing: .06em; color: var(--fg); margin: 4px 0 6px; }
+.timeline h4 { font-size: 14px; font-weight: 400; letter-spacing: .06em; color: var(--c4); margin: 4px 0 6px; }
 .timeline p { color: var(--muted); max-width: 70ch; }
-.timeline li.origin::before { background: var(--c4); border-color: var(--c4); }
-.timeline li.origin h4 { color: var(--c4); }
 
 /* Glitch grande al cambiar de vista: dos copias de la página (morada y dorada)
    cortadas en franjas, más ruido y líneas de escaneo. Lo arma script.js. */
