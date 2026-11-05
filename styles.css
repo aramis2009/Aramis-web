@@ -417,6 +417,19 @@ html[data-view="journey"] .route [data-nav="journey"] { display: none; }
 .timeline .when { display: block; font-size: 12px; letter-spacing: .1em; color: var(--muted); }
 .timeline h4 { font-size: 14px; font-weight: 400; letter-spacing: .06em; color: var(--c4); margin: 4px 0 6px; }
 .timeline p { color: var(--muted); max-width: 70ch; }
+
+/* Videos cortos de los juegos: se descargan recién al darle play */
+.clips { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 14px; }
+.clip { margin: 0; width: min(220px, 100%); }
+.clip video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  object-fit: cover;
+  background: #000;
+  border: 1px solid var(--c4);
+}
+.clip figcaption { margin-top: 6px; font-size: 12px; letter-spacing: .1em; color: var(--muted); }
 .timeline .entry-link { display: inline-block; margin-top: 8px; font-size: 12px; letter-spacing: .1em; color: var(--muted); }
 
 /* Glitch grande al cambiar de vista: dos copias de la página (morada y dorada)
