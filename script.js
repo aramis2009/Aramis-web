@@ -114,6 +114,7 @@ const ES_HTML = {
   alfi_title: "alfi.ai · proyecto propio",
   alfi_text:
     "Un agente que vive dentro de tu chat y te ayuda a no perder el contexto de la conversación, pensado para trabajos en grupo.",
+  alfi_link: "Ver sitio →",
   crm_when: "Principios de 2026",
   crm_title: "CRM para una óptica",
   crm_text:
