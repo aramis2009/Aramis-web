@@ -124,6 +124,9 @@ const ES_HTML = {
   water_title: "waterMarket · mi primer proyecto propio",
   water_text:
     "Un marketplace de recargas de bidones de agua y mi primer proyecto propio. Automatizaba la venta de las recargas para que el cliente no tuviera que gastar su tiempo haciéndolo a mano: solo 3 clics y compras.",
+  games_when: "Diciembre de 2023",
+  games_title: "Mis primeros juegos",
+  games_text: "Empecé a programar a los 13 viendo videos, y en el camino creé tres juegos.",
   p_today:
     'Soy ingeniero de software en <a data-link="reffactor">Reffactor</a> desde los 16 años. Estoy a cargo de principio a fin de un motor de pago de comisiones para seguros de salud: desde escribir el código hasta hablar directamente con el cliente.',
   p_edu:
