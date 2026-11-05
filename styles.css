@@ -433,6 +433,8 @@ html[data-view="journey"] .route [data-nav="journey"] { display: none; }
 .clip summary::after { content: "+"; margin-left: auto; font-size: 18px; line-height: 1; color: var(--c4); }
 .clip[open] summary::after { content: "\2212"; }
 .clip summary:focus-visible { outline: 1px solid var(--c4); outline-offset: 4px; }
+.clip.clip--wide { width: min(420px, 100%); }
+.clip.clip--wide video { aspect-ratio: 16 / 9; }
 .clip-thumb {
   flex: none;
   width: 56px;
