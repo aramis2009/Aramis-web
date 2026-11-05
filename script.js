@@ -109,7 +109,7 @@ const ES_HTML = {
   j3_when: "2.º medio",
   j3_title: "Dejé el colegio",
   j3_text:
-    "Dejé el colegio para enfocarme en el trabajo y en mis proyectos, y ahora termino la enseñanza media con exámenes libres.",
+    "Dejé el colegio para enfocarme en mis proyectos, y ahora termino la enseñanza media con exámenes libres.",
   alfi_when: "Mediados de 2026",
   alfi_title: "alfi.ai · proyecto propio",
   alfi_text:
