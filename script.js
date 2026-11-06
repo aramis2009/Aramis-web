@@ -102,7 +102,6 @@ const ES_HTML = {
   nav_journey: "Trayectoria →",
   nav_home: "← Inicio",
   h_journey: "Trayectoria",
-  j1_when: "Hoy",
   j1_title: "Ingeniero de software · Reffactor",
   j1_text:
     "A cargo de principio a fin de un motor de pago de comisiones para seguros de salud: desde escribir código hasta hablar directamente con el cliente.",
