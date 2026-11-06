@@ -129,7 +129,7 @@ const ES_HTML = {
   games_title: "Mis primeros juegos",
   games_text: "Empecé a programar a los 13 viendo videos, y en el camino creé tres juegos.",
   fortnite_title: "Jugador de Fortnite",
-  fortnite_text: "Más de 20.000 horas jugadas solo en Fortnite.",
+  fortnite_text: "Más de 20.000 horas jugadas en Fortnite.",
   p_today:
     'Soy ingeniero de software en <a data-link="reffactor">Reffactor</a> desde los 16 años. Estoy a cargo de principio a fin de un motor de pago de comisiones para seguros de salud: desde escribir el código hasta hablar directamente con el cliente.',
   p_edu:
