@@ -170,6 +170,8 @@ body {
 .w { color: var(--line); transition: color .4s ease; }
 .w.done { color: inherit; }
 h2 .w.done { color: var(--fg); }
+.view[data-view="home"] h2,
+.view[data-view="home"] h2 .w.done { color: var(--gold); }
 
 .sr-only {
   position: absolute;
