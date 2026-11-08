@@ -525,6 +525,55 @@ h2 { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 
 .contrib-meta,
 .contrib-legend { text-transform: uppercase; letter-spacing: .06em; }
 
+/* Detalles tecnológicos: retrato con marco de visor y títulos numerados */
+.portrait { position: relative; border-color: color-mix(in srgb, var(--gold) 45%, var(--line)); }
+.portrait::before,
+.portrait::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+.portrait::before {
+  inset: 0;
+  background: repeating-linear-gradient(0deg, rgba(168, 85, 247, .16) 0 1px, transparent 1px 3px);
+  mix-blend-mode: screen;
+}
+:root[data-theme="light"] .portrait::before { mix-blend-mode: multiply; background: repeating-linear-gradient(0deg, rgba(107, 63, 200, .12) 0 1px, transparent 1px 3px); }
+.portrait::after {
+  inset: 6px;
+  --k: var(--gold);
+  background:
+    linear-gradient(var(--k), var(--k)) top left / 12px 1px no-repeat,
+    linear-gradient(var(--k), var(--k)) top left / 1px 12px no-repeat,
+    linear-gradient(var(--k), var(--k)) top right / 12px 1px no-repeat,
+    linear-gradient(var(--k), var(--k)) top right / 1px 12px no-repeat,
+    linear-gradient(var(--k), var(--k)) bottom left / 12px 1px no-repeat,
+    linear-gradient(var(--k), var(--k)) bottom left / 1px 12px no-repeat,
+    linear-gradient(var(--k), var(--k)) bottom right / 12px 1px no-repeat,
+    linear-gradient(var(--k), var(--k)) bottom right / 1px 12px no-repeat;
+}
+.view { counter-reset: sec; }
+.view .block { counter-increment: sec; }
+.view h2::before {
+  content: counter(sec, decimal-leading-zero);
+  margin-right: 10px;
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: .1em;
+  color: var(--purple);
+  vertical-align: 2px;
+}
+.view h2::after {
+  content: "";
+  display: inline-block;
+  width: 40px;
+  height: 1px;
+  margin-left: 12px;
+  vertical-align: middle;
+  background: linear-gradient(90deg, var(--purple), transparent);
+}
+
 /* Mobile */
 @media (max-width: 640px) {
   body { font-size: 14px; }
