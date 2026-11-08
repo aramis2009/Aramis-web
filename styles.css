@@ -50,40 +50,10 @@ body {
 
 .page {
   max-width: 920px;
-  margin: clamp(24px, 8vh, 96px) auto 80px;
-  padding: 0 0 40px;
-  border: 1px solid var(--line);
-  background: var(--bg);
+  margin: 0 auto;
+  padding: clamp(64px, 18vh, 220px) 24px 80px;
   animation: fade .8s ease both;
 }
-.page > .top,
-.page > .view { padding-inline: clamp(16px, 4vw, 32px); }
-.top { padding-top: 32px; }
-
-/* Ventana de terminal */
-.termbar {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 10px 14px;
-  margin-bottom: 0;
-  border-bottom: 1px solid var(--line);
-  color: var(--muted);
-  font-size: 12px;
-  letter-spacing: .04em;
-}
-.termbar i {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--line);
-}
-.termbar span { margin-left: 8px; }
-.block h2::before {
-  content: "$ cat ";
-  color: var(--muted);
-}
-.view[data-view="journey"] h2::before { content: "$ git log "; }
 
 /* Header */
 .top {
