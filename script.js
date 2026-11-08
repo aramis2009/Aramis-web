@@ -774,3 +774,79 @@ function lastCommitLabel(info) {
     // Si la API falla, la sección queda sin gráfico
   }
 })();
+
+
+// ---------- Terminal interactiva ----------
+// Comandos que manejan lo que ya existe: vistas, tema, idioma y enlaces.
+(function terminal() {
+  const form = document.getElementById("prompt");
+  const input = document.getElementById("promptIn");
+  const out = document.getElementById("promptOut");
+  if (!form || !input || !out) return;
+
+  const PROJECTS = [
+    ["aramis-web", "https://github.com/aramis2009/Aramis-web", "this site"],
+    ["claude-noti", "https://github.com/aramis2009/Claude-noti", "macOS mascot notifier"],
+    ["github-widget", "https://github.com/aramis2009/Github-widget", "iPhone contributions widget"],
+  ];
+  const SOCIAL = {
+    github: "https://github.com/aramis2009",
+    x: "https://x.com/AramisBerton",
+    instagram: "https://www.instagram.com/aramis.berton",
+    linkedin: "https://www.linkedin.com/in/aramis-berton",
+  };
+
+  const line = (html, cls = "") => {
+    const d = document.createElement("div");
+    if (cls) d.className = cls;
+    d.innerHTML = html;
+    out.append(d);
+    return d;
+  };
+  const esc = (t) => t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const link = (href, text) => `<a href="${href}" target="_blank" rel="noopener">${text}</a>`;
+
+  const COMMANDS = {
+    help: () => line('<span class="hl">help</span> · whoami · projects · links · journey · home · theme · lang · clear'),
+    whoami: () => line("Aramis Berton · 17 · Concepción, Chile · software engineer at Reffactor"),
+    projects: () => PROJECTS.forEach(([n, u, d]) => line(`<span class="hl">${n}</span> — ${d} ${link(u, "↗")}`)),
+    links: () => Object.entries(SOCIAL).forEach(([n, u]) => line(`<span class="hl">${n}</span> ${link(u, u.replace("https://", ""))}`)),
+    journey: () => { line("→ journey"); goTo("journey"); },
+    home: () => { line("→ home"); goTo("home"); },
+    theme: () => { document.getElementById("themeToggle").click(); line("theme toggled"); },
+    lang: () => { langBtn.click(); line("language toggled"); },
+    clear: () => { out.textContent = ""; },
+  };
+
+  const history = [];
+  let hi = 0;
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const raw = input.value.trim();
+    input.value = "";
+    if (!raw) return;
+    history.push(raw);
+    hi = history.length;
+    const cmd = raw.toLowerCase();
+    if (cmd !== "clear") line(esc(raw), "cmd");
+    const run = COMMANDS[cmd];
+    if (run) run();
+    else line(`command not found: ${esc(raw)} — try <span class="hl">help</span>`);
+    input.scrollIntoView({ block: "nearest" });
+  });
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowUp" && history.length) {
+      e.preventDefault();
+      hi = Math.max(0, hi - 1);
+      input.value = history[hi];
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      hi = Math.min(history.length, hi + 1);
+      input.value = history[hi] || "";
+    }
+  });
+
+  line('welcome — type <span class="hl">help</span> to see commands');
+})();

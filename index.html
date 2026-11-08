@@ -273,6 +273,14 @@
         </ol>
       </section>
     </div>
+    <form class="prompt" id="prompt" autocomplete="off">
+      <div class="prompt-out" id="promptOut" role="log" aria-live="polite"></div>
+      <label class="prompt-line">
+        <span class="prompt-ps" aria-hidden="true">$</span>
+        <input id="promptIn" type="text" spellcheck="false" autocapitalize="off"
+          aria-label="Terminal command" placeholder="type help" />
+      </label>
+    </form>
   </main>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
