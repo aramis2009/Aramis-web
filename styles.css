@@ -4,29 +4,29 @@
   --muted: #8a8a8a;
   --line: #3a3a3a;
   --hover: #111;
-  --gold: #7be0b0;
-  --purple: #3fae80;
-  --c0: #262626;
-  --c1: #1f5c43;
-  --c2: #2f8f69;
-  --c3: #54c795;
-  --c4: #9af0c8;
+  --gold: #f5c542;
+  --purple: #a855f7;
+  --c0: #3a3a3a;
+  --c1: #6a3fc4;
+  --c2: #a066f5;
+  --c3: #d49a35;
+  --c4: #ffd45c;
   --font: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
 }
 
 :root[data-theme="light"] {
-  --bg: #fafaf7;
+  --bg: #fafafa;
   --fg: #111;
   --muted: #6b6b6b;
   --line: #c8c8c8;
   --hover: #f0f0f0;
-  --gold: #1d6f4f;
-  --purple: #2f9a72;
-  --c0: #dcdad3;
-  --c1: #b4e0cb;
-  --c2: #6fc19b;
-  --c3: #2f9a72;
-  --c4: #14553b;
+  --gold: #c9971c;
+  --purple: #8b3fe0;
+  --c0: #cfcfcf;
+  --c1: #c9a8f5;
+  --c2: #9a5ce8;
+  --c3: #7a3fd0;
+  --c4: #6b4500;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -40,7 +40,8 @@ body {
   font-weight: 400;
   font-size: 14px;
   line-height: 1.6;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   -webkit-font-smoothing: antialiased;
   transition: background-color .3s ease, color .3s ease;
 }
@@ -82,9 +83,9 @@ body {
 }
 
 .name {
-  font-size: clamp(24px, 4.2vw, 32px);
+  font-size: 17px;
   font-weight: 400;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.08em;
 }
 
 .cursor { animation: blink 1.1s steps(1) infinite; }
