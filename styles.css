@@ -495,104 +495,24 @@ html[data-view="journey"] .route [data-nav="journey"] { display: none; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
 
-/* Hero estilo Apple: tipografía sans, centrado, botones píldora y retrato redondeado */
-.top {
-  display: block;
-  position: relative;
-  text-align: center;
-  margin-bottom: 72px;
-  text-transform: none;
-  letter-spacing: -0.01em;
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
-}
-.top .controls { position: absolute; top: 0; right: 0; }
-.top .lang-toggle { font-family: var(--font); text-transform: uppercase; }
-.identity { display: block; padding-top: 44px; }
-.eyebrow {
-  color: var(--purple);
-  font-size: 15px;
-  font-weight: 500;
-  letter-spacing: 0;
-  max-width: none;
-}
-.top .name {
-  margin-top: 6px;
-  font-size: clamp(40px, 9vw, 76px);
-  font-weight: 600;
-  line-height: 1.04;
-  letter-spacing: -0.045em;
-}
-.top .name .glitch {
-  background: linear-gradient(90deg, var(--purple), var(--gold));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  padding-bottom: .08em;
-}
-.top .name .glitch::before,
-.top .name .glitch::after { -webkit-text-fill-color: currentColor; }
-.top .name .cursor { color: var(--gold); -webkit-text-fill-color: var(--gold); }
-.top .meta {
-  margin-top: 12px;
-  justify-content: center;
-  font-size: clamp(16px, 2.4vw, 21px);
-  letter-spacing: -0.01em;
-  color: var(--muted);
-}
-.top .route {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
-  margin-top: 28px;
-  font-size: 15px;
-  letter-spacing: 0;
-}
-.top .route a {
-  --px: 22px;
-  --py: 10px;
-  padding: var(--py) var(--px);
-  border-radius: 980px;
-  background-image: none;
-  background-color: var(--fg);
-  color: var(--bg);
-  transition: opacity .2s, background-color .2s, border-color .2s;
-}
-.top .route a:hover,
-.top .route a:focus-visible { background-image: none; color: var(--bg); opacity: .85; }
-.top .route a.ghost {
-  background-color: transparent;
-  color: var(--fg);
-  box-shadow: inset 0 0 0 1px var(--line);
-}
-.top .route a.ghost:hover,
-.top .route a.ghost:focus-visible { color: var(--fg); opacity: 1; box-shadow: inset 0 0 0 1px var(--muted); }
-.top .route a.link-glitch::before,
-.top .route a.link-glitch::after { left: var(--px); top: var(--py); }
-.top .portrait {
-  width: min(100%, 250px);
-  height: auto;
-  aspect-ratio: 4 / 5;
-  margin: 40px auto 0;
-  border: 0;
-  border-radius: 32px;
-  box-shadow: 0 40px 90px -30px color-mix(in srgb, var(--purple) 55%, transparent);
-}
-html[data-view="journey"] .top .name { font-size: clamp(32px, 6vw, 48px); }
-html[data-view="journey"] .top .portrait { width: 132px; aspect-ratio: 1; margin-top: 28px; border-radius: 28px; }
-
-/* Resto de la página en la misma tipografía suave del hero; el gráfico ASCII y las etiquetas siguen en mono */
+/* Tipografía Inter (sin mayúsculas forzadas); el gráfico ASCII y las etiquetas siguen en mono */
 body {
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
-  font-size: 16px;
-  line-height: 1.65;
+  font-size: 14px;
+  line-height: 1.6;
   letter-spacing: 0;
   text-transform: none;
 }
-h2 { font-size: 24px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 12px; }
-p { max-width: 62ch; }
+.page { max-width: 760px; padding-top: clamp(40px, 10vh, 120px); padding-bottom: 56px; }
+.top { margin-bottom: 40px; }
+.portrait { width: 112px; height: 112px; }
+.name { font-size: 24px; font-weight: 600; letter-spacing: -0.02em; }
+.meta { font-size: 14px; margin-top: 8px; }
+.route { margin-top: 10px; font-size: 13px; letter-spacing: 0; }
+h2 { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 8px; }
+.block { margin-bottom: 32px; }
 .timeline .year-title { letter-spacing: 0; font-weight: 600; }
-.timeline h4 { font-size: 17px; font-weight: 500; letter-spacing: -0.01em; }
+.timeline h4 { font-size: 15px; font-weight: 500; letter-spacing: -0.01em; }
 .timeline .when,
 .timeline .entry-link,
 .clip-action { letter-spacing: 0; font-size: 13px; }
@@ -605,31 +525,15 @@ p { max-width: 62ch; }
 .contrib-meta,
 .contrib-legend { text-transform: uppercase; letter-spacing: .06em; }
 
-/* Versión compacta */
-.page { max-width: 720px; padding-top: clamp(32px, 9vh, 96px); padding-bottom: 56px; }
-.top { margin-bottom: 40px; }
-.identity { padding-top: 28px; }
-.eyebrow { font-size: 13px; }
-.top .name { font-size: clamp(30px, 6vw, 48px); margin-top: 4px; }
-.top .meta { font-size: 15px; margin-top: 8px; }
-.top .route { margin-top: 18px; gap: 8px; font-size: 13px; }
-.top .route a { --px: 16px; --py: 7px; }
-.top .portrait { width: 150px; margin-top: 24px; border-radius: 24px; }
-html[data-view="journey"] .top .name { font-size: clamp(28px, 5vw, 40px); }
-html[data-view="journey"] .top .portrait { width: 96px; margin-top: 18px; border-radius: 22px; }
-body { font-size: 14px; line-height: 1.6; }
-h2 { font-size: 18px; margin-bottom: 8px; }
-.block { margin-bottom: 32px; }
-.timeline li { padding-bottom: 18px; }
-.timeline h4 { font-size: 15px; }
-.contrib { margin-top: 20px; }
-
 /* Mobile */
 @media (max-width: 640px) {
   body { font-size: 14px; }
-  .page { padding: 32px 16px 40px; }
-  .top { margin-bottom: 32px; }
-  .identity { padding-top: 32px; }
-  .top .portrait { width: 130px; margin-top: 20px; border-radius: 22px; }
+  .page { padding: 56px 16px 56px; }
+  .top { align-items: flex-start; flex-wrap: wrap; row-gap: 16px; }
+  .identity { flex: 1 1 100%; gap: 12px; }
+  .portrait {
+    width: 84px;
+    height: 84px;
+  }
   .control-buttons { gap: 14px; }
 }
