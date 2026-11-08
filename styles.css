@@ -570,10 +570,10 @@ html[data-view="journey"] .route [data-nav="journey"] { display: none; }
 .top .route a.link-glitch::before,
 .top .route a.link-glitch::after { left: var(--px); top: var(--py); }
 .top .portrait {
-  width: min(100%, 360px);
+  width: min(100%, 250px);
   height: auto;
   aspect-ratio: 4 / 5;
-  margin: 48px auto 0;
+  margin: 40px auto 0;
   border: 0;
   border-radius: 32px;
   box-shadow: 0 40px 90px -30px color-mix(in srgb, var(--purple) 55%, transparent);
@@ -581,9 +581,33 @@ html[data-view="journey"] .route [data-nav="journey"] { display: none; }
 html[data-view="journey"] .top .name { font-size: clamp(32px, 6vw, 48px); }
 html[data-view="journey"] .top .portrait { width: 132px; aspect-ratio: 1; margin-top: 28px; border-radius: 28px; }
 
+/* Resto de la página en la misma tipografía suave del hero; el gráfico ASCII y las etiquetas siguen en mono */
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
+  letter-spacing: 0;
+  text-transform: none;
+}
+h2 { font-size: 24px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 12px; }
+p { max-width: 62ch; }
+.timeline .year-title { letter-spacing: 0; font-weight: 600; }
+.timeline h4 { font-size: 17px; font-weight: 500; letter-spacing: -0.01em; }
+.timeline .when,
+.timeline .entry-link,
+.clip-action { letter-spacing: 0; font-size: 13px; }
+.clip-name { font-size: 15px; letter-spacing: 0; }
+.contrib-grid,
+.contrib-meta,
+.contrib-legend,
+.lang-toggle,
+.toast { font-family: var(--font); }
+.contrib-meta,
+.contrib-legend { text-transform: uppercase; letter-spacing: .06em; }
+
 /* Mobile */
 @media (max-width: 640px) {
-  body { font-size: 13px; }
+  body { font-size: 15px; }
   .page { padding: 56px 16px 56px; }
   .top { margin-bottom: 56px; }
   .identity { padding-top: 40px; }
