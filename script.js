@@ -95,6 +95,8 @@ const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 // ---------- Idioma (EN / ES) ----------
 // El inglés es el que está escrito en el HTML; aquí solo vive el español.
 const ES_HTML = {
+  eyebrow: "Ingeniero de software · Reffactor",
+  nav_contact: "Contacto",
   age: "17 años",
   h_today: "Hoy",
   h_edu: "Educación",

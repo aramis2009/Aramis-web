@@ -13,6 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 
   <!-- Aplica el tema antes de pintar para evitar parpadeo -->
@@ -28,25 +29,27 @@
   <main class="page">
     <header class="top">
       <div class="identity">
+        <p class="eyebrow" data-i18n="eyebrow">Software engineer · Reffactor</p>
+        <!-- Sin espacio entre los dos span: el "_" va pegado al nombre -->
+        <h1 class="name" aria-label="Aramis Berton"><span class="glitch" aria-hidden="true" data-glitch
+          data-alt="GOAT" data-text="Aramis Berton">Aramis Berton</span><span class="cursor">_</span></h1>
+
+        <p class="meta">
+          <span data-i18n="age">17 y/o</span>
+          <span class="dot" aria-hidden="true">·</span>
+          <span>Concepción, Chile</span>
+        </p>
+
+        <nav class="route" aria-label="Sections">
+          <a href="#journey" data-nav="journey" data-i18n="nav_journey">Journey →</a>
+          <a href="./" data-nav="home" data-i18n="nav_home">← Home</a>
+          <a class="ghost" href="mailto:aramisdevv@gmail.com" data-copy="aramisdevv@gmail.com"
+            data-i18n="nav_contact">Contact</a>
+        </nav>
+
         <figure class="portrait">
           <img src="assets/portrait.jpg" alt="Retrato en un paseo en barco por San Francisco" width="720" height="960" data-dot-art />
         </figure>
-        <div>
-          <!-- Sin espacio entre los dos span: el "_" va pegado al nombre -->
-          <h1 class="name" aria-label="Aramis Berton"><span class="glitch" aria-hidden="true" data-glitch
-            data-alt="GOAT" data-text="Aramis Berton">Aramis Berton</span><span class="cursor">_</span></h1>
-
-          <p class="meta">
-            <span data-i18n="age">17 y/o</span>
-            <span class="dot" aria-hidden="true">·</span>
-            <span>Concepción, Chile</span>
-          </p>
-
-          <nav class="route" aria-label="Sections">
-            <a href="#journey" data-nav="journey" data-i18n="nav_journey">Journey →</a>
-            <a href="./" data-nav="home" data-i18n="nav_home">← Home</a>
-          </nav>
-        </div>
       </div>
 
       <div class="controls">
