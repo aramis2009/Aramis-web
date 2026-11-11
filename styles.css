@@ -476,21 +476,31 @@ html:not([data-view]) .route [data-nav="mountain"] { display: none; }
 }
 .mtn.dim { opacity: .22; filter: blur(1.5px); }
 .mtn-art {
-  font-size: calc(100cqw / 72); /* fallback until script.js measures the real glyph width */
+  font-size: calc(100cqw / 84); /* fallback until script.js measures the real glyph width */
   line-height: .95;
   white-space: pre;
-  width: max-content; /* so script.js can measure the real width of the 120 columns */
+  width: max-content; /* so script.js can measure the real width of the columns */
+  -webkit-mask-image: linear-gradient(#000 80%, transparent);
+  mask-image: linear-gradient(#000 80%, transparent);
   color: var(--muted);
   user-select: none;
   animation: climb 2.4s steps(40, end) both;
 }
 @keyframes climb { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0); } }
-.mtn-art .c0 { color: var(--c0); }
-.mtn-art .c1 { color: var(--c1); }
-.mtn-art .c2 { color: var(--c2); }
-.mtn-art .c3 { color: var(--c3); }
-.mtn-art .c4 { color: var(--c4); }
-.mtn-art .star { color: var(--line); }
+/* Lit snow, shaded snow, lit rock, shaded rock, distant ridges and the sunlit summit */
+.mtn-art .sn { color: var(--fg); }
+.mtn-art .ss { color: var(--c2); }
+.mtn-art .rl { color: var(--c3); }
+.mtn-art .rs { color: var(--c1); }
+.mtn-art .far { color: var(--muted); }
+.mtn-art .glow { color: var(--c4); }
+.mtn-art .star,
+.mtn-art .plume { color: var(--muted); }
+:root[data-theme="light"] .mtn-art .sn { color: var(--muted); }
+:root[data-theme="light"] .mtn-art .ss { color: var(--c2); }
+:root[data-theme="light"] .mtn-art .rl { color: var(--gold); }
+:root[data-theme="light"] .mtn-art .rs { color: var(--c3); }
+:root[data-theme="light"] .mtn-art .glow { color: var(--gold); }
 .mtn-art .rt { color: var(--gold); text-shadow: 0 0 6px color-mix(in srgb, var(--gold) 70%, transparent); }
 
 .mtn-pts { list-style: none; position: absolute; inset: 0; pointer-events: none; }
