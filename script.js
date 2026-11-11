@@ -656,8 +656,8 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
     { key: "water_title", year: "2024" },
     { key: "imp_title", year: "2025" },
     { key: "crm_title", year: "2026" },
-    { key: "alfi_title", year: "2026" },
-    { key: "j3_title", year: "2026" },
+    { key: "alfi_title", year: "2026", repeat: true },
+    { key: "j3_title", year: "2026", repeat: true },
     { key: "j1_title", year: null },
   ];
   POINTS.forEach((p) => (p.li = document.querySelector(`[data-i18n="${p.key}"]`)?.closest("li")));
@@ -889,7 +889,8 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
       // encrypt() wraps text in a visual (scrambled) copy plus an .sr-only original
       const h4 = p.li.querySelector("h4");
       const title = (h4?.querySelector(".sr-only") || h4)?.textContent.trim() || "";
-      b.querySelector(".pt-year").textContent = p.year ?? strs().now;
+      // A year shown by the point just below is not repeated; screen readers still get it
+      b.querySelector(".pt-year").textContent = p.repeat ? "" : (p.year ?? strs().now);
       b.querySelector(".pt-name").textContent = title;
       b.setAttribute("aria-label", `${p.year ?? strs().now} — ${title}`);
     });
