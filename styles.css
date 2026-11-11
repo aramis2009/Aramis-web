@@ -464,33 +464,6 @@ html:not([data-view]) .route [data-nav="mountain"] { display: none; }
 }
 .timeline .entry-link { display: inline-block; margin-top: 8px; font-size: 12px; letter-spacing: .1em; color: var(--muted); }
 
-/* Background: an ASCII galaxy centered behind the mountain and a ship crossing the sky. Sits behind everything. */
-.space { position: absolute; top: 0; left: 0; width: 100%; min-height: 100%; z-index: -1; overflow: hidden; pointer-events: none; user-select: none; }
-.space-art { width: max-content; font-size: 12px; line-height: 12px; white-space: pre; animation: fade 1.6s ease both; }
-.space .g-core { color: var(--c4); }
-.space .g-arm { color: var(--c2); }
-.space .g-dust { color: var(--c1); }
-.space .g-star { color: var(--muted); }
-.ship {
-  position: absolute;
-  left: 0;
-  top: 0;
-  font-size: 9px;
-  line-height: 9px;
-  white-space: pre;
-  color: var(--muted);
-  animation: fly 48s linear infinite;
-  animation-delay: -9s; /* already on screen when the page loads */
-}
-.ship .s-fire { color: var(--gold); }
-@keyframes fly {
-  from { transform: translate(-16vw, var(--ship-y0, 36vh)); }
-  to { transform: translate(108vw, var(--ship-y1, 10vh)); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .ship { transform: translate(18vw, var(--ship-y0, 24vh)); }
-}
-
 /* Portada: la montaña ASCII. El ancho manda; la letra se calcula para que 120 columnas llenen el contenedor. */
 .view[data-view="mountain"] { margin-top: 8px; }
 .mtn {
@@ -528,8 +501,6 @@ html:not([data-view]) .route [data-nav="mountain"] { display: none; }
 :root[data-theme="light"] .mtn-art .rl { color: var(--gold); }
 :root[data-theme="light"] .mtn-art .rs { color: var(--c3); }
 :root[data-theme="light"] .mtn-art .glow { color: var(--gold); }
-/* Solid ground hides the galaxy behind it; the sky cells stay see-through */
-.mtn-art span:not(.plume) { background: var(--bg); }
 .mtn-art .rt { color: var(--gold); text-shadow: 0 0 6px color-mix(in srgb, var(--gold) 70%, transparent); }
 
 .mtn-pts { list-style: none; position: absolute; inset: 0; pointer-events: none; }
@@ -676,5 +647,4 @@ html.mtn-open { overflow: hidden; }
     height: 92px;
   }
   .control-buttons { gap: 14px; }
-  .ship { font-size: 7px; line-height: 7px; }
 }

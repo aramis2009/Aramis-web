@@ -629,100 +629,6 @@ document.addEventListener("click", (e) => {
 });
 addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
 
-// ---------- Space background ----------
-// A spiral galaxy and loose stars fill the viewport behind the page, in characters like
-// the mountain. A small ship crosses the sky with a flickering exhaust.
-(function space() {
-  const box = document.getElementById("space");
-  if (!box) return;
-  const art = box.querySelector(".space-art");
-  const ship = box.querySelector(".ship");
-  const CELL_H = 12; // line height of the 12px art
-  const hash = (x, y) => {
-    const v = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
-    return v - Math.floor(v);
-  };
-  const RAMP = " .·:*+%@";
-
-  function draw() {
-    // The layer spans the whole document so the galaxy stays behind the mountain on scroll
-    const w = innerWidth, h = Math.max(innerHeight, document.documentElement.scrollHeight);
-    box.style.height = h + "px";
-    // The glyph advance depends on the loaded font and the page letter-spacing: measure it
-    art.textContent = "0".repeat(20);
-    const CELL_W = art.getBoundingClientRect().width / 20 || 7.2;
-    const cols = Math.ceil(w / CELL_W) + 1, rows = Math.ceil(h / CELL_H) + 1;
-    // The galaxy sits in a notch of the skyline (the mountain module says where) so the
-    // ridge hides its lower part: seen whole in the saddle on wide screens, peeking out
-    // from behind the peak on phones. Far from the name and portrait either way.
-    const mtn = document.getElementById("mtn");
-    const m = mtn?.getBoundingClientRect();
-    const onMap = m && m.width > 0;
-    let spot = null;
-    try { spot = JSON.parse(mtn?.dataset.galaxy || "null"); } catch (e) {}
-    const R = onMap && spot ? m.width * spot.r : Math.min(w, h) * 0.2;
-    const cx = onMap && spot ? m.left + m.width * spot.x : w * 0.22;
-    const cy = onMap && spot ? m.top + scrollY + m.height * spot.y - R * spot.lift : h * 0.6;
-    const tilt = -0.42, ct = Math.cos(tilt), st = Math.sin(tilt);
-    const lines = [];
-    for (let r = 0; r < rows; r++) {
-      let out = "", cur = null, buf = "";
-      for (let c = 0; c < cols; c++) {
-        const dx = c * CELL_W - cx, dy = r * CELL_H - cy;
-        const gx = (dx * ct - dy * st) / R, gy = (dx * st + dy * ct) / (R * 0.46);
-        const rad = Math.hypot(gx, gy), ang = Math.atan2(gy, gx);
-        // Two logarithmic arms, a bright core and a faint halo
-        const arm = Math.pow(0.5 + 0.5 * Math.cos(2 * ang - 6 * Math.log(rad + 0.08)), 3) * Math.exp(-rad * 1.9);
-        const core = Math.exp(-Math.pow(rad / 0.13, 2)) * 1.4;
-        const d = (core + arm * 1.5 + Math.exp(-rad * 3.2) * 0.4) * (0.55 + 1.1 * hash(c, r));
-        let ch = " ", cls = "";
-        if (d > 0.07) {
-          ch = RAMP[Math.max(1, Math.min(7, Math.round(Math.pow(Math.min(1, d), 0.6) * 7)))];
-          cls = core > 0.25 ? "g-core" : hash(c + 31, r + 17) < 0.5 ? "g-arm" : "g-dust";
-        } else if (hash(c * 1.7 + 5, r * 2.3 + 9) < 0.0045) {
-          ch = hash(c, r + 3) < 0.25 ? "+" : ".";
-          cls = "g-star";
-        }
-        if (cls !== cur) {
-          if (buf) out += cur ? `<span class="${cur}">${buf}</span>` : buf;
-          cur = cls;
-          buf = "";
-        }
-        buf += ch;
-      }
-      lines.push(out + (buf ? (cur ? `<span class="${cur}">${buf}</span>` : buf) : ""));
-    }
-    art.innerHTML = lines.join("\n");
-    // The ship flies at mid-height of the mountain so it disappears behind the peaks
-    if (onMap) {
-      box.style.setProperty("--ship-y0", Math.round(m.top + scrollY + m.height * 0.5) + "px");
-      box.style.setProperty("--ship-y1", Math.round(m.top + scrollY + m.height * 0.28) + "px");
-    }
-  }
-  // Redraw whenever the mountain moves or resizes, since the galaxy is placed relative to it
-  let timer;
-  const redraw = () => { clearTimeout(timer); timer = setTimeout(draw, 150); };
-  draw();
-  addEventListener("resize", redraw);
-  const mtnEl = document.getElementById("mtn");
-  if (mtnEl) new ResizeObserver(redraw).observe(mtnEl);
-  document.fonts?.ready.then(redraw);
-
-  // The exhaust is redrawn a few times per second; the hull never changes
-  const HULL = ["<|   \\___", "|  o  __>", "<|___/"];
-  const flame = (n) => Array.from({ length: n }, () => "~=-:"[Math.floor(Math.random() * 4)]).join("");
-  function drawShip() {
-    const f = [flame(2), flame(4), flame(2)];
-    ship.innerHTML =
-      "      ___\n" +
-      `  <span class="s-fire">${f[0]}</span>${HULL[0]}\n` +
-      `<span class="s-fire">${f[1]}</span>${HULL[1]}\n` +
-      `  <span class="s-fire">${f[2]}</span>${HULL[2]}`;
-  }
-  drawShip();
-  if (!reduce) setInterval(() => { if (!document.hidden) drawShip(); }, 110);
-})();
-
 // ---------- Mountain cover ----------
 // An ASCII Everest drawn from a seeded skyline; every point on the route opens one
 // entry of the journey, oldest at the base and the current role at the summit.
@@ -882,19 +788,6 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
     const summitCols = top.map((r, c) => (r === summitRow ? c : -1)).filter((c) => c >= 0);
     const summitX = summitCols[summitCols.length >> 1];
 
-    // Where the space background parks its galaxy: the lowest notch of the skyline between
-    // the left shoulder and the summit on wide views, the left slope of the peak on phones.
-    let gc, spot;
-    if (view === VIEWS.wide) {
-      gc = Math.round(COLS * 0.2);
-      for (let c = Math.round(COLS * 0.2); c < summitX - COLS * 0.12; c++) if (top[c] > top[gc]) gc = c;
-      spot = { r: 0.105, lift: 0.7 };
-    } else {
-      gc = Math.round(COLS * 0.26);
-      spot = { r: 0.3, lift: -0.2 };
-    }
-    fig.dataset.galaxy = JSON.stringify({ x: +((gc + 0.5) / COLS).toFixed(4), y: +(top[gc] / ROWS).toFixed(4), ...spot });
-
     const startX = Math.round(COLS * view.START), baseRow = ROWS - 5, last = POINTS.length - 1;
     POINTS.forEach((p, i) => {
       const t = i / last;
@@ -914,7 +807,7 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
       }
     }
 
-    // Spindrift blowing off the summit (the stars come from the space background)
+    // Spindrift blowing off the summit
     const sky = new Map();
     for (let k = 2; k < 26; k++) {
       const r = summitRow + Math.round(k * 0.07 + (lattice(k, 3) - 0.5) * 1.6);
