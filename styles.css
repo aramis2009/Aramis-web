@@ -649,4 +649,16 @@ html.mtn-open { overflow: hidden; }
     height: 92px;
   }
   .control-buttons { gap: 14px; }
+  /* Taller rows stretch the close-up peak so the eight points stop crowding each other */
+  .mtn-art { line-height: 1.55; }
+  /* Years sit beside their dot on a solid chip instead of on top of the rock */
+  .pt-year {
+    left: 100%;
+    bottom: 50%;
+    transform: translateY(50%);
+    margin-left: -6px;
+    font-size: 10px;
+    letter-spacing: .08em;
+    border: 1px solid var(--line);
+  }
 }
