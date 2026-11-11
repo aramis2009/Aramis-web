@@ -495,94 +495,15 @@ html[data-view="journey"] .route [data-nav="journey"] { display: none; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
 
-/* Tipografía Inter (sin mayúsculas forzadas); el gráfico ASCII y las etiquetas siguen en mono */
-body {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
-  font-size: 14px;
-  line-height: 1.6;
-  letter-spacing: 0;
-  text-transform: none;
-}
-.page { max-width: 760px; padding-top: clamp(40px, 10vh, 120px); padding-bottom: 56px; }
-.top { margin-bottom: 40px; }
-.portrait { width: 112px; height: 112px; }
-.name { font-size: 24px; font-weight: 600; letter-spacing: -0.02em; }
-.meta { font-size: 14px; margin-top: 8px; }
-.route { margin-top: 10px; font-size: 13px; letter-spacing: 0; }
-h2 { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 8px; }
-.block { margin-bottom: 32px; }
-.timeline .year-title { letter-spacing: 0; font-weight: 600; }
-.timeline h4 { font-size: 15px; font-weight: 500; letter-spacing: -0.01em; }
-.timeline .when,
-.timeline .entry-link,
-.clip-action { letter-spacing: 0; font-size: 13px; }
-.clip-name { font-size: 15px; letter-spacing: 0; }
-.contrib-grid,
-.contrib-meta,
-.contrib-legend,
-.lang-toggle,
-.toast { font-family: var(--font); }
-.contrib-meta,
-.contrib-legend { text-transform: uppercase; letter-spacing: .06em; }
-
-/* Detalles tecnológicos: retrato con marco de visor y títulos numerados */
-.portrait { position: relative; border-color: color-mix(in srgb, var(--gold) 45%, var(--line)); }
-.portrait::before,
-.portrait::after {
-  content: "";
-  position: absolute;
-  pointer-events: none;
-}
-.portrait::before {
-  inset: 0;
-  background: repeating-linear-gradient(0deg, rgba(168, 85, 247, .16) 0 1px, transparent 1px 3px);
-  mix-blend-mode: screen;
-}
-:root[data-theme="light"] .portrait::before { mix-blend-mode: multiply; background: repeating-linear-gradient(0deg, rgba(107, 63, 200, .12) 0 1px, transparent 1px 3px); }
-.portrait::after {
-  inset: 6px;
-  --k: var(--gold);
-  background:
-    linear-gradient(var(--k), var(--k)) top left / 12px 1px no-repeat,
-    linear-gradient(var(--k), var(--k)) top left / 1px 12px no-repeat,
-    linear-gradient(var(--k), var(--k)) top right / 12px 1px no-repeat,
-    linear-gradient(var(--k), var(--k)) top right / 1px 12px no-repeat,
-    linear-gradient(var(--k), var(--k)) bottom left / 12px 1px no-repeat,
-    linear-gradient(var(--k), var(--k)) bottom left / 1px 12px no-repeat,
-    linear-gradient(var(--k), var(--k)) bottom right / 12px 1px no-repeat,
-    linear-gradient(var(--k), var(--k)) bottom right / 1px 12px no-repeat;
-}
-.view { counter-reset: sec; }
-.view .block { counter-increment: sec; }
-.view h2::before {
-  content: counter(sec, decimal-leading-zero);
-  margin-right: 10px;
-  font-family: var(--font);
-  font-size: 11px;
-  font-weight: 400;
-  letter-spacing: .1em;
-  color: var(--purple);
-  vertical-align: 2px;
-}
-.view h2::after {
-  content: "";
-  display: inline-block;
-  width: 40px;
-  height: 1px;
-  margin-left: 12px;
-  vertical-align: middle;
-  background: linear-gradient(90deg, var(--purple), transparent);
-}
-
 /* Mobile */
 @media (max-width: 640px) {
-  body { font-size: 14px; }
+  body { font-size: 13px; }
   .page { padding: 56px 16px 56px; }
   .top { align-items: flex-start; flex-wrap: wrap; row-gap: 16px; }
   .identity { flex: 1 1 100%; gap: 12px; }
   .portrait {
-    width: 84px;
-    height: 84px;
+    width: 92px;
+    height: 92px;
   }
   .control-buttons { gap: 14px; }
 }
