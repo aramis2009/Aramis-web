@@ -766,8 +766,8 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
         if (!p) return null;
         const s = shade(p);
         const cls = s.snow
-          ? s.b > 0.5 ? (p.h > 0.82 ? "glow" : "sn") : "ss"
-          : p.y > 1.45 ? "far" : s.b > 0.2 ? "rl" : "rs";
+          ? s.b > 0.5 ? (p.h > 0.95 ? "glow" : "sn") : "ss"
+          : p.y > 1.45 ? "far" : s.b > 0.2 ? (p.h < 0.22 ? "rl rl-lo" : "rl") : "rs";
         // Outline against the sky, and a few strokes along the fall line on steep rock
         let ch = null;
         const skyL = !solid(r, c - 1), skyR = !solid(r, c + 1);
