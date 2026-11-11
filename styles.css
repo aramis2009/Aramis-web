@@ -5,6 +5,7 @@
   --line: #3a3a3a;
   --hover: #111;
   --gold: #f5c542;
+  --route: #22d3ee; /* cyan: the only cool hue on the mountain, so the path never blends with gold rock */
   --purple: #a855f7;
   --c0: #3a3a3a;
   --c1: #6a3fc4;
@@ -21,6 +22,7 @@
   --line: #c8c8c8;
   --hover: #f0f0f0;
   --gold: #c9971c;
+  --route: #0891b2;
   --purple: #8b3fe0;
   --c0: #cfcfcf;
   --c1: #c9a8f5;
@@ -501,7 +503,7 @@ html:not([data-view]) .route [data-nav="mountain"] { display: none; }
 :root[data-theme="light"] .mtn-art .rl { color: var(--gold); }
 :root[data-theme="light"] .mtn-art .rs { color: var(--c3); }
 :root[data-theme="light"] .mtn-art .glow { color: var(--gold); }
-.mtn-art .rt { color: var(--gold); text-shadow: 0 0 6px color-mix(in srgb, var(--gold) 70%, transparent); }
+.mtn-art .rt { color: var(--route); text-shadow: 0 0 6px color-mix(in srgb, var(--route) 70%, transparent); }
 
 .mtn-pts { list-style: none; position: absolute; inset: 0; pointer-events: none; }
 .mtn-pts li { position: absolute; transform: translate(-50%, -50%); animation: fade .5s ease both; animation-delay: calc(1.2s + var(--i) * .18s); }
@@ -513,12 +515,12 @@ html:not([data-view]) .route [data-nav="mountain"] { display: none; }
   padding: 0;
   background: none;
   border: 0;
-  color: var(--gold);
+  color: var(--route);
   font: inherit;
   cursor: pointer;
   pointer-events: auto;
 }
-.pt-dot { display: block; font-size: 18px; line-height: 32px; text-align: center; text-shadow: 0 0 10px var(--gold); animation: ping 1.8s ease-in-out infinite; }
+.pt-dot { display: block; font-size: 18px; line-height: 32px; text-align: center; text-shadow: 0 0 10px var(--route); animation: ping 1.8s ease-in-out infinite; }
 .mtn-pt--top .pt-dot { font-size: 24px; }
 .pt-year {
   position: absolute;
@@ -542,13 +544,13 @@ html:not([data-view]) .route [data-nav="mountain"] { display: none; }
   letter-spacing: .06em;
   white-space: nowrap;
   color: var(--bg);
-  background: var(--gold);
+  background: var(--route);
   opacity: 0;
   pointer-events: none;
 }
 .mtn-pt:hover .pt-name,
 .mtn-pt:focus-visible .pt-name { opacity: 1; }
-.mtn-pt:focus-visible { outline: 1px solid var(--gold); outline-offset: 2px; }
+.mtn-pt:focus-visible { outline: 1px solid var(--route); outline-offset: 2px; }
 @keyframes ping { 50% { opacity: .45; } }
 
 /* Panel del punto: la montaña queda atenuada detrás */
