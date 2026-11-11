@@ -652,14 +652,17 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
     art.textContent = "0".repeat(20);
     const CELL_W = art.getBoundingClientRect().width / 20 || 7.2;
     const cols = Math.ceil(w / CELL_W) + 1, rows = Math.ceil(h / CELL_H) + 1;
-    // A small galaxy parked far from the name and portrait: in the free margin to the left
-    // of the mountain on wide screens, or low on the left under it on phones.
-    const m = document.getElementById("mtn")?.getBoundingClientRect();
+    // The galaxy sits in a notch of the skyline (the mountain module says where) so the
+    // ridge hides its lower part: seen whole in the saddle on wide screens, peeking out
+    // from behind the peak on phones. Far from the name and portrait either way.
+    const mtn = document.getElementById("mtn");
+    const m = mtn?.getBoundingClientRect();
     const onMap = m && m.width > 0;
-    const wide = onMap && m.left > 190;
-    const cx = wide ? m.left * 0.5 : w * 0.22;
-    const cy = onMap ? m.top + scrollY + (wide ? m.height * 0.22 : m.height + 70) : h * 0.7;
-    const R = wide ? Math.min(170, m.left * 0.42) : Math.min(120, w * 0.3);
+    let spot = null;
+    try { spot = JSON.parse(mtn?.dataset.galaxy || "null"); } catch (e) {}
+    const R = onMap && spot ? m.width * spot.r : Math.min(w, h) * 0.2;
+    const cx = onMap && spot ? m.left + m.width * spot.x : w * 0.22;
+    const cy = onMap && spot ? m.top + scrollY + m.height * spot.y - R * spot.lift : h * 0.6;
     const tilt = -0.42, ct = Math.cos(tilt), st = Math.sin(tilt);
     const lines = [];
     for (let r = 0; r < rows; r++) {
@@ -671,7 +674,7 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
         // Two logarithmic arms, a bright core and a faint halo
         const arm = Math.pow(0.5 + 0.5 * Math.cos(2 * ang - 6 * Math.log(rad + 0.08)), 3) * Math.exp(-rad * 1.9);
         const core = Math.exp(-Math.pow(rad / 0.13, 2)) * 1.4;
-        const d = (core + arm * 1.15 + Math.exp(-rad * 3.2) * 0.3) * (0.45 + 1.1 * hash(c, r));
+        const d = (core + arm * 1.5 + Math.exp(-rad * 3.2) * 0.4) * (0.55 + 1.1 * hash(c, r));
         let ch = " ", cls = "";
         if (d > 0.07) {
           ch = RAMP[Math.max(1, Math.min(7, Math.round(Math.pow(Math.min(1, d), 0.6) * 7)))];
@@ -878,6 +881,19 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
     const summitRow = Math.min(...top);
     const summitCols = top.map((r, c) => (r === summitRow ? c : -1)).filter((c) => c >= 0);
     const summitX = summitCols[summitCols.length >> 1];
+
+    // Where the space background parks its galaxy: the lowest notch of the skyline between
+    // the left shoulder and the summit on wide views, the left slope of the peak on phones.
+    let gc, spot;
+    if (view === VIEWS.wide) {
+      gc = Math.round(COLS * 0.2);
+      for (let c = Math.round(COLS * 0.2); c < summitX - COLS * 0.12; c++) if (top[c] > top[gc]) gc = c;
+      spot = { r: 0.105, lift: 0.7 };
+    } else {
+      gc = Math.round(COLS * 0.26);
+      spot = { r: 0.3, lift: -0.2 };
+    }
+    fig.dataset.galaxy = JSON.stringify({ x: +((gc + 0.5) / COLS).toFixed(4), y: +(top[gc] / ROWS).toFixed(4), ...spot });
 
     const startX = Math.round(COLS * view.START), baseRow = ROWS - 5, last = POINTS.length - 1;
     POINTS.forEach((p, i) => {
