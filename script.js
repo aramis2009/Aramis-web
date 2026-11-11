@@ -581,8 +581,8 @@ function bigGlitch(onMid) {
 }
 
 const HASH_OF = { mountain: "", home: "#about", journey: "#journey" };
-const viewFromHash = () =>
-  location.hash === "#journey" ? "journey" : location.hash === "#about" ? "home" : "mountain";
+// Old #about and #journey links land on the mountain now
+const viewFromHash = () => "mountain";
 let switching = false;
 
 function setView(name) {
