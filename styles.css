@@ -464,6 +464,133 @@ html:not([data-view]) .route [data-nav="mountain"] { display: none; }
 }
 .timeline .entry-link { display: inline-block; margin-top: 8px; font-size: 12px; letter-spacing: .1em; color: var(--muted); }
 
+/* Portada: la montaña ASCII. El ancho manda; la letra se calcula para que 120 columnas llenen el contenedor. */
+.view[data-view="mountain"] { margin-top: 8px; }
+.mtn {
+  position: relative;
+  left: 50%;
+  width: min(1180px, 100vw - 32px);
+  transform: translateX(-50%);
+  container-type: inline-size;
+  transition: opacity .3s ease, filter .3s ease;
+}
+.mtn.dim { opacity: .22; filter: blur(1.5px); }
+.mtn-art {
+  font-size: calc(100cqw / 72); /* fallback until script.js measures the real glyph width */
+  line-height: .95;
+  white-space: pre;
+  width: max-content; /* so script.js can measure the real width of the 120 columns */
+  color: var(--muted);
+  user-select: none;
+  animation: climb 2.4s steps(40, end) both;
+}
+@keyframes climb { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0); } }
+.mtn-art .c0 { color: var(--c0); }
+.mtn-art .c1 { color: var(--c1); }
+.mtn-art .c2 { color: var(--c2); }
+.mtn-art .c3 { color: var(--c3); }
+.mtn-art .c4 { color: var(--c4); }
+.mtn-art .star { color: var(--line); }
+.mtn-art .rt { color: var(--gold); text-shadow: 0 0 6px color-mix(in srgb, var(--gold) 70%, transparent); }
+
+.mtn-pts { list-style: none; position: absolute; inset: 0; pointer-events: none; }
+.mtn-pts li { position: absolute; transform: translate(-50%, -50%); animation: fade .5s ease both; animation-delay: calc(1.2s + var(--i) * .18s); }
+.mtn-pt {
+  position: relative;
+  display: block;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--gold);
+  font: inherit;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.pt-dot { display: block; font-size: 18px; line-height: 32px; text-align: center; text-shadow: 0 0 10px var(--gold); animation: ping 1.8s ease-in-out infinite; }
+.mtn-pt--top .pt-dot { font-size: 24px; }
+.pt-year {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  letter-spacing: .12em;
+  color: var(--fg);
+  background: var(--bg);
+  padding: 0 4px;
+  white-space: nowrap;
+}
+.pt-name {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translateX(-50%);
+  padding: 3px 7px;
+  font-size: 12px;
+  letter-spacing: .06em;
+  white-space: nowrap;
+  color: var(--bg);
+  background: var(--gold);
+  opacity: 0;
+  pointer-events: none;
+}
+.mtn-pt:hover .pt-name,
+.mtn-pt:focus-visible .pt-name { opacity: 1; }
+.mtn-pt:focus-visible { outline: 1px solid var(--gold); outline-offset: 2px; }
+@keyframes ping { 50% { opacity: .45; } }
+
+/* Panel del punto: la montaña queda atenuada detrás */
+html.mtn-open { overflow: hidden; }
+.mtn-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: color-mix(in srgb, var(--bg) 55%, transparent);
+  animation: fade .2s ease both;
+}
+.mtn-panel[hidden] { display: none; }
+.mtn-card {
+  width: min(640px, 100%);
+  max-height: min(86vh, 760px);
+  overflow: auto;
+  background: var(--bg);
+  border: 1px solid var(--c4);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--bg) 70%, transparent), 0 0 40px color-mix(in srgb, var(--purple) 35%, transparent);
+}
+.mtn-bar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 14px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+  letter-spacing: .1em;
+  color: var(--muted);
+}
+.mtn-close { background: none; border: 0; color: var(--gold); font: inherit; letter-spacing: inherit; cursor: pointer; }
+.mtn-close:hover,
+.mtn-close:focus-visible { color: var(--fg); outline: none; }
+.mtn-body { padding: 18px 20px 22px; }
+.mtn-body .when { display: block; font-size: 12px; letter-spacing: .1em; color: var(--muted); }
+.mtn-body h4 { font-size: 14px; font-weight: 400; letter-spacing: .06em; color: var(--c4); margin: 4px 0 6px; }
+.mtn-body p { color: var(--muted); max-width: 70ch; }
+.mtn-body .entry-link { display: inline-block; margin-top: 8px; font-size: 12px; letter-spacing: .1em; color: var(--muted); }
+.mtn-body .entry-link:hover,
+.mtn-body .entry-link:focus-visible {
+  color: var(--fg);
+  background-image: linear-gradient(90deg, var(--gold), var(--purple));
+  outline: none;
+}
+
 /* Glitch grande al cambiar de vista: dos copias de la página (morada y dorada)
    cortadas en franjas, más ruido y líneas de escaneo. Lo arma script.js. */
 .bigglitch { position: fixed; inset: 0; z-index: 200; overflow: hidden; pointer-events: none; }

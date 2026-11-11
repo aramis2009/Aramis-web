@@ -78,6 +78,11 @@
 
     <div class="view" data-view="mountain">
       <h2 class="sr-only" data-i18n="h_map">Map</h2>
+      <!-- Drawn by script.js; every point opens one entry of the journey -->
+      <figure class="mtn" id="mtn">
+        <pre class="mtn-art" aria-hidden="true"></pre>
+        <ol class="mtn-pts" aria-label="Expedition points"></ol>
+      </figure>
     </div>
 
     <div class="view" data-view="home">
@@ -277,6 +282,17 @@
       </section>
     </div>
   </main>
+
+  <!-- Lives outside .page so the big glitch (which transforms .page) does not break its fixed position -->
+  <aside class="mtn-panel" id="mtnPanel" hidden role="dialog" aria-modal="true" aria-label="Project">
+    <div class="mtn-card">
+      <div class="mtn-bar">
+        <span class="mtn-path" id="mtnPath">~/climb</span>
+        <button type="button" class="mtn-close" id="mtnClose" aria-label="Close">[ esc ]</button>
+      </div>
+      <div class="mtn-body" id="mtnBody"></div>
+    </div>
+  </aside>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 

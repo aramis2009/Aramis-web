@@ -476,6 +476,7 @@ langBtn.addEventListener("click", () => {
     words.slice(before).forEach((w, i) => setTimeout(() => reveal(w), i * 10));
   }
   window.__refreshGraphText?.();
+  window.__refreshMountain?.();
 });
 
 // ---------- Vistas (home / journey) con un glitch grande entre las dos ----------
@@ -627,6 +628,202 @@ document.addEventListener("click", (e) => {
   goTo(a.dataset.nav);
 });
 addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
+
+// ---------- Mountain cover ----------
+// An ASCII Everest drawn from a seeded skyline; every point on the route opens one
+// entry of the journey, oldest at the base and the current role at the summit.
+(function mountain() {
+  const fig = document.getElementById("mtn");
+  const panel = document.getElementById("mtnPanel");
+  if (!fig || !panel) return;
+  const art = fig.querySelector(".mtn-art");
+  const list = fig.querySelector(".mtn-pts");
+  const body = document.getElementById("mtnBody");
+  const pathEl = document.getElementById("mtnPath");
+  const closeBtn = document.getElementById("mtnClose");
+  const COLS = 120, ROWS = 40;
+
+  // Seeded so the mountain looks the same on every visit
+  let seed = 11;
+  const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const table = Array.from({ length: 256 }, rand);
+  const smooth = (t) => t * t * (3 - 2 * t);
+  const noise = (x) => {
+    const i = Math.floor(x), f = smooth(x - i);
+    return table[i & 255] * (1 - f) + table[(i + 1) & 255] * f;
+  };
+  const fbm = (x) => noise(x) * 0.55 + noise(x * 2.3 + 17) * 0.3 + noise(x * 5.7 + 5) * 0.15;
+  const hash = (x, y) => table[(Math.imul(x, 73856093) ^ Math.imul(y, 19349663)) & 255];
+
+  const peak = (u, c, w, h) => h * Math.pow(Math.max(0, 1 - Math.abs(u - c) / w), 1.3);
+  const skyline = (u) => {
+    const base = Math.max(peak(u, 0.6, 0.5, 1), peak(u, 0.28, 0.3, 0.66), peak(u, 0.88, 0.28, 0.5));
+    return Math.min(1, base * (0.9 + fbm(u * 9) * 0.2) + fbm(u * 24) * 0.04);
+  };
+  const top = Array.from({ length: COLS }, (_, x) => ROWS - 3 - Math.round(skyline(x / (COLS - 1)) * (ROWS - 8)));
+  const summitX = top.indexOf(Math.min(...top));
+
+  // Darker characters on the face turned away from the light, snow near the top
+  const RAMP = " .:-=+*#%@";
+  const grid = Array.from({ length: ROWS }, () => Array.from({ length: COLS }, () => ({ ch: " ", cls: "" })));
+  for (let x = 0; x < COLS; x++) {
+    const slope = top[Math.min(COLS - 1, x + 1)] - top[Math.max(0, x - 1)];
+    for (let y = 0; y < ROWS; y++) {
+      const cell = grid[y][x];
+      if (y < top[x]) {
+        if (rand() < 0.012 && y < top[x] - 2) { cell.ch = "."; cell.cls = "star"; }
+        continue;
+      }
+      const alt = 1 - y / ROWS;
+      const depth = y - top[x];
+      cell.cls = "c" + (alt < 0.22 ? 0 : alt < 0.42 ? 1 : alt < 0.6 ? 2 : alt < 0.8 ? 3 : 4);
+      if (depth === 0) {
+        cell.ch = slope < 0 ? "/" : slope > 0 ? "\\" : "^";
+        continue;
+      }
+      let v = (slope < 0 ? 0.3 : 0.72) + (hash(x, y) - 0.5) * 0.35 + depth * 0.004;
+      if (alt > 0.56 + fbm(x * 0.35) * 0.12) v *= 0.45; // snow line
+      cell.ch = RAMP[Math.max(0, Math.min(9, Math.round(v * 9)))];
+    }
+  }
+
+  // The journey entries from base camp to the summit
+  const POINTS = [
+    { key: "fortnite_title", year: "2018" },
+    { key: "games_title", year: "2023" },
+    { key: "water_title", year: "2024" },
+    { key: "imp_title", year: "2025" },
+    { key: "crm_title", year: "2026" },
+    { key: "alfi_title", year: "2026" },
+    { key: "j3_title", year: "2026" },
+    { key: "j1_title", year: null },
+  ];
+  const startX = 9;
+  POINTS.forEach((p, i) => {
+    p.li = document.querySelector(`[data-i18n="${p.key}"]`)?.closest("li");
+    p.x = Math.round(startX + ((summitX - startX) * i) / (POINTS.length - 1));
+    p.y = Math.min(ROWS - 2, top[p.x] + (i === POINTS.length - 1 ? 0 : 2));
+  });
+
+  // Dotted route between the points
+  for (let i = 0; i < POINTS.length - 1; i++) {
+    const a = POINTS[i], b = POINTS[i + 1];
+    for (let x = a.x; x <= b.x; x++) {
+      const t = (x - a.x) / Math.max(1, b.x - a.x);
+      const y = Math.round(a.y + (b.y - a.y) * t);
+      grid[y][x].ch = "•";
+      grid[y][x].cls = "rt";
+    }
+  }
+
+  art.innerHTML = grid
+    .map((row) => {
+      let out = "", cur = null, buf = "";
+      for (const c of row) {
+        if (c.cls !== cur) {
+          if (buf) out += cur ? `<span class="${cur}">${buf}</span>` : buf;
+          cur = c.cls;
+          buf = "";
+        }
+        buf += c.ch;
+      }
+      return out + (buf ? (cur ? `<span class="${cur}">${buf}</span>` : buf) : "");
+    })
+    .join("\n");
+
+  // The glyph width depends on the font that actually loaded, so measure it and size the
+  // art to fill the container exactly (markers are placed in percent of the grid).
+  function fit() {
+    const w = fig.clientWidth;
+    if (!w) return;
+    // Glyph advances can round differently per size, so converge in a few passes
+    let size = (w / (COLS * 0.6)) || 12;
+    for (let k = 0; k < 4; k++) {
+      art.style.fontSize = size.toFixed(3) + "px";
+      const natural = art.getBoundingClientRect().width;
+      if (Math.abs(natural - w) < 0.5) break;
+      size *= w / natural;
+    }
+  }
+  new ResizeObserver(fit).observe(fig);
+  document.fonts?.ready.then(fit);
+
+  // Markers laid over the art, positioned in percent of the character grid
+  const buttons = POINTS.map((p, i) => {
+    if (!p.li) return null;
+    const li = document.createElement("li");
+    li.style.cssText = `left:${(((p.x + 0.5) / COLS) * 100).toFixed(2)}%;top:${(((p.y + 0.5) / ROWS) * 100).toFixed(2)}%;--i:${i}`;
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "mtn-pt" + (i === POINTS.length - 1 ? " mtn-pt--top" : "");
+    b.innerHTML = '<span class="pt-dot" aria-hidden="true">◉</span><span class="pt-year"></span><span class="pt-name"></span>';
+    b.addEventListener("click", () => openPoint(i, b));
+    li.append(b);
+    list.append(li);
+    return b;
+  });
+
+  // Labels follow the language (the titles live in the timeline entries)
+  function syncLabels() {
+    POINTS.forEach((p, i) => {
+      const b = buttons[i];
+      if (!b) return;
+      // encrypt() wraps text in a visual (scrambled) copy plus an .sr-only original
+      const h4 = p.li.querySelector("h4");
+      const title = (h4?.querySelector(".sr-only") || h4)?.textContent.trim() || "";
+      b.querySelector(".pt-year").textContent = p.year ?? strs().now;
+      b.querySelector(".pt-name").textContent = title;
+      b.setAttribute("aria-label", `${p.year ?? strs().now} — ${title}`);
+    });
+  }
+  syncLabels();
+  window.__refreshMountain = syncLabels;
+
+  // Panel: the real timeline nodes are moved in (so their video handlers keep working)
+  // and moved back on close.
+  let current = -1, opener = null;
+
+  function show(i) {
+    const p = POINTS[i];
+    current = i;
+    body.replaceChildren(...p.li.childNodes);
+    pathEl.textContent = `~/climb/${p.year ?? "now"}`;
+    panel.hidden = false;
+    fig.classList.add("dim");
+    root.classList.add("mtn-open");
+    const ws = [...body.querySelectorAll(".w")];
+    ws.forEach((w) => {
+      delete w.dataset.done;
+      w.classList.remove("done");
+      w.textContent = randomize(w.dataset.o);
+    });
+    ws.forEach((w, k) => setTimeout(() => reveal(w), 120 + k * 8));
+    closeBtn.focus({ preventScroll: true });
+  }
+
+  function openPoint(i, btn) {
+    if (switching || current !== -1) return;
+    opener = btn;
+    if (reduce) return show(i);
+    switching = true;
+    bigGlitch(() => show(i)).then(() => { switching = false; });
+  }
+
+  function close() {
+    if (current === -1) return;
+    body.querySelectorAll("video").forEach((v) => v.pause());
+    POINTS[current].li.replaceChildren(...body.childNodes);
+    current = -1;
+    panel.hidden = true;
+    fig.classList.remove("dim");
+    root.classList.remove("mtn-open");
+    opener?.focus({ preventScroll: true });
+  }
+
+  closeBtn.addEventListener("click", close);
+  panel.addEventListener("click", (e) => { if (e.target === panel) close(); });
+  addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+})();
 
 // "Último commit": hora exacta del último push (incluye privados si la función
 // /api/last-commit está configurada; si no, solo los públicos). Si el gráfico
