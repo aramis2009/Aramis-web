@@ -21,7 +21,9 @@
       const t = localStorage.getItem("theme");
       if (t) document.documentElement.dataset.theme = t;
     } catch (e) {}
-    if (location.hash === "#journey") document.documentElement.dataset.view = "journey";
+    // Cover = the mountain; #about is the bio page and #journey the plain timeline
+    document.documentElement.dataset.view =
+      location.hash === "#journey" ? "journey" : location.hash === "#about" ? "home" : "mountain";
   </script>
 </head>
 <body>
@@ -43,8 +45,9 @@
           </p>
 
           <nav class="route" aria-label="Sections">
+            <a href="./" data-nav="mountain" data-i18n="nav_map">← Map</a>
+            <a href="#about" data-nav="home" data-i18n="nav_home">About</a>
             <a href="#journey" data-nav="journey" data-i18n="nav_journey">Journey →</a>
-            <a href="./" data-nav="home" data-i18n="nav_home">← Home</a>
           </nav>
         </div>
       </div>
@@ -72,6 +75,10 @@
 
       </div>
     </header>
+
+    <div class="view" data-view="mountain">
+      <h2 class="sr-only" data-i18n="h_map">Map</h2>
+    </div>
 
     <div class="view" data-view="home">
       <section class="block">

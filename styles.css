@@ -356,14 +356,16 @@ p a:focus-visible,
 }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-/* Vistas: home y journey. El atributo data-view de <html> decide cuál se ve. */
-.view[data-view="journey"] { display: none; }
+/* Vistas: mountain (portada), home (sobre mí) y journey. El atributo data-view de <html> decide cuál se ve. */
+.view { display: none; }
+html:not([data-view]) .view[data-view="mountain"],
+html[data-view="mountain"] .view[data-view="mountain"],
+html[data-view="home"] .view[data-view="home"],
 html[data-view="journey"] .view[data-view="journey"] { display: block; }
-html[data-view="journey"] .view[data-view="home"] { display: none; }
 [tabindex="-1"]:focus { outline: none; }
 
 /* Enlaces entre vistas */
-.route { margin-top: 14px; font-size: 12px; letter-spacing: .1em; }
+.route { display: flex; gap: 14px; margin-top: 14px; font-size: 12px; letter-spacing: .1em; }
 .route a { color: var(--muted); }
 .route a:hover,
 .route a:focus-visible,
@@ -373,8 +375,10 @@ html[data-view="journey"] .view[data-view="home"] { display: none; }
   background-image: linear-gradient(90deg, var(--gold), var(--purple));
   outline: none;
 }
-html:not([data-view="journey"]) .route [data-nav="home"],
+html[data-view="mountain"] .route [data-nav="mountain"],
+html[data-view="home"] .route [data-nav="home"],
 html[data-view="journey"] .route [data-nav="journey"] { display: none; }
+html:not([data-view]) .route [data-nav="mountain"] { display: none; }
 
 /* Trayectoria: una sección por año. Todo va en dorado y solo el hito actual (.now)
    lleva el marcador relleno, para mostrar dónde estás ahora. */

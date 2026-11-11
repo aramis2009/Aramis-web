@@ -100,7 +100,9 @@ const ES_HTML = {
   h_edu: "Educación",
   h_links: "Enlaces",
   nav_journey: "Trayectoria →",
-  nav_home: "← Inicio",
+  nav_home: "Sobre mí",
+  nav_map: "← Mapa",
+  h_map: "Mapa",
   h_journey: "Trayectoria",
   j1_title: "Ingeniero de software · Reffactor",
   j1_text:
@@ -577,7 +579,9 @@ function bigGlitch(onMid) {
   });
 }
 
-const viewFromHash = () => (location.hash === "#journey" ? "journey" : "home");
+const HASH_OF = { mountain: "", home: "#about", journey: "#journey" };
+const viewFromHash = () =>
+  location.hash === "#journey" ? "journey" : location.hash === "#about" ? "home" : "mountain";
 let switching = false;
 
 function setView(name) {
@@ -602,7 +606,7 @@ function redecode(name) {
 function goTo(name, { push = true } = {}) {
   if (name === root.dataset.view || switching) return;
   switching = true;
-  if (push) history.pushState(null, "", name === "journey" ? "#journey" : location.pathname + location.search);
+  if (push) history.pushState(null, "", HASH_OF[name] || location.pathname + location.search);
   const swap = () => { setView(name); redecode(name); };
   const done = () => {
     switching = false;
