@@ -464,6 +464,33 @@ html:not([data-view]) .route [data-nav="mountain"] { display: none; }
 }
 .timeline .entry-link { display: inline-block; margin-top: 8px; font-size: 12px; letter-spacing: .1em; color: var(--muted); }
 
+/* Fondo: galaxia ASCII a pantalla completa y una nave que cruza el cielo. Va detrás de todo. */
+.space { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; user-select: none; }
+.space-art { font-size: 12px; line-height: 12px; white-space: pre; opacity: .85; animation: fade 1.6s ease both; }
+.space .g-core { color: var(--c4); }
+.space .g-arm { color: var(--c2); }
+.space .g-dust { color: var(--c1); }
+.space .g-star { color: var(--muted); }
+.ship {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 16px;
+  line-height: 16px;
+  white-space: pre;
+  color: var(--fg);
+  animation: fly 48s linear infinite;
+  animation-delay: -9s; /* already on screen when the page loads */
+}
+.ship .s-fire { color: var(--gold); }
+@keyframes fly {
+  from { transform: translate(-16vw, 36vh); }
+  to { transform: translate(108vw, 10vh); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ship { transform: translate(18vw, 24vh); }
+}
+
 /* Portada: la montaña ASCII. El ancho manda; la letra se calcula para que 120 columnas llenen el contenedor. */
 .view[data-view="mountain"] { margin-top: 8px; }
 .mtn {
@@ -501,6 +528,8 @@ html:not([data-view]) .route [data-nav="mountain"] { display: none; }
 :root[data-theme="light"] .mtn-art .rl { color: var(--gold); }
 :root[data-theme="light"] .mtn-art .rs { color: var(--c3); }
 :root[data-theme="light"] .mtn-art .glow { color: var(--gold); }
+/* Solid ground hides the galaxy behind it; the sky cells stay see-through */
+.mtn-art span:not(.plume) { background: var(--bg); }
 .mtn-art .rt { color: var(--gold); text-shadow: 0 0 6px color-mix(in srgb, var(--gold) 70%, transparent); }
 
 .mtn-pts { list-style: none; position: absolute; inset: 0; pointer-events: none; }

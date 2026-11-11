@@ -629,6 +629,76 @@ document.addEventListener("click", (e) => {
 });
 addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
 
+// ---------- Space background ----------
+// A spiral galaxy and loose stars fill the viewport behind the page, in characters like
+// the mountain. A small ship crosses the sky with a flickering exhaust.
+(function space() {
+  const box = document.getElementById("space");
+  if (!box) return;
+  const art = box.querySelector(".space-art");
+  const ship = box.querySelector(".ship");
+  const CELL_W = 7.2, CELL_H = 12; // 12px monospace glyph
+  const hash = (x, y) => {
+    const v = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
+    return v - Math.floor(v);
+  };
+  const RAMP = " .·:*+%@";
+
+  function draw() {
+    const w = innerWidth, h = innerHeight;
+    const cols = Math.ceil(w / CELL_W) + 1, rows = Math.ceil(h / CELL_H) + 1;
+    // Upper right, tilted and seen at an angle
+    const cx = w * 0.76, cy = h * 0.27, R = Math.min(w, h) * 0.36;
+    const tilt = -0.42, ct = Math.cos(tilt), st = Math.sin(tilt);
+    const lines = [];
+    for (let r = 0; r < rows; r++) {
+      let out = "", cur = null, buf = "";
+      for (let c = 0; c < cols; c++) {
+        const dx = c * CELL_W - cx, dy = r * CELL_H - cy;
+        const gx = (dx * ct - dy * st) / R, gy = (dx * st + dy * ct) / (R * 0.46);
+        const rad = Math.hypot(gx, gy), ang = Math.atan2(gy, gx);
+        // Two logarithmic arms, a bright core and a faint halo
+        const arm = Math.pow(0.5 + 0.5 * Math.cos(2 * ang - 6 * Math.log(rad + 0.08)), 3) * Math.exp(-rad * 1.9);
+        const core = Math.exp(-Math.pow(rad / 0.13, 2)) * 1.4;
+        const d = (core + arm * 1.15 + Math.exp(-rad * 3.2) * 0.3) * (0.45 + 1.1 * hash(c, r));
+        let ch = " ", cls = "";
+        if (d > 0.07) {
+          ch = RAMP[Math.max(1, Math.min(7, Math.round(Math.pow(Math.min(1, d), 0.6) * 7)))];
+          cls = core > 0.25 ? "g-core" : hash(c + 31, r + 17) < 0.5 ? "g-arm" : "g-dust";
+        } else if (hash(c * 1.7 + 5, r * 2.3 + 9) < 0.0045) {
+          ch = hash(c, r + 3) < 0.25 ? "+" : ".";
+          cls = "g-star";
+        }
+        if (cls !== cur) {
+          if (buf) out += cur ? `<span class="${cur}">${buf}</span>` : buf;
+          cur = cls;
+          buf = "";
+        }
+        buf += ch;
+      }
+      lines.push(out + (buf ? (cur ? `<span class="${cur}">${buf}</span>` : buf) : ""));
+    }
+    art.innerHTML = lines.join("\n");
+  }
+  draw();
+  let timer;
+  addEventListener("resize", () => { clearTimeout(timer); timer = setTimeout(draw, 200); });
+
+  // The exhaust is redrawn a few times per second; the hull never changes
+  const HULL = ["<|   \\___", "|  o  __>", "<|___/"];
+  const flame = (n) => Array.from({ length: n }, () => "~=-:"[Math.floor(Math.random() * 4)]).join("");
+  function drawShip() {
+    const f = [flame(2), flame(4), flame(2)];
+    ship.innerHTML =
+      "      ___\n" +
+      `  <span class="s-fire">${f[0]}</span>${HULL[0]}\n` +
+      `<span class="s-fire">${f[1]}</span>${HULL[1]}\n` +
+      `  <span class="s-fire">${f[2]}</span>${HULL[2]}`;
+  }
+  drawShip();
+  if (!reduce) setInterval(() => { if (!document.hidden) drawShip(); }, 110);
+})();
+
 // ---------- Mountain cover ----------
 // An ASCII Everest drawn from a seeded skyline; every point on the route opens one
 // entry of the journey, oldest at the base and the current role at the summit.
@@ -796,7 +866,7 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
     }
   }
 
-  // Spindrift blowing off the summit, and a few stars
+  // Spindrift blowing off the summit (the stars come from the space background)
   const sky = new Map();
   for (let k = 2; k < 26; k++) {
     const r = summitRow + Math.round(k * 0.07 + (lattice(k, 3) - 0.5) * 1.6);
@@ -805,14 +875,6 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
       sky.set(r * COLS + c, { ch: "~-.'"[Math.floor(lattice(k, 5) * 4)], cls: "plume" });
     }
   }
-  for (let r = 0; r < ROWS; r++) {
-    for (let c = 0; c < COLS; c++) {
-      if (!solid(r, c) && r < top[c] - 2 && lattice(c * 3 + 1, r * 5 + 2) < 0.006 && !sky.has(r * COLS + c)) {
-        sky.set(r * COLS + c, { ch: ".", cls: "star" });
-      }
-    }
-  }
-
   // Brightness becomes character density, as in an image-to-ASCII filter. On a dark page
   // dense characters read as bright; on a light page it is the other way around.
   const RAMP = " .:-=+*#%@";
