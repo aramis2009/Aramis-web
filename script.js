@@ -652,12 +652,14 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
     art.textContent = "0".repeat(20);
     const CELL_W = art.getBoundingClientRect().width / 20 || 7.2;
     const cols = Math.ceil(w / CELL_W) + 1, rows = Math.ceil(h / CELL_H) + 1;
-    // Centered behind the summit, tilted and seen at an angle; it scales with the mountain
+    // A small galaxy parked far from the name and portrait: in the free margin to the left
+    // of the mountain on wide screens, or low on the left under it on phones.
     const m = document.getElementById("mtn")?.getBoundingClientRect();
     const onMap = m && m.width > 0;
-    const cx = onMap ? m.left + m.width * (+mtnSummit() || 0.5) : w * 0.5;
-    const cy = onMap ? m.top + scrollY + m.height * 0.1 : h * 0.3;
-    const R = onMap ? Math.max(170, Math.min(520, m.width * 0.46)) : Math.min(w, h) * 0.36;
+    const wide = onMap && m.left > 190;
+    const cx = wide ? m.left * 0.5 : w * 0.22;
+    const cy = onMap ? m.top + scrollY + (wide ? m.height * 0.22 : m.height + 70) : h * 0.7;
+    const R = wide ? Math.min(170, m.left * 0.42) : Math.min(120, w * 0.3);
     const tilt = -0.42, ct = Math.cos(tilt), st = Math.sin(tilt);
     const lines = [];
     for (let r = 0; r < rows; r++) {
@@ -694,8 +696,7 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
       box.style.setProperty("--ship-y1", Math.round(m.top + scrollY + m.height * 0.28) + "px");
     }
   }
-  // The mountain module publishes where its summit is; redraw whenever the mountain resizes
-  const mtnSummit = () => document.getElementById("mtn")?.dataset.summit;
+  // Redraw whenever the mountain moves or resizes, since the galaxy is placed relative to it
   let timer;
   const redraw = () => { clearTimeout(timer); timer = setTimeout(draw, 150); };
   draw();
@@ -877,7 +878,6 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
     const summitRow = Math.min(...top);
     const summitCols = top.map((r, c) => (r === summitRow ? c : -1)).filter((c) => c >= 0);
     const summitX = summitCols[summitCols.length >> 1];
-    fig.dataset.summit = ((summitX + 0.5) / COLS).toFixed(4); // the space background centers its galaxy here
 
     const startX = Math.round(COLS * view.START), baseRow = ROWS - 5, last = POINTS.length - 1;
     POINTS.forEach((p, i) => {
