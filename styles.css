@@ -475,20 +475,20 @@ html:not([data-view]) .route [data-nav="mountain"] { display: none; }
   position: absolute;
   left: 0;
   top: 0;
-  font-size: 16px;
-  line-height: 16px;
+  font-size: 9px;
+  line-height: 9px;
   white-space: pre;
-  color: var(--fg);
+  color: var(--muted);
   animation: fly 48s linear infinite;
   animation-delay: -9s; /* already on screen when the page loads */
 }
 .ship .s-fire { color: var(--gold); }
 @keyframes fly {
-  from { transform: translate(-16vw, 36vh); }
-  to { transform: translate(108vw, 10vh); }
+  from { transform: translate(-16vw, var(--ship-y0, 36vh)); }
+  to { transform: translate(108vw, var(--ship-y1, 10vh)); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .ship { transform: translate(18vw, 24vh); }
+  .ship { transform: translate(18vw, var(--ship-y0, 24vh)); }
 }
 
 /* Portada: la montaña ASCII. El ancho manda; la letra se calcula para que 120 columnas llenen el contenedor. */
@@ -676,5 +676,5 @@ html.mtn-open { overflow: hidden; }
     height: 92px;
   }
   .control-buttons { gap: 14px; }
-  .ship { font-size: 10px; line-height: 10px; }
+  .ship { font-size: 7px; line-height: 7px; }
 }

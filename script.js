@@ -688,6 +688,11 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
       lines.push(out + (buf ? (cur ? `<span class="${cur}">${buf}</span>` : buf) : ""));
     }
     art.innerHTML = lines.join("\n");
+    // The ship flies at mid-height of the mountain so it disappears behind the peaks
+    if (onMap) {
+      box.style.setProperty("--ship-y0", Math.round(m.top + scrollY + m.height * 0.5) + "px");
+      box.style.setProperty("--ship-y1", Math.round(m.top + scrollY + m.height * 0.28) + "px");
+    }
   }
   // The mountain module publishes where its summit is; redraw whenever the mountain resizes
   const mtnSummit = () => document.getElementById("mtn")?.dataset.summit;
