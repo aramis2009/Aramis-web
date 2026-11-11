@@ -100,7 +100,9 @@ const ES_HTML = {
   h_edu: "Educación",
   h_links: "Enlaces",
   nav_journey: "Trayectoria →",
-  nav_home: "← Inicio",
+  nav_home: "Sobre mí",
+  nav_map: "← Mapa",
+  h_map: "Mapa",
   h_journey: "Trayectoria",
   j1_title: "Ingeniero de software · Reffactor",
   j1_text:
@@ -474,6 +476,7 @@ langBtn.addEventListener("click", () => {
     words.slice(before).forEach((w, i) => setTimeout(() => reveal(w), i * 10));
   }
   window.__refreshGraphText?.();
+  window.__refreshMountain?.();
 });
 
 // ---------- Vistas (home / journey) con un glitch grande entre las dos ----------
@@ -577,7 +580,9 @@ function bigGlitch(onMid) {
   });
 }
 
-const viewFromHash = () => (location.hash === "#journey" ? "journey" : "home");
+const HASH_OF = { mountain: "", home: "#about", journey: "#journey" };
+// Old #about and #journey links land on the mountain now
+const viewFromHash = () => "mountain";
 let switching = false;
 
 function setView(name) {
@@ -602,7 +607,7 @@ function redecode(name) {
 function goTo(name, { push = true } = {}) {
   if (name === root.dataset.view || switching) return;
   switching = true;
-  if (push) history.pushState(null, "", name === "journey" ? "#journey" : location.pathname + location.search);
+  if (push) history.pushState(null, "", HASH_OF[name] || location.pathname + location.search);
   const swap = () => { setView(name); redecode(name); };
   const done = () => {
     switching = false;
@@ -623,6 +628,326 @@ document.addEventListener("click", (e) => {
   goTo(a.dataset.nav);
 });
 addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
+
+// ---------- Mountain cover ----------
+// An ASCII Everest drawn from a seeded skyline; every point on the route opens one
+// entry of the journey, oldest at the base and the current role at the summit.
+(function mountain() {
+  const fig = document.getElementById("mtn");
+  const panel = document.getElementById("mtnPanel");
+  if (!fig || !panel) return;
+  const art = fig.querySelector(".mtn-art");
+  const list = fig.querySelector(".mtn-pts");
+  const body = document.getElementById("mtnBody");
+  const pathEl = document.getElementById("mtnPath");
+  const closeBtn = document.getElementById("mtnClose");
+  // Two framings of the same terrain: the whole range on wide screens, and a taller
+  // close-up of the main peak on phones so the characters stay readable.
+  const VIEWS = {
+    wide: { COLS: 140, ROWS: 46, X0: 0, W: 3, RISE: 39.6, DROP: 6, START: 0.2, ZIG: 3 },
+    narrow: { COLS: 64, ROWS: 52, X0: 1.05, W: 1.3, RISE: 41.6, DROP: 5, START: 0.06, ZIG: 2 },
+  };
+  let COLS, ROWS, renderArt = () => {}, buttons = [];
+
+  // The journey entries from base camp to the summit
+  const POINTS = [
+    { key: "fortnite_title", year: "2018" },
+    { key: "games_title", year: "2023" },
+    { key: "water_title", year: "2024" },
+    { key: "imp_title", year: "2025" },
+    { key: "crm_title", year: "2026" },
+    { key: "alfi_title", year: "2026" },
+    { key: "j3_title", year: "2026" },
+    { key: "j1_title", year: null },
+  ];
+  POINTS.forEach((p) => (p.li = document.querySelector(`[data-i18n="${p.key}"]`)?.closest("li")));
+
+  // Seeded so the mountain looks the same on every visit
+  let seed = 7;
+  const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const table = Array.from({ length: 256 }, rand);
+  const perm = Array.from({ length: 256 }, (_, i) => i).sort(() => rand() - 0.5);
+  const smooth = (t) => t * t * (3 - 2 * t);
+  const lattice = (i, j) => table[(perm[i & 255] + j) & 255];
+  const noise = (x, y) => {
+    const i = Math.floor(x), j = Math.floor(y), fx = smooth(x - i), fy = smooth(y - j);
+    const a = lattice(i, j), b = lattice(i + 1, j), c = lattice(i, j + 1), d = lattice(i + 1, j + 1);
+    return a + (b - a) * fx + (c - a) * fy + (a - b - c + d) * fx * fy;
+  };
+  // Ridged noise has sharp crests, which is what eroded rock looks like
+  const ridged = (x, y) => {
+    let sum = 0, amp = 0.5, f = 1;
+    for (let o = 0; o < 5; o++) {
+      const n = 1 - Math.abs(2 * noise(x * f + o * 13.7, y * f + o * 7.3) - 1);
+      sum += n * n * amp;
+      amp *= 0.5;
+      f *= 2.1;
+    }
+    return sum;
+  };
+
+  // The terrain is a real heightfield: flat-faced pyramids (so faces catch the light
+  // like Everest's) roughened with ridged noise. [x, depth, height, radius, faces, rotation]
+  const PEAKS = [
+    [1.72, 1.25, 1.0, 0.98, 4, 1.05],
+    [1.0, 0.9, 0.58, 0.62, 3, 0.0],
+    [2.5, 1.05, 0.68, 0.66, 4, 1.1],
+    [0.28, 1.5, 0.5, 0.6, 3, 0.9],
+    [3.0, 1.6, 0.44, 0.55, 3, 0.1],
+    [0.5, 0.3, 0.2, 0.42, 3, 0.4],
+    [2.3, 0.26, 0.2, 0.45, 3, 1.3],
+    [1.45, 0.42, 0.14, 0.4, 3, 2.0],
+  ];
+  const height = (x, y) => {
+    const wx = x + (noise(x * 1.7 + 40, y * 1.7) - 0.5) * 0.3;
+    const wy = y + (noise(x * 1.7, y * 1.7 + 90) - 0.5) * 0.3;
+    let h = 0;
+    for (const [cx, cy, ph, r, faces, rot] of PEAKS) {
+      const dx = wx - cx, dy = wy - cy;
+      let d = 0;
+      for (let k = 0; k < faces; k++) {
+        const a = rot + (k * 2 * Math.PI) / faces;
+        d = Math.max(d, (dx * Math.cos(a) + dy * Math.sin(a)) / (r * (0.8 + 0.4 * table[(k * 37 + faces * 11) & 255])));
+      }
+      h = Math.max(h, ph * Math.pow(Math.max(0, 1 - d), 1.12));
+    }
+    return h + ridged(x * 2.4, y * 2.4) * (0.12 + 0.24 * h);
+  };
+
+  // Everything that depends on the framing: projection, shading, route and markers
+  function build(view) {
+    ({ COLS, ROWS } = view);
+    // Side view: walk each column from the camera into the distance and keep what is
+    // not hidden behind nearer terrain.
+    const { X0, W, RISE, DROP } = view;
+    const D = 2, STEPS = 320, TILT = 2.2;
+    const hit = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+    for (let cx = 0; cx < COLS; cx++) {
+      const x = X0 + ((cx + 0.5) / COLS) * W;
+      let minRow = ROWS;
+      for (let s = 0; s <= STEPS; s++) {
+        const y = (s / STEPS) * D;
+        const h = height(x, y);
+        const r = Math.round(ROWS + DROP - h * RISE - y * TILT);
+        if (r < minRow) {
+          for (let k = Math.max(0, r); k < minRow; k++) hit[k][cx] = { x, y, h };
+          minRow = r;
+        }
+      }
+    }
+
+    // Low sun from the left: brightness per cell from the surface normal, a cast shadow,
+    // snow above the snow line (bare rock where it is too steep) and haze with distance.
+    const SUN = (() => { const v = [-0.72, -0.32, 0.5], m = Math.hypot(...v); return v.map((c) => c / m); })();
+    const shade = (p) => {
+      const e = 0.012;
+      const hx = (height(p.x + e, p.y) - height(p.x - e, p.y)) / (2 * e);
+      const hy = (height(p.x, p.y + e) - height(p.x, p.y - e)) / (2 * e);
+      const m = Math.hypot(hx, hy, 1);
+      let lit = Math.max(0, (-hx * SUN[0] - hy * SUN[1] + SUN[2]) / m);
+      if (lit > 0) {
+        for (let t = 0.03; t < 0.9; t += 0.03) {
+          if (height(p.x + SUN[0] * t, p.y + SUN[1] * t) > p.h + SUN[2] * t + 0.01) { lit *= 0.25; break; }
+        }
+      }
+      const snow = p.h > 0.3 + 0.2 * noise(p.x * 3.1, p.y * 3.1) && 1 / m > 0.3 + 0.16 * noise(p.x * 9, p.y * 9);
+      // Rock is not one flat tone: strata bands by altitude plus gullies
+      const rock = 0.12 + 0.42 * ridged(p.x * 6, p.y * 6) + 0.05 * noise(p.h * 34 + noise(p.x * 3, p.y * 3) * 3, 1.5);
+      const fog = Math.max(0, Math.min(1, (p.y - 0.5) / 1.7)) * 0.5;
+      // Skylight keeps some relief inside the shadows instead of one flat tone
+      const ambient = 0.05 + 0.22 * (1 / m) * (0.5 + noise(p.x * 11, p.y * 11));
+      const b = (snow ? 1 : rock) * (ambient + 0.9 * lit) * (1 - fog) + 0.16 * fog;
+      return { b, snow, hx, steep: 1 / m < 0.62 };
+    };
+
+    const solid = (r, c) => r >= 0 && r < ROWS && c >= 0 && c < COLS && hit[r][c] !== null;
+    const cells = hit.map((row, r) =>
+      row.map((p, c) => {
+        if (!p) return null;
+        const s = shade(p);
+        const cls = s.snow
+          ? s.b > 0.5 ? (p.h > 0.82 ? "glow" : "sn") : "ss"
+          : p.y > 1.45 ? "far" : s.b > 0.2 ? "rl" : "rs";
+        // Outline against the sky, and a few strokes along the fall line on steep rock
+        let ch = null;
+        const skyL = !solid(r, c - 1), skyR = !solid(r, c + 1);
+        if (skyL && skyR) ch = "^";
+        else if (skyL) ch = "/";
+        else if (skyR) ch = "\\";
+        else if (!s.snow && s.steep && lattice(c * 7, r * 13) < 0.16) ch = s.hx > 0 ? "/" : "\\";
+        return { b: s.b, cls, ch };
+      })
+    );
+
+    const top = Array.from({ length: COLS }, (_, c) => {
+      let r = 0;
+      while (r < ROWS && !cells[r][c]) r++;
+      return r;
+    });
+    const summitRow = Math.min(...top);
+    const summitCols = top.map((r, c) => (r === summitRow ? c : -1)).filter((c) => c >= 0);
+    const summitX = summitCols[summitCols.length >> 1];
+
+    const startX = Math.round(COLS * view.START), baseRow = ROWS - 5, last = POINTS.length - 1;
+    POINTS.forEach((p, i) => {
+      const t = i / last;
+      // Slight switchbacks, like a real route
+      const zig = i === 0 || i === last ? 0 : (i % 2 ? view.ZIG : -view.ZIG);
+      p.x = Math.round(startX + (summitX - startX) * t + zig);
+      p.y = i === last ? summitRow : Math.max(top[p.x] + 1, Math.round(baseRow + (summitRow - baseRow) * Math.pow(t, 0.85)));
+    });
+    const route = new Set();
+    for (let i = 0; i < last; i++) {
+      const a = POINTS[i], b = POINTS[i + 1];
+      const n = Math.max(Math.abs(b.x - a.x), Math.abs(b.y - a.y));
+      for (let k = 0; k <= n; k++) {
+        const x = Math.round(a.x + ((b.x - a.x) * k) / n);
+        const y = Math.max(top[x], Math.round(a.y + ((b.y - a.y) * k) / n));
+        route.add(y * COLS + x);
+      }
+    }
+
+    // Spindrift blowing off the summit
+    const sky = new Map();
+    for (let k = 2; k < 26; k++) {
+      const r = summitRow + Math.round(k * 0.07 + (lattice(k, 3) - 0.5) * 1.6);
+      const c = summitX + k;
+      if (r >= 0 && c < COLS && !solid(r, c) && lattice(k, 9) < 0.85 * (1 - k / 26)) {
+        sky.set(r * COLS + c, { ch: "~-.'"[Math.floor(lattice(k, 5) * 4)], cls: "plume" });
+      }
+    }
+    // Brightness becomes character density, as in an image-to-ASCII filter. On a dark page
+    // dense characters read as bright; on a light page it is the other way around.
+    const RAMP = " .:-=+*#%@";
+    function render() {
+      const dark = root.dataset.theme !== "light";
+      const rows = [];
+      for (let r = 0; r < ROWS; r++) {
+        let out = "", cur = null, buf = "";
+        for (let c = 0; c < COLS; c++) {
+          let ch = " ", cls = "";
+          const cell = cells[r][c];
+          if (route.has(r * COLS + c)) { ch = "•"; cls = "rt"; }
+          else if (cell) {
+            const level = Math.max(1, Math.min(9, Math.round(Math.pow(cell.b, 0.75) * 9)));
+            ch = cell.ch || RAMP[dark ? level : 10 - level];
+            cls = cell.cls;
+          } else if (sky.has(r * COLS + c)) ({ ch, cls } = sky.get(r * COLS + c));
+          if (cls !== cur) {
+            if (buf) out += cur ? `<span class="${cur}">${buf}</span>` : buf;
+            cur = cls;
+            buf = "";
+          }
+          buf += ch === "<" ? "&lt;" : ch === "&" ? "&amp;" : ch;
+        }
+        rows.push(out + (buf ? (cur ? `<span class="${cur}">${buf}</span>` : buf) : ""));
+      }
+      art.innerHTML = rows.join("\n");
+    }
+    render();
+    renderArt = render;
+
+    // Markers laid over the art, positioned in percent of the character grid
+    list.replaceChildren();
+    buttons = POINTS.map((p, i) => {
+      if (!p.li) return null;
+      const li = document.createElement("li");
+      li.style.cssText = `left:${(((p.x + 0.5) / COLS) * 100).toFixed(2)}%;top:${(((p.y + 0.5) / ROWS) * 100).toFixed(2)}%;--i:${i}`;
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "mtn-pt" + (i === POINTS.length - 1 ? " mtn-pt--top" : "");
+      b.innerHTML = '<span class="pt-dot" aria-hidden="true">◉</span><span class="pt-year"></span><span class="pt-name"></span>';
+      b.addEventListener("click", () => openPoint(i, b));
+      li.append(b);
+      list.append(li);
+      return b;
+    });
+    syncLabels();
+    fit();
+  }
+
+  // The glyph width depends on the font that actually loaded, so measure it and size the
+  // art to fill the container exactly (markers are placed in percent of the grid).
+  function fit() {
+    const w = fig.clientWidth;
+    if (!w) return;
+    // Glyph advances can round differently per size, so converge in a few passes
+    let size = (w / (COLS * 0.6)) || 12;
+    for (let k = 0; k < 4; k++) {
+      art.style.fontSize = size.toFixed(3) + "px";
+      const natural = art.getBoundingClientRect().width;
+      if (Math.abs(natural - w) < 0.5) break;
+      size *= w / natural;
+    }
+  }
+
+  // Labels follow the language (the titles live in the timeline entries)
+  function syncLabels() {
+    POINTS.forEach((p, i) => {
+      const b = buttons[i];
+      if (!b) return;
+      // encrypt() wraps text in a visual (scrambled) copy plus an .sr-only original
+      const h4 = p.li.querySelector("h4");
+      const title = (h4?.querySelector(".sr-only") || h4)?.textContent.trim() || "";
+      b.querySelector(".pt-year").textContent = p.year ?? strs().now;
+      b.querySelector(".pt-name").textContent = title;
+      b.setAttribute("aria-label", `${p.year ?? strs().now} — ${title}`);
+    });
+  }
+  window.__refreshMountain = syncLabels;
+
+  const narrow = matchMedia("(max-width: 640px)");
+  build(narrow.matches ? VIEWS.narrow : VIEWS.wide);
+  narrow.addEventListener("change", (e) => build(e.matches ? VIEWS.narrow : VIEWS.wide));
+  new MutationObserver(() => renderArt()).observe(root, { attributes: true, attributeFilter: ["data-theme"] });
+  new ResizeObserver(fit).observe(fig);
+  document.fonts?.ready.then(fit);
+
+  // Panel: the real timeline nodes are moved in (so their video handlers keep working)
+  // and moved back on close.
+  let current = -1, opener = null;
+
+  function show(i) {
+    const p = POINTS[i];
+    current = i;
+    body.replaceChildren(...p.li.childNodes);
+    pathEl.textContent = `~/climb/${p.year ?? "now"}`;
+    panel.hidden = false;
+    fig.classList.add("dim");
+    root.classList.add("mtn-open");
+    const ws = [...body.querySelectorAll(".w")];
+    ws.forEach((w) => {
+      delete w.dataset.done;
+      w.classList.remove("done");
+      w.textContent = randomize(w.dataset.o);
+    });
+    ws.forEach((w, k) => setTimeout(() => reveal(w), 120 + k * 8));
+    closeBtn.focus({ preventScroll: true });
+  }
+
+  function openPoint(i, btn) {
+    if (switching || current !== -1) return;
+    opener = btn;
+    if (reduce) return show(i);
+    switching = true;
+    bigGlitch(() => show(i)).then(() => { switching = false; });
+  }
+
+  function close() {
+    if (current === -1) return;
+    body.querySelectorAll("video").forEach((v) => v.pause());
+    POINTS[current].li.replaceChildren(...body.childNodes);
+    current = -1;
+    panel.hidden = true;
+    fig.classList.remove("dim");
+    root.classList.remove("mtn-open");
+    opener?.focus({ preventScroll: true });
+  }
+
+  closeBtn.addEventListener("click", close);
+  panel.addEventListener("click", (e) => { if (e.target === panel) close(); });
+  addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+})();
 
 // "Último commit": hora exacta del último push (incluye privados si la función
 // /api/last-commit está configurada; si no, solo los públicos). Si el gráfico
