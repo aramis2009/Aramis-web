@@ -840,17 +840,6 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
         route.add(y * COLS + x);
       }
     }
-    // The unclimbed stretch from "now" to the summit, drawn fainter than the walked route
-    const ahead = new Set();
-    {
-      const a = POINTS[last], n = Math.max(Math.abs(summitX - a.x), Math.abs(summitRow - a.y));
-      for (let k = 1; k <= n; k++) {
-        const x = Math.round(a.x + ((summitX - a.x) * k) / n);
-        const y = Math.max(top[x], Math.round(a.y + ((summitRow - a.y) * k) / n));
-        if (!route.has(y * COLS + x)) ahead.add(y * COLS + x);
-      }
-    }
-
     // Spindrift blowing off the summit
     const sky = new Map();
     for (let k = 2; k < 26; k++) {
@@ -872,7 +861,6 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
           let ch = " ", cls = "";
           const cell = cells[r][c];
           if (route.has(r * COLS + c)) { ch = "•"; cls = "rt"; }
-          else if (ahead.has(r * COLS + c)) { ch = "·"; cls = "rtn"; }
           else if (cell) {
             const level = Math.max(1, Math.min(9, Math.round(Math.pow(cell.b, 0.75) * 9)));
             ch = cell.ch || RAMP[dark ? level : 10 - level];
