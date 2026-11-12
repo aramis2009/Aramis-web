@@ -644,7 +644,8 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
   // Two framings of the same terrain: the whole range on wide screens, and a taller
   // close-up of the main peak on phones so the characters stay readable.
   const VIEWS = {
-    wide: { COLS: 140, ROWS: 83, X0: -0.1, W: 3.2, RISE: 71.6, DROP: 11, K: 1.81, START: 0.2, ZIG: 3 },
+    // Full-bleed: 200 columns keep the glyph size of the old 140 over a 2000px-wide cover
+    wide: { COLS: 200, ROWS: 64, X0: -1.5, W: 6, RISE: 68, DROP: 8.4, K: 1.38, START: 0.29, ZIG: 4 },
     narrow: { COLS: 64, ROWS: 80, X0: 0.5, W: 2.4, RISE: 64, DROP: 7.7, K: 1.55, START: 0.06, ZIG: 2 },
   };
   let COLS, ROWS, renderArt = () => {}, buttons = [];
@@ -687,7 +688,8 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
   };
 
   // The terrain is a real heightfield: flat-faced pyramids (so faces catch the light
-  // like Everest's) roughened with ridged noise. [x, depth, height, radius, faces, rotation]
+  // like Everest's) roughened with ridged noise.
+  // [x, depth, height, radius, faces, rotation, falloff (optional; above 1 is concave)]
   const PEAKS = [
     [1.72, 1.25, 1.0, 0.98, 4, 1.05],
     [1.0, 0.9, 0.58, 0.62, 3, 0.0],
@@ -698,18 +700,26 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
     [2.3, 0.26, 0.2, 0.45, 3, 1.3],
     [1.45, 0.42, 0.14, 0.4, 3, 2.0],
   ];
+  // The full-bleed desktop framing is one colossal mountain, not a range: the main peak
+  // rises from a vast massif whose flanks run off both edges. The massif falls off
+  // concavely, like a real mountain: steep near the top and gentle toward the valleys.
+  const WIDE_PEAKS = [
+    [1.72, 1.25, 1.0, 0.98, 4, 1.05],
+    [1.72, 1.2, 0.62, 5.4, 4, 1.05, 1.6],
+  ];
+  let peaks = PEAKS;
   const height = (x, y) => {
     const wx = x + (noise(x * 1.7 + 40, y * 1.7) - 0.5) * 0.3;
     const wy = y + (noise(x * 1.7, y * 1.7 + 90) - 0.5) * 0.3;
     let h = 0;
-    for (const [cx, cy, ph, r, faces, rot] of PEAKS) {
+    for (const [cx, cy, ph, r, faces, rot, fall = 1.12] of peaks) {
       const dx = wx - cx, dy = wy - cy;
       let d = 0;
       for (let k = 0; k < faces; k++) {
         const a = rot + (k * 2 * Math.PI) / faces;
         d = Math.max(d, (dx * Math.cos(a) + dy * Math.sin(a)) / (r * (0.8 + 0.4 * table[(k * 37 + faces * 11) & 255])));
       }
-      h = Math.max(h, ph * Math.pow(Math.max(0, 1 - d), 1.12));
+      h = Math.max(h, ph * Math.pow(Math.max(0, 1 - d), fall));
     }
     return h + ridged(x * 2.4, y * 2.4) * (0.12 + 0.24 * h);
   };
@@ -717,6 +727,7 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
   // Everything that depends on the framing: projection, shading, route and markers
   function build(view) {
     ({ COLS, ROWS } = view);
+    peaks = view === VIEWS.wide ? WIDE_PEAKS : PEAKS;
     // Side view: walk each column from the camera into the distance and keep what is
     // not hidden behind nearer terrain.
     const { X0, W, RISE, DROP } = view;

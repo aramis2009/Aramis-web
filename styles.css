@@ -645,6 +645,12 @@ html.mtn-open { overflow: hidden; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
 
+/* On desktop the mountain runs edge to edge so no empty sky is left on the sides */
+@media (min-width: 641px) {
+  body { overflow-x: clip; }
+  .mtn { width: min(2400px, 100vw); }
+}
+
 /* Mobile */
 @media (max-width: 640px) {
   body { font-size: 13px; }
