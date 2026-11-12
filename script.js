@@ -1,77 +1,3 @@
-// Rebuild the portrait as a color halftone made of small dots.
-const dotPortraitPixels = new WeakMap();
-
-function makeDotPortrait(img) {
-  const width = 720;
-  const height = 720;
-  const cell = 3;
-  let pixels = dotPortraitPixels.get(img);
-  if (!pixels) {
-    const source = document.createElement("canvas");
-    source.width = width;
-    source.height = height;
-    const sourceContext = source.getContext("2d", { willReadFrequently: true });
-    const cropSize = Math.min(img.naturalWidth, img.naturalHeight);
-    const cropX = (img.naturalWidth - cropSize) / 2;
-    const cropY = (img.naturalHeight - cropSize) * 0.82;
-    sourceContext.drawImage(img, cropX, cropY, cropSize, cropSize, 0, 0, width, height);
-    pixels = sourceContext.getImageData(0, 0, width, height).data;
-    dotPortraitPixels.set(img, pixels);
-  }
-  const art = document.createElement("canvas");
-  art.width = width;
-  art.height = height;
-  const context = art.getContext("2d");
-  const palette = ["--c0", "--c1", "--c2", "--c3", "--c4"].map((name) =>
-    getComputedStyle(document.documentElement).getPropertyValue(name).trim()
-  );
-  const paletteChannels = palette.map((color) => [
-    parseInt(color.slice(1, 3), 16),
-    parseInt(color.slice(3, 5), 16),
-    parseInt(color.slice(5, 7), 16),
-  ]);
-
-  for (let y = cell / 2; y < height; y += cell) {
-    for (let x = cell / 2; x < width; x += cell) {
-      const offset = (Math.floor(y) * width + Math.floor(x)) * 4;
-      const red = pixels[offset];
-      const green = pixels[offset + 1];
-      const blue = pixels[offset + 2];
-      const brightness = (red * 0.299 + green * 0.587 + blue * 0.114) / 255;
-      const nx = x / width;
-      const ny = y / height;
-      const faceHighlight = nx > 0.34 && nx < 0.64 && ny > 0.46 && ny < 0.93 &&
-        brightness > 0.28 && red > green * 0.98 && red > blue * 1.02;
-      const clothingShadow = nx > 0.12 && nx < 0.66 && ny > 0.5 && brightness < 0.32;
-      let level = Math.min(4, Math.floor(brightness * 5));
-      if (clothingShadow) level = Math.max(1, level);
-      if (faceHighlight) level = Math.min(3, Math.max(2, level));
-      const radius = 0.38 + (1 - brightness) * 1.62;
-      context.globalAlpha = 0.55 + (1 - brightness) * 0.45;
-      let color = palette[level];
-      if (faceHighlight) {
-        const nextLevel = Math.min(4, level + 1);
-        const faceColor = paletteChannels[level].map((channel, index) =>
-          Math.round(channel + (paletteChannels[nextLevel][index] - channel) * 0.3)
-        );
-        color = `rgb(${faceColor.join(", ")})`;
-      }
-      context.fillStyle = color;
-      context.beginPath();
-      context.arc(x, y, radius, 0, Math.PI * 2);
-      context.fill();
-    }
-  }
-  context.globalAlpha = 1;
-
-  img.src = art.toDataURL("image/png");
-}
-
-document.querySelectorAll("[data-dot-art]").forEach((img) => {
-  if (img.complete && img.naturalWidth) makeDotPortrait(img);
-  else img.addEventListener("load", () => makeDotPortrait(img), { once: true });
-});
-
 // Tema claro / oscuro
 const root = document.documentElement;
 const toggle = document.getElementById("themeToggle");
@@ -83,9 +9,6 @@ function currentTheme() {
 toggle.addEventListener("click", () => {
   const next = currentTheme() === "dark" ? "light" : "dark";
   root.dataset.theme = next;
-  document.querySelectorAll("[data-dot-art]").forEach((img) => {
-    if (img.complete && img.naturalWidth) makeDotPortrait(img);
-  });
   try { localStorage.setItem("theme", next); } catch (e) {}
 });
 
@@ -238,7 +161,8 @@ document.addEventListener("click", async (e) => {
 
 // Glitch automático: cada elemento [data-glitch] salta a su texto
 // alternativo (data-alt) con separación de colores y vuelve al real.
-const GLITCH_COLORS = ["#00e5ff", "#ff2a6d", "#b6ff00", "#ffe600", "#a855f7"];
+// Same palette as the mountain: route red, purples and golds
+const GLITCH_COLORS = ["#ff3b3b", "#a855f7", "#c084fc", "#f5c542", "#ffd45c"];
 
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const rnd = (min, max) => Math.random() * (max - min) + min;

@@ -68,31 +68,20 @@ body {
 .identity { display: flex; align-items: center; gap: 20px; min-width: 0; }
 .controls { display: flex; align-items: center; flex: 0 0 auto; }
 .control-buttons { display: flex; align-items: center; gap: 20px; }
-.portrait {
-  width: 132px;
-  height: 132px;
-  flex: 0 0 auto;
-  overflow: hidden;
-  border: 1px solid var(--line);
-  background: transparent;
-}
-.portrait img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 82%;
-}
 
 .name {
-  font-size: 17px;
+  /* VT323 is a terminal bitmap face: it sits with the text-mode characters of the mountain.
+     Its glyphs are small for their em, hence the size. */
+  font-family: "VT323", var(--font);
+  font-size: clamp(22px, 5.6vw, 28px);
   font-weight: 400;
-  letter-spacing: 0.08em;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
 }
 
-.cursor { animation: blink 1.1s steps(1) infinite; }
-
-/* Glitch del nombre */
+/* The blinking cursor stays white like the name, so red is kept for the route */
+.cursor { color: var(--fg); animation: blink 1.1s steps(1) infinite; }
 .name { cursor: default; }
 .glitch {
   position: relative;
@@ -126,11 +115,12 @@ body {
 :root[data-theme="light"] .glitch.glitching::after { mix-blend-mode: multiply; }
 
 .meta {
-  margin-top: 18px;
+  margin-top: 16px;
   color: var(--muted);
   font-size: 14px;
   display: flex;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 2px 10px;
 }
 .dot { opacity: .5; }
 
@@ -656,11 +646,11 @@ html.mtn-open { overflow: hidden; }
   .page { padding: 56px 16px 56px; }
   .top { align-items: flex-start; flex-wrap: wrap; row-gap: 16px; }
   .identity { flex: 1 1 100%; gap: 12px; }
-  .portrait {
-    width: 92px;
-    height: 92px;
-  }
   .control-buttons { gap: 14px; }
+  /* Language and theme sit in the top-right corner, in the page's top padding, so the
+     name keeps the whole row below */
+  .top { position: relative; }
+  .controls { position: absolute; top: -42px; right: 0; }
   /* Taller rows stretch the close-up peak so the eight points stop crowding each other */
   .mtn-art { line-height: 1.55; }
   /* Years sit beside their dot on a solid chip instead of on top of the rock */
