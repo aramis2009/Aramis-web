@@ -645,8 +645,8 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
   // close-up of the main peak on phones so the characters stay readable.
   const VIEWS = {
     // Full-bleed: 200 columns keep the glyph size of the old 140 over a 2000px-wide cover
-    wide: { COLS: 200, ROWS: 64, X0: -1.5, W: 6, RISE: 68, DROP: 8.4, K: 1.38, START: 0.29, ZIG: 4 },
-    narrow: { COLS: 64, ROWS: 70, X0: 0.3, W: 2.8, RISE: 56, DROP: 6.7, K: 1.36, START: 0.06, ZIG: 2 },
+    wide: { COLS: 200, ROWS: 64, X0: -1.5, W: 6, RISE: 68, DROP: 8.4, K: 1.38, SNOW: 0.46, START: 0.29, ZIG: 4 },
+    narrow: { COLS: 64, ROWS: 70, X0: 0.3, W: 2.8, RISE: 56, DROP: 6.7, K: 1.36, SNOW: 0.3, START: 0.06, ZIG: 2 },
   };
   let COLS, ROWS, renderArt = () => {}, buttons = [];
 
@@ -709,8 +709,9 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
   ];
   let peaks = PEAKS;
   const height = (x, y) => {
-    const wx = x + (noise(x * 1.7 + 40, y * 1.7) - 0.5) * 0.3;
-    const wy = y + (noise(x * 1.7, y * 1.7 + 90) - 0.5) * 0.3;
+    // Two octaves of warp so ridgelines wander instead of running ruler-straight
+    const wx = x + (noise(x * 1.7 + 40, y * 1.7) - 0.5) * 0.3 + (noise(x * 4.3 + 11, y * 4.3 + 60) - 0.5) * 0.1;
+    const wy = y + (noise(x * 1.7, y * 1.7 + 90) - 0.5) * 0.3 + (noise(x * 4.3 + 70, y * 4.3 + 23) - 0.5) * 0.1;
     let h = 0;
     for (const [cx, cy, ph, r, faces, rot, fall = 1.12] of peaks) {
       const dx = wx - cx, dy = wy - cy;
@@ -721,6 +722,9 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
       }
       h = Math.max(h, ph * Math.pow(Math.max(0, 1 - d), fall));
     }
+    // Broad ridged swells carve spurs and hollows into the flanks, so the outline is
+    // irregular like eroded terrain rather than a clean geometric cone
+    h *= 0.8 + 0.45 * ridged(x * 0.9 + 31, y * 0.9 + 17);
     return h + ridged(x * 2.4, y * 2.4) * (0.12 + 0.24 * h);
   };
 
@@ -732,19 +736,27 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
     // not hidden behind nearer terrain.
     const { X0, W, RISE, DROP } = view;
     // K stretches the whole projection vertically so the peak towers over the route
-    const D = 2, STEPS = 320, TILT = 2.2 * view.K;
+    // The walk starts in front of the scene (negative depth) so the bottom rows show real
+    // foreground slopes instead of a flat cut through the terrain.
+    const NEAR = -1, D = 2, STEPS = 480, TILT = 2.2 * view.K;
     const hit = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
     for (let cx = 0; cx < COLS; cx++) {
       const x = X0 + ((cx + 0.5) / COLS) * W;
-      let minRow = ROWS;
+      let minRow = ROWS, py = NEAR;
       for (let s = 0; s <= STEPS; s++) {
-        const y = (s / STEPS) * D;
+        const y = NEAR + (s / STEPS) * (D - NEAR);
         const h = height(x, y);
         const r = Math.round(ROWS + DROP - h * RISE - y * TILT);
         if (r < minRow) {
-          for (let k = Math.max(0, r); k < minRow; k++) hit[k][cx] = { x, y, h };
+          // One step can uncover several rows on a steep face. Each row gets its own
+          // point along the slope; reusing one sample painted vertical streaks.
+          for (let k = Math.max(0, r); k < minRow; k++) {
+            const yi = py + (y - py) * ((minRow - k) / (minRow - r));
+            hit[k][cx] = { x, y: yi, h: height(x, yi) };
+          }
           minRow = r;
         }
+        py = y;
       }
     }
 
@@ -762,9 +774,9 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
           if (height(p.x + SUN[0] * t, p.y + SUN[1] * t) > p.h + SUN[2] * t + 0.01) { lit *= 0.25; break; }
         }
       }
-      const snow = p.h > 0.3 + 0.2 * noise(p.x * 3.1, p.y * 3.1) && 1 / m > 0.3 + 0.16 * noise(p.x * 9, p.y * 9);
+      const snow = p.h > view.SNOW + 0.2 * noise(p.x * 3.1, p.y * 3.1) && 1 / m > 0.3 + 0.16 * noise(p.x * 9, p.y * 9);
       // Rock is not one flat tone: strata bands by altitude plus gullies
-      const rock = 0.12 + 0.42 * ridged(p.x * 6, p.y * 6) + 0.05 * noise(p.h * 34 + noise(p.x * 3, p.y * 3) * 3, 1.5);
+      const rock = 0.1 + 0.34 * ridged(p.x * 6, p.y * 6) + 0.24 * ridged(p.x * 15 + 3, p.y * 15 + 8) + 0.05 * noise(p.h * 34 + noise(p.x * 3, p.y * 3) * 3, 1.5);
       const fog = Math.max(0, Math.min(1, (p.y - 0.5) / 1.7)) * 0.5;
       // Skylight keeps some relief inside the shadows instead of one flat tone
       const ambient = 0.05 + 0.22 * (1 / m) * (0.5 + noise(p.x * 11, p.y * 11));
