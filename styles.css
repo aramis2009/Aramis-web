@@ -5,7 +5,7 @@
   --line: #3a3a3a;
   --hover: #111;
   --gold: #f5c542;
-  --route: #22d3ee; /* cyan: the only cool hue on the mountain, so the path never blends with gold rock */
+  --route: #ff3b3b; /* red: nothing else on the mountain is red, so the path never blends with the rock */
   --purple: #a855f7;
   --c0: #3a3a3a;
   --c1: #6a3fc4;
@@ -22,7 +22,7 @@
   --line: #c8c8c8;
   --hover: #f0f0f0;
   --gold: #c9971c;
-  --route: #0891b2;
+  --route: #dc2626;
   --purple: #8b3fe0;
   --c0: #cfcfcf;
   --c1: #c9a8f5;
