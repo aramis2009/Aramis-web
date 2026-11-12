@@ -251,7 +251,8 @@ p a:focus-visible,
 .contrib { margin-top: 28px; width: fit-content; max-width: 100%; }
 .contrib-grid {
   font-family: var(--font);
-  font-size: clamp(7px, 1.75vw, 15px);
+  /* 53 weeks fill the content width on phones; 15px caps it on desktop */
+  font-size: min(2.35vw, 15px);
   line-height: 1.05;
   letter-spacing: .12em;
   text-transform: none;
@@ -297,6 +298,7 @@ p a:focus-visible,
   animation: cell-in .5s ease both;
   animation-delay: calc(var(--x) * 18ms + var(--y) * 30ms);
 }
+.contrib-link { display: block; color: inherit; cursor: pointer; }
 .contrib-meta {
   margin-top: 10px;
   display: flex;
@@ -498,6 +500,33 @@ html:not([data-view]) .route [data-nav="mountain"] { display: none; }
 :root[data-theme="light"] .mtn-art .rs { color: #4b2a9a; }
 :root[data-theme="light"] .mtn-art .far { color: #a79bc4; }
 :root[data-theme="light"] .mtn-art .glow { color: var(--gold); }
+/* GitHub plaque in the mountain's foot */
+.mtn-art .cg0 { color: color-mix(in srgb, var(--c1) 60%, var(--bg)); }
+.mtn-art .cg1 { color: var(--c1); }
+.mtn-art .cg2 { color: var(--c2); }
+.mtn-art .cg3 { color: var(--c3); }
+.mtn-art .cg4 { color: var(--c4); }
+.mtn-art .cgf { color: var(--c1); }
+.mtn-art .cgt { color: var(--fg); }
+.mtn-art .cgm { color: var(--muted); }
+.mtn-art .cgb { background: var(--bg); }
+/* These links wrap the graph itself: the global underline bar of `a` would draw a line
+   along the graph's bottom edge */
+.foot-link,
+.contrib-link { background-image: none; padding-bottom: 0; }
+.foot-link {
+  position: absolute;
+  z-index: 3;
+  display: block;
+  cursor: pointer;
+  /* Same metrics as .mtn-art, so the name layer lands on its characters (font-size is
+     kept in step with the art by fit() in script.js) */
+  line-height: .95;
+  white-space: pre;
+}
+.foot-name { position: absolute; top: 0; color: transparent; }
+.foot-link[hidden] { display: none; }
+.foot-link:focus-visible { outline: 1px solid var(--fg); outline-offset: 2px; }
 .mtn-art .rt { color: var(--route); text-shadow: 0 0 6px color-mix(in srgb, var(--route) 70%, transparent); }
 
 .mtn-pts { list-style: none; position: absolute; inset: 0; pointer-events: none; }
@@ -632,6 +661,25 @@ html.mtn-open { overflow: hidden; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* On wide screens the graph is drawn inside the mountain (see script.js), so the standalone
+   figure stays only for screen readers */
+@media (min-width: 1100px) {
+  /* The plaque sits where the foot normally fades out, so the fade starts later here */
+  .mtn-art {
+    -webkit-mask-image: linear-gradient(#000 95%, transparent);
+    mask-image: linear-gradient(#000 95%, transparent);
+  }
+  #contrib {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
 }
 
 /* On desktop the mountain runs edge to edge so no empty sky is left on the sides */

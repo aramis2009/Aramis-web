@@ -68,12 +68,9 @@ const STR = {
     copied: "Copied ✓",
     themeLabel: "Toggle theme",
     langLabel: "Traducir al español",
-    lastCommit: "last commit",
     less: "less",
     more: "more",
     now: "now",
-    today: "today",
-    ago: (n, u) => `${n}${u} ago`,
     contributions: (n) => `${n} contribution${n === 1 ? "" : "s"}`,
     inYear: (n) => `${n} contributions in the last year`,
     ariaYear: (n) => `${n} GitHub contributions in the last year`,
@@ -85,12 +82,9 @@ const STR = {
     copied: "Copiado ✓",
     themeLabel: "Cambiar tema",
     langLabel: "Translate to English",
-    lastCommit: "último commit",
     less: "menos",
     more: "más",
     now: "ahora",
-    today: "hoy",
-    ago: (n, u) => `hace ${n} ${u === "m" ? "min" : u}`,
     contributions: (n) => `${n} ${n === 1 ? "contribución" : "contribuciones"}`,
     inYear: (n) => `${n} contribuciones en el último año`,
     ariaYear: (n) => `${n} contribuciones en GitHub en el último año`,
@@ -210,6 +204,7 @@ function addLinkGlitch(a) {
   };
   a.addEventListener("mouseenter", run);
   a.addEventListener("focus", run);
+  return run;
 }
 
 function setupGlitch(el) {
@@ -575,6 +570,30 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
   };
   let COLS, ROWS, renderArt = () => {}, buttons = [];
 
+  // The GitHub graph is drawn as a plaque in the mountain's foot on wide screens: same grid,
+  // same characters, no CSS box. contributions() hands its data over through this hook.
+  let contrib = null;
+  const inFoot = matchMedia("(min-width: 1100px)");
+  // Transparent link laid over the plaque: the art itself is plain characters
+  const footLink = document.createElement("a");
+  footLink.className = "foot-link";
+  footLink.target = "_blank";
+  footLink.rel = "noopener";
+  footLink.hidden = true;
+  // Invisible copy of the name over its place in the plaque's top edge: only its glitch
+  // layers show, so the link flickers gold and purple on hover like the other links
+  const footName = document.createElement("span");
+  footName.className = "foot-name";
+  footLink.append(footName);
+  fig.append(footLink);
+  const runNameGlitch = addLinkGlitch(footName);
+  if (runNameGlitch) {
+    footLink.addEventListener("mouseenter", runNameGlitch);
+    footLink.addEventListener("focus", runNameGlitch);
+  }
+  window.__setContrib = (data) => { contrib = data; renderArt(); };
+  inFoot.addEventListener("change", () => renderArt());
+
   // The journey entries from base camp up to where the climb stands today
   const POINTS = [
     { key: "fortnite_title", year: "2018" },
@@ -790,8 +809,61 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
     // Brightness becomes character density, as in an image-to-ASCII filter. On a dark page
     // dense characters read as bright; on a light page it is the other way around.
     const RAMP = " .:-=+*#%@";
+    // ASCII only, like the terrain: block glyphs come from a fallback font whose width
+    // would push the rest of the row and misalign the route markers
+    const GRAPH = [".", ":", "+", "#", "@"];
+    function footOverlay() {
+      const out = new Map();
+      footLink.hidden = true;
+      if (!contrib || view !== VIEWS.wide || !inFoot.matches) return out;
+      // Low in the foot band, in its right half (the mask fade is pushed down on desktop
+      // so the plaque stays readable down to its bottom edge)
+      const c0 = Math.round(COLS * 0.68), r0 = Math.round(ROWS * 0.85);
+      const weeks = contrib.rows[0].length;
+      const put = (x, y, ch, cls) => {
+        if (c0 + x >= 0 && c0 + x < COLS) out.set((r0 + y) * COLS + c0 + x, { ch, cls: cls + " cgb" });
+      };
+      const text = (x, y, str, cls) => [...str].forEach((ch, i) => put(x + i, y, ch, cls));
+      // A plaque carved into the rock: the terrain is cleared behind it and an ASCII frame
+      // (the mountain's own vocabulary, not a CSS box) sets it apart. One blank column
+      // pads each side of the 53 weeks.
+      const L = -2, R = weeks + 1, T = -1, B = 7;
+      for (let y = T; y <= B; y++) {
+        for (let x = L; x <= R; x++) {
+          const edgeX = x === L || x === R, edgeY = y === T || y === B;
+          put(x, y, edgeX && edgeY ? "+" : edgeY ? "-" : edgeX ? "|" : " ", "cgf");
+        }
+      }
+      // Every day is drawn, quiet ones as faint dots, so the matrix reads as a graph
+      contrib.rows.forEach((row, y) => row.forEach((d, x) => d && put(x, y, GRAPH[d.level], "cg" + d.level)));
+      // Name on the top edge (the whole plaque links to the profile), total beside it, and
+      // the legend on the bottom edge
+      const t = strs();
+      text(0, T, ` @${contrib.user} `, "cgt");
+      const total = ` ${t.contributions(contrib.total)} `;
+      text(weeks - total.length, T, total, "cgm");
+      const legend = [" ", ...t.less, " ", ...GRAPH.flatMap((g) => [g, " "]), ...t.more, " "];
+      legend.forEach((ch, i) => {
+        const gi = GRAPH.indexOf(ch);
+        put(weeks - legend.length + i, B, ch, gi >= 0 && i > t.less.length + 1 ? "cg" + gi : "cgm");
+      });
+      footName.textContent = `@${contrib.user}`;
+      footName.dataset.text = footName.textContent;
+      footName.style.left = ((1 - L) / (R - L + 1)) * 100 + "%";
+      footLink.href = `https://github.com/${contrib.user}`;
+      footLink.setAttribute("aria-label", `GitHub @${contrib.user}`);
+      Object.assign(footLink.style, {
+        left: ((c0 + L) / COLS) * 100 + "%",
+        top: ((r0 + T) / ROWS) * 100 + "%",
+        width: ((R - L + 1) / COLS) * 100 + "%",
+        height: ((B - T + 1) / ROWS) * 100 + "%",
+      });
+      footLink.hidden = false;
+      return out;
+    }
     function render() {
       const dark = root.dataset.theme !== "light";
+      const foot = footOverlay();
       const rows = [];
       for (let r = 0; r < ROWS; r++) {
         let out = "", cur = null, buf = "";
@@ -799,6 +871,7 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
           let ch = " ", cls = "";
           const cell = cells[r][c];
           if (route.has(r * COLS + c)) { ch = "•"; cls = "rt"; }
+          else if (foot.has(r * COLS + c)) ({ ch, cls } = foot.get(r * COLS + c));
           else if (cell) {
             const level = Math.max(1, Math.min(9, Math.round(Math.pow(cell.b, 0.75) * 9)));
             ch = cell.ch || RAMP[dark ? level : 10 - level];
@@ -850,6 +923,7 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
       if (Math.abs(natural - w) < 0.5) break;
       size *= w / natural;
     }
+    footLink.style.fontSize = art.style.fontSize;
   }
 
   // Labels follow the language (the titles live in the timeline entries)
@@ -866,7 +940,8 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
       b.setAttribute("aria-label", `${p.year ?? strs().now} — ${title}`);
     });
   }
-  window.__refreshMountain = syncLabels;
+  // The plaque caption is part of the art, so a language change redraws it too
+  window.__refreshMountain = () => { syncLabels(); renderArt(); };
 
   const narrow = matchMedia("(max-width: 640px)");
   build(narrow.matches ? VIEWS.narrow : VIEWS.wide);
@@ -921,34 +996,6 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
   addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
 })();
 
-// "Último commit": hora exacta del último push (incluye privados si la función
-// /api/last-commit está configurada; si no, solo los públicos). Si el gráfico
-// muestra actividad más reciente que ese push, se usa el día del gráfico.
-function lastCommitText(days, pushTimes) {
-  const lastDay = [...days].reverse().find((d) => d.count > 0)?.date;
-  const pushes = pushTimes.map((s) => new Date(s));
-  const lastPush = pushes.length ? new Date(Math.max(...pushes)) : null;
-  const localDate = (d) => d.toLocaleDateString("en-CA"); // YYYY-MM-DD
-
-  if (lastPush && (!lastDay || localDate(lastPush) >= lastDay)) {
-    const mins = Math.round((Date.now() - lastPush) / 60000);
-    if (mins < 1) return { kind: "now" };
-    if (mins < 60) return { kind: "ago", n: mins, unit: "m" };
-    if (mins < 60 * 24) return { kind: "ago", n: Math.round(mins / 60), unit: "h" };
-    return { kind: "ago", n: Math.round(mins / 1440), unit: "d" };
-  }
-  if (!lastDay) return null;
-  const today = new Date(localDate(new Date()) + "T00:00:00");
-  const diff = Math.round((today - new Date(lastDay + "T00:00:00")) / 86400000);
-  return diff === 0 ? { kind: "today" } : { kind: "ago", n: diff, unit: "d" };
-}
-
-// Texto del último commit en el idioma actual ("2h ago" / "hace 2 h")
-function lastCommitLabel(info) {
-  const t = strs();
-  return info.kind === "ago" ? t.ago(info.n, info.unit) : t[info.kind];
-}
-
 // Contribuciones de GitHub dibujadas con caracteres
 (async function contributions() {
   const fig = document.getElementById("contrib");
@@ -957,18 +1004,6 @@ function lastCommitLabel(info) {
   const legend = document.getElementById("contribLegend");
   const user = fig.dataset.user;
   const GLYPHS = ["·", "░", "▒", "▓", "█"];
-
-  // Hora exacta del último push: primero la función de Vercel (incluye repos
-  // privados); si no está disponible, los pushes públicos
-  const pushesReq = fetch("/api/last-commit")
-    .then((r) => (r.ok ? r.json() : Promise.reject()))
-    .then((d) => (d.lastCommit ? [d.lastCommit] : Promise.reject()))
-    .catch(() =>
-      fetch(`https://api.github.com/users/${user}/events/public?per_page=100`)
-        .then((r) => (r.ok ? r.json() : []))
-        .then((events) => events.filter((e) => e.type === "PushEvent").map((e) => e.created_at))
-        .catch(() => [])
-    );
 
   try {
     const res = await fetch(`https://github-contributions-api.jogruber.de/v4/${user}?y=last`);
@@ -1004,7 +1039,7 @@ function lastCommitLabel(info) {
     });
 
     const total = data.total.lastYear ?? days.reduce((n, d) => n + d.count, 0);
-    const lastInfo = lastCommitText(days, await pushesReq);
+    window.__setContrib?.({ rows, user, total });
 
     // Todos los textos del gráfico; se vuelve a llamar al cambiar de idioma
     window.__refreshGraphText = () => {
@@ -1012,7 +1047,7 @@ function lastCommitLabel(info) {
       const fmtDate = new Intl.DateTimeFormat(t.dateLocale, { month: "short", day: "numeric", year: "numeric" });
       meta.innerHTML =
         `<a href="https://github.com/${user}" target="_blank" rel="noopener">@${user}</a>` +
-        (lastInfo ? `<span>${t.lastCommit} ${lastCommitLabel(lastInfo)}</span>` : "");
+        `<span>${t.contributions(total)}</span>`;
       meta.querySelectorAll("a").forEach(addLinkGlitch);
       legend.innerHTML =
         t.less + GLYPHS.map((g, i) => `<span class="l${i}">${g}</span>`).join("") + t.more;
