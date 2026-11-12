@@ -646,7 +646,7 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
   const VIEWS = {
     // Full-bleed: 200 columns keep the glyph size of the old 140 over a 2000px-wide cover
     wide: { COLS: 200, ROWS: 64, X0: -1.5, W: 6, RISE: 68, DROP: 8.4, K: 1.38, START: 0.29, ZIG: 4 },
-    narrow: { COLS: 64, ROWS: 80, X0: 0.5, W: 2.4, RISE: 64, DROP: 7.7, K: 1.55, START: 0.06, ZIG: 2 },
+    narrow: { COLS: 64, ROWS: 70, X0: 0.3, W: 2.8, RISE: 56, DROP: 6.7, K: 1.36, START: 0.06, ZIG: 2 },
   };
   let COLS, ROWS, renderArt = () => {}, buttons = [];
 
