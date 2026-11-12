@@ -645,8 +645,8 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
   // close-up of the main peak on phones so the characters stay readable.
   const VIEWS = {
     // Full-bleed: 200 columns keep the glyph size of the old 140 over a 2000px-wide cover
-    wide: { COLS: 200, ROWS: 64, X0: -1.5, W: 6, RISE: 68, DROP: 8.4, K: 1.38, SNOW: 0.46, START: 0.29, ZIG: 4 },
-    narrow: { COLS: 64, ROWS: 70, X0: 0.3, W: 2.8, RISE: 56, DROP: 6.7, K: 1.36, SNOW: 0.3, START: 0.06, ZIG: 2 },
+    wide: { COLS: 200, ROWS: 64, X0: -1.5, W: 6, RISE: 68, DROP: 8.4, K: 1.38, SNOW: 0.46, START: 0.175, XPROG: 0.54, ZIG: 7, GAP: 3 },
+    narrow: { COLS: 64, ROWS: 70, X0: 0.3, W: 2.8, RISE: 56, DROP: 6.7, K: 1.36, SNOW: 0.3, START: 0.06, XPROG: 0.34, ZIG: 2, GAP: 3 },
   };
   let COLS, ROWS, renderArt = () => {}, buttons = [];
 
@@ -706,6 +706,8 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
   const WIDE_PEAKS = [
     [1.72, 1.25, 1.0, 0.98, 4, 1.05],
     [1.72, 1.2, 0.62, 5.4, 4, 1.05, 1.6],
+    // A shoulder on the left flank that ends in a clear point above the trailhead
+    [0.15, 1.15, 0.47, 1.1, 3, 0.3],
   ];
   let peaks = PEAKS;
   const height = (x, y) => {
@@ -813,14 +815,20 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
     const summitX = summitCols[summitCols.length >> 1];
 
     const startX = Math.round(COLS * view.START), baseRow = ROWS - 5, last = POINTS.length - 1;
-    // The route starts at the trailhead and "now" is only a fifth of the way up: the summit stands for the biggest goal, with most of the climb still ahead
-    const PROGRESS = 0.2;
+    // The route starts at the trailhead and "now" is only about a third of the way up: the summit stands for the biggest goal, with most of the climb still ahead
+    const PROGRESS = 0.34;
     POINTS.forEach((p, i) => {
       const t = (i / last) * PROGRESS;
-      // Slight switchbacks, like a real route
+      // Horizontal progress is decoupled from altitude: on desktop the trailhead sits far
+      // out on the left flank, so the walk crosses a long way before it gains height
+      const tx = (i / last) * view.XPROG;
+      // Switchbacks, like a real route
       const zig = i === 0 || i === last ? 0 : (i % 2 ? view.ZIG : -view.ZIG);
-      p.x = Math.round(startX + (summitX - startX) * t + zig);
+      p.x = Math.round(startX + (summitX - startX) * tx + zig);
       p.y = Math.max(top[p.x] + 1, Math.round(baseRow + (summitRow - baseRow) * Math.pow(t, 0.85)));
+      // Markers are 32px tall: keep a minimum row gap so neighbours never overlap, even
+      // where the skyline clamp would otherwise pile several of them on the same row
+      if (i > 0) p.y = Math.max(top[p.x] + 1, Math.min(p.y, POINTS[i - 1].y - view.GAP));
     });
     const route = new Set();
     for (let i = 0; i < last; i++) {
