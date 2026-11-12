@@ -471,7 +471,7 @@ html:not([data-view]) .route [data-nav="mountain"] { display: none; }
 .mtn {
   position: relative;
   left: 50%;
-  width: min(1180px, 100vw - 32px);
+  width: min(1400px, 100vw - 32px);
   transform: translateX(-50%);
   container-type: inline-size;
   transition: opacity .3s ease, filter .3s ease;
@@ -508,6 +508,7 @@ html:not([data-view]) .route [data-nav="mountain"] { display: none; }
 :root[data-theme="light"] .mtn-art .rs { color: #4b2a9a; }
 :root[data-theme="light"] .mtn-art .far { color: #a79bc4; }
 :root[data-theme="light"] .mtn-art .glow { color: var(--gold); }
+.mtn-art .rtn { color: color-mix(in srgb, var(--route) 55%, transparent); }
 .mtn-art .rt { color: var(--route); text-shadow: 0 0 6px color-mix(in srgb, var(--route) 70%, transparent); }
 
 .mtn-pts { list-style: none; position: absolute; inset: 0; pointer-events: none; }

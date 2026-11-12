@@ -631,7 +631,7 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
 
 // ---------- Mountain cover ----------
 // An ASCII Everest drawn from a seeded skyline; every point on the route opens one
-// entry of the journey, oldest at the base and the current role at the summit.
+// entry of the journey, oldest at the base and the current role partway up, short of the summit.
 (function mountain() {
   const fig = document.getElementById("mtn");
   const panel = document.getElementById("mtnPanel");
@@ -644,12 +644,12 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
   // Two framings of the same terrain: the whole range on wide screens, and a taller
   // close-up of the main peak on phones so the characters stay readable.
   const VIEWS = {
-    wide: { COLS: 140, ROWS: 46, X0: 0, W: 3, RISE: 39.6, DROP: 6, START: 0.2, ZIG: 3 },
-    narrow: { COLS: 64, ROWS: 52, X0: 1.05, W: 1.3, RISE: 41.6, DROP: 5, START: 0.06, ZIG: 2 },
+    wide: { COLS: 140, ROWS: 83, X0: -0.1, W: 3.2, RISE: 71.6, DROP: 11, K: 1.81, START: 0.2, ZIG: 3 },
+    narrow: { COLS: 64, ROWS: 80, X0: 0.5, W: 2.4, RISE: 64, DROP: 7.7, K: 1.55, START: 0.06, ZIG: 2 },
   };
   let COLS, ROWS, renderArt = () => {}, buttons = [];
 
-  // The journey entries from base camp to the summit
+  // The journey entries from base camp up to where the climb stands today
   const POINTS = [
     { key: "fortnite_title", year: "2018" },
     { key: "games_title", year: "2023" },
@@ -720,7 +720,8 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
     // Side view: walk each column from the camera into the distance and keep what is
     // not hidden behind nearer terrain.
     const { X0, W, RISE, DROP } = view;
-    const D = 2, STEPS = 320, TILT = 2.2;
+    // K stretches the whole projection vertically so the peak towers over the route
+    const D = 2, STEPS = 320, TILT = 2.2 * view.K;
     const hit = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
     for (let cx = 0; cx < COLS; cx++) {
       const x = X0 + ((cx + 0.5) / COLS) * W;
@@ -789,12 +790,14 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
     const summitX = summitCols[summitCols.length >> 1];
 
     const startX = Math.round(COLS * view.START), baseRow = ROWS - 5, last = POINTS.length - 1;
+    // The route starts at the trailhead and "now" is only a fifth of the way up: the summit stands for the biggest goal, with most of the climb still ahead
+    const PROGRESS = 0.2;
     POINTS.forEach((p, i) => {
-      const t = i / last;
+      const t = (i / last) * PROGRESS;
       // Slight switchbacks, like a real route
       const zig = i === 0 || i === last ? 0 : (i % 2 ? view.ZIG : -view.ZIG);
       p.x = Math.round(startX + (summitX - startX) * t + zig);
-      p.y = i === last ? summitRow : Math.max(top[p.x] + 1, Math.round(baseRow + (summitRow - baseRow) * Math.pow(t, 0.85)));
+      p.y = Math.max(top[p.x] + 1, Math.round(baseRow + (summitRow - baseRow) * Math.pow(t, 0.85)));
     });
     const route = new Set();
     for (let i = 0; i < last; i++) {
@@ -804,6 +807,16 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
         const x = Math.round(a.x + ((b.x - a.x) * k) / n);
         const y = Math.max(top[x], Math.round(a.y + ((b.y - a.y) * k) / n));
         route.add(y * COLS + x);
+      }
+    }
+    // The unclimbed stretch from "now" to the summit, drawn fainter than the walked route
+    const ahead = new Set();
+    {
+      const a = POINTS[last], n = Math.max(Math.abs(summitX - a.x), Math.abs(summitRow - a.y));
+      for (let k = 1; k <= n; k++) {
+        const x = Math.round(a.x + ((summitX - a.x) * k) / n);
+        const y = Math.max(top[x], Math.round(a.y + ((summitRow - a.y) * k) / n));
+        if (!route.has(y * COLS + x)) ahead.add(y * COLS + x);
       }
     }
 
@@ -828,6 +841,7 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
           let ch = " ", cls = "";
           const cell = cells[r][c];
           if (route.has(r * COLS + c)) { ch = "•"; cls = "rt"; }
+          else if (ahead.has(r * COLS + c)) { ch = "·"; cls = "rtn"; }
           else if (cell) {
             const level = Math.max(1, Math.min(9, Math.round(Math.pow(cell.b, 0.75) * 9)));
             ch = cell.ch || RAMP[dark ? level : 10 - level];
