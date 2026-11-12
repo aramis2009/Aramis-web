@@ -645,7 +645,8 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
   // close-up of the main peak on phones so the characters stay readable.
   const VIEWS = {
     // Full-bleed: 200 columns keep the glyph size of the old 140 over a 2000px-wide cover
-    wide: { COLS: 200, ROWS: 64, X0: -1.5, W: 6, RISE: 68, DROP: 8.4, K: 1.38, SNOW: 0.46, START: 0.175, XPROG: 0.54, ZIG: 7, GAP: 3 },
+    // ROWS and DROP both add to the row offset: together they leave a few rows of sky above the summit, which was cut flat at row 0 before
+    wide: { COLS: 200, ROWS: 67, X0: -1.5, W: 6, RISE: 68, DROP: 11.4, K: 1.38, SNOW: 0.46, START: 0.175, XPROG: 0.54, ZIG: 7, GAP: 3 },
     narrow: { COLS: 64, ROWS: 70, X0: 0.3, W: 2.8, RISE: 56, DROP: 6.7, K: 1.36, SNOW: 0.3, START: 0.06, XPROG: 0.34, ZIG: 2, GAP: 3 },
   };
   let COLS, ROWS, renderArt = () => {}, buttons = [];
