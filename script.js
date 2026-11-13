@@ -565,8 +565,10 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
   const VIEWS = {
     // Full-bleed: 200 columns keep the glyph size of the old 140 over a 2000px-wide cover
     // ROWS and DROP both add to the row offset: together they leave a few rows of sky above the summit, which was cut flat at row 0 before
-    wide: { COLS: 200, ROWS: 67, X0: -1.5, W: 6, RISE: 68, DROP: 11.4, K: 1.38, SNOW: 0.46, START: 0.175, XPROG: 0.54, ZIG: 7, GAP: 3 },
-    narrow: { COLS: 64, ROWS: 70, X0: 0.3, W: 2.8, RISE: 56, DROP: 6.7, K: 1.36, SNOW: 0.3, START: 0.06, XPROG: 0.34, ZIG: 2, GAP: 3 },
+    wide: { COLS: 200, ROWS: 67, X0: -1.5, W: 6, RISE: 68, DROP: 11.4, K: 1.38, SNOW: 0.46, START: 0.175, XPROG: 0.54, ZIG: 7, GAP: 3,
+      BRIDGE: { tl: 26, tr: 171, w: 4, top: 12, deck: 36, step: 3 } },
+    narrow: { COLS: 64, ROWS: 70, X0: 0.3, W: 2.8, RISE: 56, DROP: 6.7, K: 1.36, SNOW: 0.3, START: 0.06, XPROG: 0.34, ZIG: 2, GAP: 3,
+      BRIDGE: { tl: 5, tr: 56, w: 3, top: 22, deck: 39, step: 2 } },
   };
   let COLS, ROWS, renderArt = () => {}, buttons = [];
 
@@ -797,6 +799,44 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
         route.add(y * COLS + x);
       }
     }
+    // The Golden Gate stands behind the mountain: it is drawn only in sky cells, so the
+    // terrain hides its middle and each tower shows on one side of the peak.
+    // tl/tr: left column of each tower, w: tower width, top/deck: rows, step: suspender gap
+    const bridge = new Map();
+    {
+      const { tl, tr, w, top: bt, deck, step } = view.BRIDGE;
+      const put = (r, c, ch, cls) => {
+        if (r >= 0 && r < ROWS && c >= 0 && c < COLS && !solid(r, c)) bridge.set(r * COLS + c, { ch, cls });
+      };
+      const cl = tl + (w - 1) / 2, cr = tr + (w - 1) / 2;
+      // Main span: a parabola between the tower tops. Side spans: straight down to the deck.
+      const cable = (c) =>
+        c < cl ? bt + ((deck - 1 - bt) * (cl - c)) / cl
+        : c > cr ? bt + ((deck - 1 - bt) * (c - cr)) / (COLS - 1 - cr)
+        : bt + (deck - 3 - bt) * 4 * ((c - cl) / (cr - cl)) * (1 - (c - cl) / (cr - cl));
+      for (let c = 0; c < COLS; c++) {
+        const y = cable(c), next = cable(Math.min(COLS - 1, c + 1)), d = next - y;
+        const ch = Math.abs(d) < 0.35 ? "_" : d > 0 ? "\\" : "/";
+        // A steep stretch covers several rows in one column
+        const a = Math.round(Math.min(y, next - Math.sign(d) * 0.5)), b = Math.round(Math.max(y, next - Math.sign(d) * 0.5));
+        for (let r = a; r <= b; r++) put(r, c, ch, "gg2");
+        if (c % step === 0) for (let r = b + 1; r < deck; r++) put(r, c, "|", "gg3");
+        put(deck, c, "=", "gg");
+      }
+      for (const t of [tl, tr]) {
+        for (let r = bt - 1; r < ROWS; r++) {
+          for (let k = 0; k < w; k++) {
+            const leg = k === 0 || k === w - 1;
+            // Cross braces every four rows above the deck, as on the real towers
+            const brace = r === bt - 1 || (r <= deck && (r - bt) % 4 === 0);
+            if (leg) put(r, t + k, r === bt - 1 ? "_" : "|", "gg");
+            else if (brace) put(r, t + k, r === bt - 1 ? "_" : "=", "gg");
+            else bridge.delete(r * COLS + t + k);
+          }
+        }
+      }
+    }
+
     // Spindrift blowing off the summit
     const sky = new Map();
     for (let k = 2; k < 26; k++) {
@@ -877,6 +917,7 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
             ch = cell.ch || RAMP[dark ? level : 10 - level];
             cls = cell.cls;
           } else if (sky.has(r * COLS + c)) ({ ch, cls } = sky.get(r * COLS + c));
+          else if (bridge.has(r * COLS + c)) ({ ch, cls } = bridge.get(r * COLS + c));
           if (cls !== cur) {
             if (buf) out += cur ? `<span class="${cur}">${buf}</span>` : buf;
             cur = cls;

@@ -527,6 +527,11 @@ html:not([data-view]) .route [data-nav="mountain"] { display: none; }
 .foot-name { position: absolute; top: 0; color: transparent; }
 .foot-link[hidden] { display: none; }
 .foot-link:focus-visible { outline: 1px solid var(--fg); outline-offset: 2px; }
+/* Golden Gate behind the mountain, in its International Orange: towers and deck solid,
+   cables and suspenders fainter so it stays in the background */
+.mtn-art .gg { color: #c8502f; }
+.mtn-art .gg2 { color: color-mix(in srgb, #c8502f 70%, var(--bg)); }
+.mtn-art .gg3 { color: color-mix(in srgb, #c8502f 38%, var(--bg)); }
 .mtn-art .rt { color: var(--route); text-shadow: 0 0 6px color-mix(in srgb, var(--route) 70%, transparent); }
 
 .mtn-pts { list-style: none; position: absolute; inset: 0; pointer-events: none; }
