@@ -82,7 +82,6 @@ body {
    mountain page keeps the terminal-face name and no photo */
 html:not([data-view="start"]) .portrait { display: none; }
 html[data-view="start"] .meta-role { display: none; }
-html[data-view="start"] .name { font-family: var(--font); font-size: 18px; letter-spacing: .06em; }
 html[data-view="start"] .portrait { width: 104px; height: 104px; }
 html[data-view="start"] .meta { margin-top: 12px; flex-direction: column; gap: 3px; font-size: 12px; }
 html[data-view="start"] .meta .dot { display: none; }
