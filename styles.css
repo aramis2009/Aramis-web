@@ -539,6 +539,7 @@ html:not([data-view]) .route [data-nav="mountain"] { display: none; }
   transition: opacity .3s ease, filter .3s ease;
 }
 .mtn.dim { opacity: .22; filter: blur(1.5px); }
+.mtn-stage { position: relative; }
 .mtn-art {
   font-size: calc(100cqw / 84); /* fallback until script.js measures the real glyph width */
   line-height: .95;
@@ -763,8 +764,11 @@ html.mtn-open { overflow: hidden; }
      name keeps the whole row below */
   .top { position: relative; }
   .controls { position: absolute; top: -42px; right: 0; }
-  /* Taller rows stretch the close-up peak so the eight points stop crowding each other */
-  .mtn-art { line-height: 1.55; }
+  /* The stage is wider than the screen and shifted left, so only the middle of the range
+     shows (the route and the summit); taller rows stretch it so the points do not crowd */
+  .mtn { overflow: hidden; }
+  .mtn-stage { width: 165%; margin-left: -22%; }
+  .mtn-art { line-height: 1.9; font-weight: 600; }
   /* Years sit beside their dot on a solid chip instead of on top of the rock */
   .pt-year {
     left: 100%;

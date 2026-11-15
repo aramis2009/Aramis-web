@@ -645,10 +645,12 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
     // Full-bleed: 200 columns keep the glyph size of the old 140 over a 2000px-wide cover
     // ROWS and DROP both add to the row offset: together they leave a few rows of sky above the summit, which was cut flat at row 0 before
     wide: { COLS: 200, ROWS: 67, X0: -1.5, W: 6, RISE: 68, DROP: 11.4, K: 1.38, SNOW: 0.46, START: 0.175, XPROG: 0.54, ZIG: 7, GAP: 3, HORIZON: 0.66 },
-    narrow: { COLS: 64, ROWS: 70, X0: 0.3, W: 2.8, RISE: 56, DROP: 6.7, K: 1.36, SNOW: 0.3, START: 0.06, XPROG: 0.34, ZIG: 2, GAP: 3, HORIZON: 0.64 },
   };
   let COLS, ROWS, renderArt = () => {}, buttons = [];
 
+  // Phones use the same terrain as desktop; CSS crops it around the route and the summit
+  // (see .mtn-stage), so the mountain keeps its shape instead of becoming a close-up
+  VIEWS.narrow = VIEWS.wide;
   // The GitHub graph is drawn as a plaque in the mountain's foot on wide screens: same grid,
   // same characters, no CSS box. contributions() hands its data over through this hook.
   let contrib = null;
@@ -1016,7 +1018,7 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
   // The glyph width depends on the font that actually loaded, so measure it and size the
   // art to fill the container exactly (markers are placed in percent of the grid).
   function fit() {
-    const w = fig.clientWidth;
+    const w = art.parentElement.clientWidth;
     if (!w) return;
     // Glyph advances can round differently per size, so converge in a few passes
     let size = (w / (COLS * 0.6)) || 12;
