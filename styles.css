@@ -256,11 +256,12 @@ p a:focus-visible,
 :root[data-theme="light"] .link-glitch.glitching::after { mix-blend-mode: multiply; }
 
 /* Contribuciones de GitHub en ASCII */
-.contrib { margin-top: 28px; width: fit-content; max-width: 100%; }
+/* The graph is as wide as its column and scales its characters to fit it, so no week is cut */
+.contrib { margin-top: 28px; width: 100%; container-type: inline-size; }
 .contrib-grid {
   font-family: var(--font);
-  /* 53 weeks fill the content width on phones; 15px caps it on desktop */
-  font-size: min(2.35vw, 15px);
+  /* 53 weeks of about .72em each fill the container; 15px caps it */
+  font-size: min(15px, calc(100cqw / 38.6));
   line-height: 1.05;
   letter-spacing: .12em;
   text-transform: none;
