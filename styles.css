@@ -480,6 +480,25 @@ html:not([data-view]) .route [data-nav="mountain"] { display: none; }
 .social { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 16px; font-size: 12px; }
 .social a { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); background-image: none; padding-bottom: 0; }
 .social a:hover, .social a:focus-visible { color: var(--fg); outline: none; }
+/* Projects: compact rows with a thin border, the same family as the other cards */
+.repos-title { margin-bottom: 10px; font-size: 12px; font-weight: 400; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.repos-title::before { content: "~/"; color: var(--purple); }
+.repo-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.repo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 3px 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  background-image: none;
+  color: var(--fg);
+  white-space: normal;
+  transition: border-color .2s;
+}
+.repo:hover, .repo:focus-visible { border-color: var(--purple); outline: none; background-image: none; }
+.repo-name { font-size: 13px; letter-spacing: .04em; }
+.repo-lang { font-size: 11px; letter-spacing: .1em; color: var(--muted); }
+.repo-desc { grid-column: 1 / -1; font-size: 12px; line-height: 1.5; color: var(--muted); }
 /* Leave room so the fixed mini mountain never covers the last paragraph */
 .view[data-view="start"] { padding-bottom: 96px; }
 /* A small mountain pinned to the bottom-right corner: the way into the full timeline */
