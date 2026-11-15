@@ -428,13 +428,15 @@ function encrypt(container) {
 
 // Each letter flickers in place: it starts from its own real character, swaps to random
 // ones for a few frames at its own moment, and settles back. No left-to-right wipe.
-function reveal(w) {
+// soft: fewer letters flicker and for fewer frames, used in the point panel where the whole
+// text appears at once and a full flicker looked like a bug
+function reveal(w, soft = false) {
   if (w.dataset.done) return;
   w.dataset.done = "1";
   const original = [...w.dataset.o];
-  const FRAMES = 14;
-  const start = original.map(() => Math.floor(Math.random() * 8));
-  const span = original.map(() => 3 + Math.floor(Math.random() * 3));
+  const FRAMES = soft ? 10 : 14;
+  const start = original.map(() => Math.floor(Math.random() * (soft ? 6 : 8)));
+  const span = original.map(() => (soft ? (Math.random() < 0.4 ? 2 : 0) : 3 + Math.floor(Math.random() * 3)));
   let frame = 0;
   const id = setInterval(() => {
     w.textContent = original
@@ -1073,7 +1075,7 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
       w.classList.remove("done");
       w.textContent = w.dataset.o;
     });
-    ws.forEach((w, k) => setTimeout(() => reveal(w), 120 + k * 8));
+    ws.forEach((w, k) => setTimeout(() => reveal(w, true), 120 + k * 12));
     closeBtn.focus({ preventScroll: true });
   }
 

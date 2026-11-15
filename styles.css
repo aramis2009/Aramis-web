@@ -880,3 +880,8 @@ html[data-view="mountain"] .back { margin-bottom: 4px; }
 .mtn-body .clip-name { color: var(--fg); }
 .mtn-body .clip-action { grid-column: 1; }
 @media (max-width: 640px) { .mtn-body .clips { grid-template-columns: 1fr; } }
+
+/* Inside the point panel the colored glitch copies of links and labels are off: they jittered
+   next to the thumbnails every time the panel opened under the cursor */
+.mtn-body .link-glitch::before,
+.mtn-body .link-glitch::after { display: none; }
