@@ -648,11 +648,11 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
     // ROWS and DROP both add to the row offset: together they leave a few rows of sky above the summit, which was cut flat at row 0 before
     wide: { COLS: 200, ROWS: 67, X0: -1.5, W: 6, RISE: 68, DROP: 11.4, K: 1.38, SNOW: 0.46, START: 0.175, XPROG: 0.54, ZIG: 7, GAP: 3, HORIZON: 0.66 },
   };
-  let COLS, ROWS, renderArt = () => {}, buttons = [];
-
   // Phones use the same terrain as desktop; CSS crops it around the route and the summit
   // (see .mtn-stage), so the mountain keeps its shape instead of becoming a close-up
   VIEWS.narrow = VIEWS.wide;
+  let COLS, ROWS, renderArt = () => {}, buttons = [];
+
   // The GitHub graph is drawn as a plaque in the mountain's foot on wide screens: same grid,
   // same characters, no CSS box. contributions() hands its data over through this hook.
   let contrib = null;
