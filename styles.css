@@ -777,3 +777,77 @@ html[data-view="mountain"] .page { padding-top: clamp(28px, 6vh, 56px); }
 html[data-view="mountain"] .top { margin-bottom: 8px; }
 html[data-view="mountain"] .back { margin-bottom: 4px; }
 
+/* Point panel, restyled like the rest of the map: a terminal window with a red top edge,
+   a prompt-style title and the clips as a grid of thumbnails with a [ play ] tag */
+.mtn-card {
+  width: min(600px, 100%);
+  border: 1px solid var(--line);
+  border-top: 2px solid var(--route);
+  box-shadow: 0 24px 60px color-mix(in srgb, #000 55%, transparent);
+}
+.mtn-bar { padding: 10px 16px; border-bottom: 1px dashed var(--line); }
+.mtn-path::before { content: "●"; margin-right: 8px; color: var(--route); font-size: 10px; vertical-align: 1px; }
+.mtn-close { color: var(--muted); }
+.mtn-body { padding: 20px 20px 24px; }
+.mtn-body .when { color: var(--route); }
+.mtn-body h4 {
+  margin: 6px 0 8px;
+  font-family: "VT323", var(--font);
+  font-size: 26px;
+  line-height: 1.05;
+  letter-spacing: .08em;
+  color: var(--fg);
+  text-transform: uppercase;
+}
+.mtn-body h4::before { content: "> "; color: var(--route); }
+.mtn-body p { font-size: 13px; line-height: 1.65; }
+.mtn-body .entry-link {
+  margin-top: 14px;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  background-image: none;
+  color: var(--fg);
+}
+.mtn-body .entry-link:hover,
+.mtn-body .entry-link:focus-visible { border-color: var(--route); background-image: none; color: var(--fg); }
+
+.mtn-body .clips { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; }
+.mtn-body .clip, .mtn-body .clip.clip--wide { width: auto; }
+.mtn-body .clip[open] { grid-column: 1 / -1; }
+.mtn-body .clip summary {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px 10px;
+  padding: 0;
+}
+.mtn-body .clip-thumb {
+  grid-column: 1 / -1;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--line);
+  transition: border-color .2s, filter .2s;
+  filter: saturate(.75) brightness(.85);
+}
+.mtn-body .clip summary::before {
+  content: "[ play ]";
+  position: absolute;
+  inset: 0 0 auto 0;
+  aspect-ratio: 16 / 9;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  letter-spacing: .14em;
+  color: var(--fg);
+  text-shadow: 0 0 8px #000;
+  pointer-events: none;
+  z-index: 1; /* the thumbnail has a filter, which would otherwise paint over it */
+}
+.mtn-body .clip[open] summary::before { display: none; }
+.mtn-body .clip summary:hover .clip-thumb { border-color: var(--route); filter: none; }
+.mtn-body .clip summary::after { color: var(--route); }
+.mtn-body .clip-name { color: var(--fg); }
+.mtn-body .clip-action { grid-column: 1; }
+@media (max-width: 640px) { .mtn-body .clips { grid-template-columns: 1fr; } }
