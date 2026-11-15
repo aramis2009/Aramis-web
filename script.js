@@ -334,7 +334,14 @@ if (!reduce) {
     el.parentElement.addEventListener("mouseenter", run);
   });
 
-  document.querySelectorAll(".block a").forEach(addLinkGlitch);
+  document.querySelectorAll(".block a:not(.repo)").forEach(addLinkGlitch);
+  // A project card glitches only its name: copying the whole card's text made it overflow
+  document.querySelectorAll(".repo").forEach((card) => {
+    const run = addLinkGlitch(card.querySelector(".repo-name"));
+    if (!run) return;
+    card.addEventListener("mouseenter", run);
+    card.addEventListener("focus", run);
+  });
   document.querySelectorAll(".clip-action").forEach(addLinkGlitch);
 
   // Años de la trayectoria: glitch morado cada tanto (solo si la vista está a la vista) y al pasar el mouse
