@@ -799,39 +799,59 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
         route.add(y * COLS + x);
       }
     }
-    // The Golden Gate stands behind the mountain: it is drawn only in sky cells, so the
-    // terrain hides its middle and each tower shows on one side of the peak.
-    // tl/tr: left column of each tower, w: tower width, top/deck: rows, step: suspender gap
+    // The Golden Gate crosses behind the mountain in perspective: the near tower stands
+    // large on the left, deck and cables converge toward a vanishing point on the right,
+    // and the far tower shows small beyond the peak. It is drawn only in sky cells, so the
+    // terrain hides the middle of the span.
+    // lx/rx: columns of the near tower's legs, top/deck/sag: rows at the near tower (tower
+    // top, roadway, lowest point of the cable), vx/vr: vanishing point, far: scale of the
+    // far tower (1 = near tower), ropes: suspenders per cable
     const bridge = new Map();
     {
-      const { tl, tr, w, top: bt, deck, step } = view.BRIDGE;
+      const { lx, rx, legW, top: bt, deck, sag, vx, vr, far, ropes } = view.BRIDGE;
       const put = (r, c, ch, cls) => {
         if (r >= 0 && r < ROWS && c >= 0 && c < COLS && !solid(r, c)) bridge.set(r * COLS + c, { ch, cls });
       };
-      const cl = tl + (w - 1) / 2, cr = tr + (w - 1) / 2;
-      // Main span: a parabola between the tower tops. Side spans: straight down to the deck.
-      const cable = (c) =>
-        c < cl ? bt + ((deck - 1 - bt) * (cl - c)) / cl
-        : c > cr ? bt + ((deck - 1 - bt) * (c - cr)) / (COLS - 1 - cr)
-        : bt + (deck - 3 - bt) * 4 * ((c - cl) / (cr - cl)) * (1 - (c - cl) / (cr - cl));
-      for (let c = 0; c < COLS; c++) {
-        const y = cable(c), next = cable(Math.min(COLS - 1, c + 1)), d = next - y;
-        const ch = Math.abs(d) < 0.35 ? "_" : d > 0 ? "\\" : "/";
-        // A steep stretch covers several rows in one column
-        const a = Math.round(Math.min(y, next - Math.sign(d) * 0.5)), b = Math.round(Math.max(y, next - Math.sign(d) * 0.5));
-        for (let r = a; r <= b; r++) put(r, c, ch, "gg2");
-        if (c % step === 0) for (let r = b + 1; r < deck; r++) put(r, c, "|", "gg3");
-        put(deck, c, "=", "gg");
+      // A point of the near tower's plane (column X, row h) pulled toward the vanishing
+      // point by scale s: s = 1 is the near tower, smaller is farther, larger is nearer
+      const P = (X, h, s) => [vx + (X - vx) * s, vr + (h - vr) * s];
+      const sEnd = far * 0.35; // where the far approach meets the ground
+      const plot = (f, s0, s1, cls, fixed) => {
+        const N = 500;
+        for (let i = 0; i <= N; i++) {
+          const sv = s0 + ((s1 - s0) * i) / N;
+          const [x, r] = f(sv), [x2, r2] = f(sv + 0.004);
+          const slope = (r2 - r) / (x2 - x || 1e-6);
+          put(Math.round(r), Math.round(x), fixed || (slope > 0.45 ? "\\" : slope < -0.45 ? "/" : "_"), cls);
+        }
+      };
+      // Height of a main cable along the bridge: a sagging curve between the towers, then
+      // down to the deck on the far approach. The span starts at the near tower, so
+      // nothing is drawn on the viewer's side of it.
+      const cableH = (sv) =>
+        sv < far ? bt + ((deck - bt) * (far - sv)) / (far - sEnd)
+        : bt + (sag - bt) * 4 * ((1 - sv) / (1 - far)) * (1 - (1 - sv) / (1 - far));
+      for (const X of [lx, rx]) {
+        plot((sv) => P(X, deck, sv), sEnd, 1, "gg", "=");
+        plot((sv) => P(X, cableH(sv), sv), sEnd, 1, "gg2");
+        for (let k = 1; k <= ropes; k++) {
+          const sv = 1 - ((1 - far) * k) / (ropes + 1);
+          const [x, r0] = P(X, cableH(sv), sv), r1 = P(X, deck, sv)[1];
+          for (let r = Math.round(r0) + 1; r < Math.round(r1); r++) put(r, Math.round(x), "|", "gg3");
+        }
       }
-      for (const t of [tl, tr]) {
-        for (let r = bt - 1; r < ROWS; r++) {
-          for (let k = 0; k < w; k++) {
-            const leg = k === 0 || k === w - 1;
-            // Cross braces every four rows above the deck, as on the real towers
-            const brace = r === bt - 1 || (r <= deck && (r - bt) % 4 === 0);
-            if (leg) put(r, t + k, r === bt - 1 ? "_" : "|", "gg");
-            else if (brace) put(r, t + k, r === bt - 1 ? "_" : "=", "gg");
-            else bridge.delete(r * COLS + t + k);
+      // A tower at scale sv: two legs joined by struts above the roadway
+      const tower = (sv, w, gap) => {
+        const xl = Math.round(P(lx, 0, sv)[0]), xr = Math.round(P(rx, 0, sv)[0]);
+        const rt = Math.round(P(0, bt, sv)[1]), rd = Math.round(P(0, deck, sv)[1]);
+        const h = (w - 1) >> 1;
+        for (let r = rt - 1; r < ROWS; r++) {
+          const strut = r >= rt && r < rd && (r - rt) % gap < (w > 2 ? 2 : 1);
+          for (let c = xl - h; c <= xr + h; c++) {
+            const inLeg = c <= xl - h + w - 1 || c >= xr + h - w + 1;
+            if (r === rt - 1) put(r, c, "_", "gg");
+            else if (inLeg) put(r, c, w > 2 && c !== xl - h && c !== xl - h + w - 1 && c !== xr + h && c !== xr + h - w + 1 ? "#" : "|", "gg");
+            else if (strut) put(r, c, "=", "gg");
           }
         }
       }
@@ -873,7 +893,9 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
           const edgeX = x === L || x === R, edgeY = y === T || y === B;
           put(x, y, edgeX && edgeY ? "+" : edgeY ? "-" : edgeX ? "|" : " ", "cgf");
         }
-      }
+      };
+      tower(far, 1, 2);
+      tower(1, legW, Math.max(3, Math.round((deck - bt) / 3)));
       // Every day is drawn, quiet ones as faint dots, so the matrix reads as a graph
       contrib.rows.forEach((row, y) => row.forEach((d, x) => d && put(x, y, GRAPH[d.level], "cg" + d.level)));
       // Name on the top edge (the whole plaque links to the profile), total beside it, and
