@@ -1194,3 +1194,35 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
 })();
 
 
+
+// The corner character: a tiny pixel-art panther, drawn from a text map so it is easy to tweak.
+// P body, h highlight along the back and ears, Y eyes, N nose, p paws, g ground. A black cat
+// would vanish on the black page, hence the violet body and lighter back.
+(() => {
+  const svg = document.querySelector(".mini-sprite");
+  if (!svg) return;
+  const COLORS = { P: "#3a2c5e", h: "#7a5bd0", Y: "#f5c542", N: "#e0457b", p: "#5b3bb0", g: "#3d3358" };
+  const W = 22;
+  const BODY = [
+    ".............h..h.....",
+    "............hPhhPh....",
+    "..hhhhhhhhhhPPPPPPh...",
+    ".PPPPPPPPPPPPPYPPYPP..",
+    "PPPPPPPPPPPPPPPPPPNN..",
+    "P.PPPPPPPPPPPPPPPPP...",
+    "P.PPPPPPPPPPPPPPP.....",
+    "P..PP.PP......PP.PP...",
+    "P..PP.PP......PP.PP...",
+    "P..PP.PP......PP.PP...",
+    ".Pppp.ppp....ppp.ppp..",
+  ].map((r) => r.padEnd(W, "."));
+  const GROUND = ["g".repeat(W)];
+  const draw = (rows, y0, g) => rows.forEach((row, y) => [...row].forEach((ch, x) => {
+    if (COLORS[ch]) g.insertAdjacentHTML("beforeend", `<rect x="${x}" y="${y0 + y}" width="1" height="1" fill="${COLORS[ch]}"/>`);
+  }));
+  const body = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  body.setAttribute("class", "mm-body");
+  svg.append(body);
+  draw(BODY, 0, body);
+  draw(GROUND, BODY.length, svg);
+})();
