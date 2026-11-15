@@ -89,7 +89,10 @@ toggle.addEventListener("click", () => {
   try { localStorage.setItem("theme", next); } catch (e) {}
 });
 
-const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+=/<>";
+// Only letters and digits: a scrambled word keeps its length and shape, and digits stay digits,
+// so the decode looks like text settling into place instead of broken glyphs
+const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const DIGITS = "0123456789";
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 // ---------- Idioma (EN / ES) ----------
@@ -380,8 +383,9 @@ document.querySelectorAll("details.clip").forEach((d) => {
 // (una sola vez) cuando entra en pantalla al hacer scroll. El texto original queda para lectores de pantalla.
 const words = [];
 
-function randomize(text) {
-  return text.replace(/[\p{L}\p{N}]/gu, () => CHARS[Math.floor(Math.random() * CHARS.length)]);
+function randomOne(ch) {
+  const set = /\p{N}/u.test(ch) ? DIGITS : LETTERS;
+  return set[Math.floor(Math.random() * set.length)];
 }
 
 function encrypt(container) {
@@ -405,7 +409,7 @@ function encrypt(container) {
       const w = document.createElement("span");
       w.className = "w";
       w.dataset.o = token;
-      w.textContent = randomize(token);
+      w.textContent = token;
       visual.append(w);
       words.push(w);
     });
@@ -415,18 +419,23 @@ function encrypt(container) {
   });
 }
 
+// Each letter flickers in place: it starts from its own real character, swaps to random
+// ones for a few frames at its own moment, and settles back. No left-to-right wipe.
 function reveal(w) {
   if (w.dataset.done) return;
   w.dataset.done = "1";
-  const original = w.dataset.o;
+  const original = [...w.dataset.o];
+  const FRAMES = 14;
+  const start = original.map(() => Math.floor(Math.random() * 8));
+  const span = original.map(() => 3 + Math.floor(Math.random() * 3));
   let frame = 0;
-  const frames = 6 + Math.floor(Math.random() * 6);
   const id = setInterval(() => {
-    const solved = Math.floor((frame / frames) * original.length);
-    w.textContent = original.slice(0, solved) + randomize(original.slice(solved));
-    if (++frame > frames) {
+    w.textContent = original
+      .map((ch, i) => (/[\p{L}\p{N}]/u.test(ch) && frame >= start[i] && frame < start[i] + span[i] ? randomOne(ch) : ch))
+      .join("");
+    if (++frame >= FRAMES) {
       clearInterval(id);
-      w.textContent = original;
+      w.textContent = w.dataset.o;
       w.classList.add("done");
     }
   }, 35);
@@ -581,7 +590,7 @@ function redecode(name) {
   ws.forEach((w) => {
     delete w.dataset.done;
     w.classList.remove("done");
-    w.textContent = randomize(w.dataset.o);
+    w.textContent = w.dataset.o;
   });
   ws.forEach((w, i) => setTimeout(() => reveal(w), 250 + i * 6));
 }
@@ -1053,7 +1062,7 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
     ws.forEach((w) => {
       delete w.dataset.done;
       w.classList.remove("done");
-      w.textContent = randomize(w.dataset.o);
+      w.textContent = w.dataset.o;
     });
     ws.forEach((w, k) => setTimeout(() => reveal(w), 120 + k * 8));
     closeBtn.focus({ preventScroll: true });
