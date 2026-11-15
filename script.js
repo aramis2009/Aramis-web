@@ -237,7 +237,7 @@ document.addEventListener("click", async (e) => {
 // Glitch automático: cada elemento [data-glitch] salta a su texto
 // alternativo (data-alt) con separación de colores y vuelve al real.
 // Same palette as the mountain: route red, purples and golds
-const GLITCH_COLORS = ["#ff3b3b", "#a855f7", "#c084fc", "#f5c542", "#ffd45c"];
+const GLITCH_COLORS = ["#ff9a3c", "#a855f7", "#c084fc", "#f5c542", "#ffd45c"];
 
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const rnd = (min, max) => Math.random() * (max - min) + min;
