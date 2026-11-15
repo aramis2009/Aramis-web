@@ -574,9 +574,6 @@ html:not([data-view]) .route [data-nav="mountain"] { display: none; }
 .foot-link:focus-visible { outline: 1px solid var(--fg); outline-offset: 2px; }
 /* Golden Gate behind the mountain, in its International Orange: towers and deck solid,
    cables and suspenders fainter so it stays in the background */
-.mtn-art .gg { color: #c8502f; }
-.mtn-art .gg2 { color: color-mix(in srgb, #c8502f 70%, var(--bg)); }
-.mtn-art .gg3 { color: color-mix(in srgb, #c8502f 38%, var(--bg)); }
 .mtn-art .rt { color: var(--route); text-shadow: 0 0 6px color-mix(in srgb, var(--route) 70%, transparent); }
 
 .mtn-pts { list-style: none; position: absolute; inset: 0; pointer-events: none; }
@@ -754,3 +751,29 @@ html.mtn-open { overflow: hidden; }
     border: 1px solid var(--line);
   }
 }
+
+/* Map page: the dusk sky is drawn in ASCII inside the mountain's art (see dusk in
+   script.js), in the muted tones of a real photo. The identity block is hidden here. */
+.mtn-art .sk0 { color: #3a3552; }
+.mtn-art .sk1 { color: #54476c; }
+.mtn-art .sk2 { color: #7a6890; }
+.mtn-art .sk3 { color: #a08ca0; }
+.mtn-art .sk4 { color: #d0a060; }
+.mtn-art .sk5 { color: #e07a3a; }
+.mtn-art .sk6 { color: #f0602a; }
+.mtn-art .sk-sea { color: #2a2432; }
+:root[data-theme="light"] .mtn-art .sk0 { color: #cfc5de; }
+:root[data-theme="light"] .mtn-art .sk1 { color: #bdaed0; }
+:root[data-theme="light"] .mtn-art .sk2 { color: #b8a0c4; }
+:root[data-theme="light"] .mtn-art .sk3 { color: #d6b4b4; }
+:root[data-theme="light"] .mtn-art .sk4 { color: #e8b878; }
+:root[data-theme="light"] .mtn-art .sk5 { color: #ee9a5c; }
+:root[data-theme="light"] .mtn-art .sk6 { color: #e8794a; }
+:root[data-theme="light"] .mtn-art .sk-sea { color: #d8ccd6; }
+html[data-view="mountain"] .identity { display: none; }
+html[data-view="mountain"] .controls { margin-left: auto; }
+/* With no identity block the page starts higher and the back link sits near the top */
+html[data-view="mountain"] .page { padding-top: clamp(28px, 6vh, 56px); }
+html[data-view="mountain"] .top { margin-bottom: 8px; }
+html[data-view="mountain"] .back { margin-bottom: 4px; }
+

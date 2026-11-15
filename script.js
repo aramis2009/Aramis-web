@@ -628,10 +628,8 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
   const VIEWS = {
     // Full-bleed: 200 columns keep the glyph size of the old 140 over a 2000px-wide cover
     // ROWS and DROP both add to the row offset: together they leave a few rows of sky above the summit, which was cut flat at row 0 before
-    wide: { COLS: 200, ROWS: 67, X0: -1.5, W: 6, RISE: 68, DROP: 11.4, K: 1.38, SNOW: 0.46, START: 0.175, XPROG: 0.54, ZIG: 7, GAP: 3,
-      BRIDGE: { lx: 46, rx: 66, legW: 3, top: 8, deck: 20, sag: 17, vx: 175, vr: 33, far: 0.29, ropes: 9 } },
-    narrow: { COLS: 64, ROWS: 70, X0: 0.3, W: 2.8, RISE: 56, DROP: 6.7, K: 1.36, SNOW: 0.3, START: 0.06, XPROG: 0.34, ZIG: 2, GAP: 3,
-      BRIDGE: { lx: 3, rx: 11, legW: 2, top: 20, deck: 30, sag: 28, vx: 58, vr: 38, far: 0.22, ropes: 5 } },
+    wide: { COLS: 200, ROWS: 67, X0: -1.5, W: 6, RISE: 68, DROP: 11.4, K: 1.38, SNOW: 0.46, START: 0.175, XPROG: 0.54, ZIG: 7, GAP: 3, HORIZON: 0.66 },
+    narrow: { COLS: 64, ROWS: 70, X0: 0.3, W: 2.8, RISE: 56, DROP: 6.7, K: 1.36, SNOW: 0.3, START: 0.06, XPROG: 0.34, ZIG: 2, GAP: 3, HORIZON: 0.64 },
   };
   let COLS, ROWS, renderArt = () => {}, buttons = [];
 
@@ -862,66 +860,6 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
         route.add(y * COLS + x);
       }
     }
-    // The Golden Gate crosses behind the mountain in perspective: the near tower stands
-    // large on the left, deck and cables converge toward a vanishing point on the right,
-    // and the far tower shows small beyond the peak. It is drawn only in sky cells, so the
-    // terrain hides the middle of the span.
-    // lx/rx: columns of the near tower's legs, top/deck/sag: rows at the near tower (tower
-    // top, roadway, lowest point of the cable), vx/vr: vanishing point, far: scale of the
-    // far tower (1 = near tower), ropes: suspenders per cable
-    const bridge = new Map();
-    {
-      const { lx, rx, legW, top: bt, deck, sag, vx, vr, far, ropes } = view.BRIDGE;
-      const put = (r, c, ch, cls) => {
-        if (r >= 0 && r < ROWS && c >= 0 && c < COLS && !solid(r, c)) bridge.set(r * COLS + c, { ch, cls });
-      };
-      // A point of the near tower's plane (column X, row h) pulled toward the vanishing
-      // point by scale s: s = 1 is the near tower, smaller is farther, larger is nearer
-      const P = (X, h, s) => [vx + (X - vx) * s, vr + (h - vr) * s];
-      const sEnd = far * 0.35; // where the far approach meets the ground
-      const plot = (f, s0, s1, cls, fixed) => {
-        const N = 500;
-        for (let i = 0; i <= N; i++) {
-          const sv = s0 + ((s1 - s0) * i) / N;
-          const [x, r] = f(sv), [x2, r2] = f(sv + 0.004);
-          const slope = (r2 - r) / (x2 - x || 1e-6);
-          put(Math.round(r), Math.round(x), fixed || (slope > 0.45 ? "\\" : slope < -0.45 ? "/" : "_"), cls);
-        }
-      };
-      // Height of a main cable along the bridge: a sagging curve between the towers, then
-      // down to the deck on the far approach. The span starts at the near tower, so
-      // nothing is drawn on the viewer's side of it.
-      const cableH = (sv) =>
-        sv < far ? bt + ((deck - bt) * (far - sv)) / (far - sEnd)
-        : bt + (sag - bt) * 4 * ((1 - sv) / (1 - far)) * (1 - (1 - sv) / (1 - far));
-      for (const X of [lx, rx]) {
-        plot((sv) => P(X, deck, sv), sEnd, 1, "gg", "=");
-        plot((sv) => P(X, cableH(sv), sv), sEnd, 1, "gg2");
-        for (let k = 1; k <= ropes; k++) {
-          const sv = 1 - ((1 - far) * k) / (ropes + 1);
-          const [x, r0] = P(X, cableH(sv), sv), r1 = P(X, deck, sv)[1];
-          for (let r = Math.round(r0) + 1; r < Math.round(r1); r++) put(r, Math.round(x), "|", "gg3");
-        }
-      }
-      // A tower at scale sv: two legs joined by struts above the roadway
-      const tower = (sv, w, gap) => {
-        const xl = Math.round(P(lx, 0, sv)[0]), xr = Math.round(P(rx, 0, sv)[0]);
-        const rt = Math.round(P(0, bt, sv)[1]), rd = Math.round(P(0, deck, sv)[1]);
-        const h = (w - 1) >> 1;
-        for (let r = rt - 1; r < ROWS; r++) {
-          const strut = r >= rt && r < rd && (r - rt) % gap < (w > 2 ? 2 : 1);
-          for (let c = xl - h; c <= xr + h; c++) {
-            const inLeg = c <= xl - h + w - 1 || c >= xr + h - w + 1;
-            if (r === rt - 1) put(r, c, "_", "gg");
-            else if (inLeg) put(r, c, w > 2 && c !== xl - h && c !== xl - h + w - 1 && c !== xr + h && c !== xr + h - w + 1 ? "#" : "|", "gg");
-            else if (strut) put(r, c, "=", "gg");
-          }
-        }
-      };
-      tower(far, 1, 2);
-      tower(1, legW, Math.max(3, Math.round((deck - bt) / 3)));
-    }
-
     // Spindrift blowing off the summit
     const sky = new Map();
     for (let k = 2; k < 26; k++) {
@@ -929,6 +867,29 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
       const c = summitX + k;
       if (r >= 0 && c < COLS && !solid(r, c) && lattice(k, 9) < 0.85 * (1 - k / 26)) {
         sky.set(r * COLS + c, { ch: "~-.'"[Math.floor(lattice(k, 5) * 4)], cls: "plume" });
+      }
+    }
+    // The dusk sky, drawn with the same characters as the terrain: horizontal strokes packed
+    // along the horizon and thinning into scattered dots higher up, tinted from yellow and
+    // orange at the horizon through lavender to deep violet. Below the horizon a few dashes
+    // stand for the sea. The render only uses it where the mountain has no cell.
+    const dusk = new Map();
+    {
+      const H = Math.round(ROWS * view.HORIZON);
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          const n = lattice(c * 7 + 3, r), n2 = lattice(c, r * 5 + 1);
+          if (r > H) {
+            if (n < 0.1 + 0.2 * Math.min(1, (r - H) / 6)) dusk.set(r * COLS + c, { ch: n2 < 0.5 ? "-" : "~", cls: "sk-sea" });
+            continue;
+          }
+          const d = (H - r) / H; // 0 at the horizon, 1 at the top
+          const p = (1 - d) ** 1.1 + 0.08;
+          if (n > p) continue;
+          const ch = d < 0.04 ? "=" : d < 0.14 ? (n2 < 0.7 ? "-" : "=") : d < 0.4 ? (n2 < 0.6 ? "-" : ".") : n2 < 0.6 ? "." : "'";
+          const cls = d < 0.05 ? "sk6" : d < 0.12 ? "sk5" : d < 0.22 ? "sk4" : d < 0.38 ? "sk3" : d < 0.58 ? "sk2" : d < 0.78 ? "sk1" : "sk0";
+          dusk.set(r * COLS + c, { ch, cls });
+        }
       }
     }
     // Brightness becomes character density, as in an image-to-ASCII filter. On a dark page
@@ -1002,7 +963,7 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
             ch = cell.ch || RAMP[dark ? level : 10 - level];
             cls = cell.cls;
           } else if (sky.has(r * COLS + c)) ({ ch, cls } = sky.get(r * COLS + c));
-          else if (bridge.has(r * COLS + c)) ({ ch, cls } = bridge.get(r * COLS + c));
+          else if (dusk.has(r * COLS + c)) ({ ch, cls } = dusk.get(r * COLS + c));
           if (cls !== cur) {
             if (buf) out += cur ? `<span class="${cur}">${buf}</span>` : buf;
             cur = cls;
