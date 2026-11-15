@@ -842,7 +842,6 @@ html[data-view="mountain"] .back { margin-bottom: 4px; }
 
 .mtn-body .clips { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; }
 .mtn-body .clip, .mtn-body .clip.clip--wide { width: auto; }
-.mtn-body .clip[open] { grid-column: 1 / -1; }
 .mtn-body .clip summary {
   position: relative;
   display: grid;
@@ -885,3 +884,18 @@ html[data-view="mountain"] .back { margin-bottom: 4px; }
    next to the thumbnails every time the panel opened under the cursor */
 .mtn-body .link-glitch::before,
 .mtn-body .link-glitch::after { display: none; }
+
+/* In the panel a video plays in the thumbnail's own slot: the thumbnail keeps its space but
+   is hidden, and the player is laid over exactly that 16:9 box, so no second screen opens
+   below */
+.mtn-body .clip { position: relative; }
+.mtn-body .clip[open] .clip-thumb { visibility: hidden; }
+.mtn-body .clip[open] video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  margin: 0;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+}
