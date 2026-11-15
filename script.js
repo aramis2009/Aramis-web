@@ -1,3 +1,77 @@
+// Rebuild the portrait as a color halftone made of small dots.
+const dotPortraitPixels = new WeakMap();
+
+function makeDotPortrait(img) {
+  const width = 720;
+  const height = 720;
+  const cell = 3;
+  let pixels = dotPortraitPixels.get(img);
+  if (!pixels) {
+    const source = document.createElement("canvas");
+    source.width = width;
+    source.height = height;
+    const sourceContext = source.getContext("2d", { willReadFrequently: true });
+    const cropSize = Math.min(img.naturalWidth, img.naturalHeight);
+    const cropX = (img.naturalWidth - cropSize) / 2;
+    const cropY = (img.naturalHeight - cropSize) * 0.82;
+    sourceContext.drawImage(img, cropX, cropY, cropSize, cropSize, 0, 0, width, height);
+    pixels = sourceContext.getImageData(0, 0, width, height).data;
+    dotPortraitPixels.set(img, pixels);
+  }
+  const art = document.createElement("canvas");
+  art.width = width;
+  art.height = height;
+  const context = art.getContext("2d");
+  const palette = ["--c0", "--c1", "--c2", "--c3", "--c4"].map((name) =>
+    getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+  );
+  const paletteChannels = palette.map((color) => [
+    parseInt(color.slice(1, 3), 16),
+    parseInt(color.slice(3, 5), 16),
+    parseInt(color.slice(5, 7), 16),
+  ]);
+
+  for (let y = cell / 2; y < height; y += cell) {
+    for (let x = cell / 2; x < width; x += cell) {
+      const offset = (Math.floor(y) * width + Math.floor(x)) * 4;
+      const red = pixels[offset];
+      const green = pixels[offset + 1];
+      const blue = pixels[offset + 2];
+      const brightness = (red * 0.299 + green * 0.587 + blue * 0.114) / 255;
+      const nx = x / width;
+      const ny = y / height;
+      const faceHighlight = nx > 0.34 && nx < 0.64 && ny > 0.46 && ny < 0.93 &&
+        brightness > 0.28 && red > green * 0.98 && red > blue * 1.02;
+      const clothingShadow = nx > 0.12 && nx < 0.66 && ny > 0.5 && brightness < 0.32;
+      let level = Math.min(4, Math.floor(brightness * 5));
+      if (clothingShadow) level = Math.max(1, level);
+      if (faceHighlight) level = Math.min(3, Math.max(2, level));
+      const radius = 0.38 + (1 - brightness) * 1.62;
+      context.globalAlpha = 0.55 + (1 - brightness) * 0.45;
+      let color = palette[level];
+      if (faceHighlight) {
+        const nextLevel = Math.min(4, level + 1);
+        const faceColor = paletteChannels[level].map((channel, index) =>
+          Math.round(channel + (paletteChannels[nextLevel][index] - channel) * 0.3)
+        );
+        color = `rgb(${faceColor.join(", ")})`;
+      }
+      context.fillStyle = color;
+      context.beginPath();
+      context.arc(x, y, radius, 0, Math.PI * 2);
+      context.fill();
+    }
+  }
+  context.globalAlpha = 1;
+
+  img.src = art.toDataURL("image/png");
+}
+
+document.querySelectorAll("[data-dot-art]").forEach((img) => {
+  if (img.complete && img.naturalWidth) makeDotPortrait(img);
+  else img.addEventListener("load", () => makeDotPortrait(img), { once: true });
+});
+
 // Tema claro / oscuro
 const root = document.documentElement;
 const toggle = document.getElementById("themeToggle");
@@ -9,6 +83,9 @@ function currentTheme() {
 toggle.addEventListener("click", () => {
   const next = currentTheme() === "dark" ? "light" : "dark";
   root.dataset.theme = next;
+  document.querySelectorAll("[data-dot-art]").forEach((img) => {
+    if (img.complete && img.naturalWidth) makeDotPortrait(img);
+  });
   try { localStorage.setItem("theme", next); } catch (e) {}
 });
 
@@ -19,6 +96,10 @@ const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 // El inglés es el que está escrito en el HTML; aquí solo vive el español.
 const ES_HTML = {
   age: "17 años",
+  role: "Ingeniero de software en Reffactor",
+  to_journey: "Trayectoria",
+  back_map: "← Mapa",
+  back_start: "← Inicio",
   h_today: "Hoy",
   h_edu: "Educación",
   h_links: "Enlaces",
@@ -95,7 +176,7 @@ const STR = {
 };
 
 let LANG = "en";
-try { if (localStorage.getItem("lang") === "es") LANG = "es"; } catch (e) {}
+// The site is English only now; the Spanish strings stay for a possible return of the toggle
 const strs = () => STR[LANG];
 
 const i18nEls = [...document.querySelectorAll("[data-i18n]")];
@@ -103,7 +184,6 @@ const EN_HTML = new Map(i18nEls.map((el) => [el, el.innerHTML]));
 // Los enlaces se escriben una sola vez en el HTML; el español los reutiliza
 const LINKS = {};
 document.querySelectorAll("[data-link]").forEach((a) => (LINKS[a.dataset.link] = a.cloneNode(false)));
-const langBtn = document.getElementById("langToggle");
 
 function applyLanguage(lang) {
   LANG = lang;
@@ -115,8 +195,6 @@ function applyLanguage(lang) {
   });
   root.lang = lang;
   toggle.setAttribute("aria-label", strs().themeLabel);
-  langBtn.setAttribute("aria-label", strs().langLabel);
-  langBtn.querySelectorAll("[data-l]").forEach((s) => s.classList.toggle("on", s.dataset.l === lang));
   for (const sel of ['meta[name="description"]', 'meta[property="og:description"]']) {
     document.querySelector(sel)?.setAttribute("content", strs().description);
   }
@@ -382,22 +460,6 @@ if (!reduce) {
   atBottom();
 }
 
-// Botón EN / ES: cambia todo el texto y lo vuelve a decodificar con el mismo efecto
-langBtn.addEventListener("click", () => {
-  const next = LANG === "en" ? "es" : "en";
-  applyLanguage(next);
-  try { localStorage.setItem("lang", next); } catch (e) {}
-
-  i18nEls.forEach((el) => el.querySelectorAll("a").forEach(addLinkGlitch));
-  if (!reduce) {
-    const before = words.length;
-    i18nEls.filter((el) => el.closest(".block")).forEach(encrypt);
-    words.slice(before).forEach((w, i) => setTimeout(() => reveal(w), i * 10));
-  }
-  window.__refreshGraphText?.();
-  window.__refreshMountain?.();
-});
-
 // ---------- Vistas (home / journey) con un glitch grande entre las dos ----------
 // El nombre y el retrato se quedan arriba; cambia todo lo de abajo. La vista actual
 // vive en root.dataset.view y se refleja en la URL (#journey), así que el botón
@@ -499,9 +561,10 @@ function bigGlitch(onMid) {
   });
 }
 
-const HASH_OF = { mountain: "", home: "#about", journey: "#journey" };
-// Old #about and #journey links land on the mountain now
-const viewFromHash = () => "mountain";
+const HASH_OF = { start: "", mountain: "#map", home: "#about", journey: "#journey" };
+// The landing page is the bare start view; #map opens the mountain and #journey the timeline
+// (old #about links land on the start view)
+const viewFromHash = () => (location.hash === "#journey" ? "journey" : location.hash === "#map" ? "mountain" : "start");
 let switching = false;
 
 function setView(name) {
@@ -539,7 +602,7 @@ function goTo(name, { push = true } = {}) {
 
 root.dataset.view = viewFromHash();
 updateTitle();
-document.querySelectorAll("a[data-nav]").forEach(addLinkGlitch);
+document.querySelectorAll("a[data-nav]:not(.mini-mtn)").forEach(addLinkGlitch);
 document.addEventListener("click", (e) => {
   const a = e.target.closest("a[data-nav]");
   if (!a) return;
@@ -566,9 +629,9 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
     // Full-bleed: 200 columns keep the glyph size of the old 140 over a 2000px-wide cover
     // ROWS and DROP both add to the row offset: together they leave a few rows of sky above the summit, which was cut flat at row 0 before
     wide: { COLS: 200, ROWS: 67, X0: -1.5, W: 6, RISE: 68, DROP: 11.4, K: 1.38, SNOW: 0.46, START: 0.175, XPROG: 0.54, ZIG: 7, GAP: 3,
-      BRIDGE: { tl: 26, tr: 171, w: 4, top: 12, deck: 36, step: 3 } },
+      BRIDGE: { lx: 46, rx: 66, legW: 3, top: 8, deck: 20, sag: 17, vx: 175, vr: 33, far: 0.29, ropes: 9 } },
     narrow: { COLS: 64, ROWS: 70, X0: 0.3, W: 2.8, RISE: 56, DROP: 6.7, K: 1.36, SNOW: 0.3, START: 0.06, XPROG: 0.34, ZIG: 2, GAP: 3,
-      BRIDGE: { tl: 5, tr: 56, w: 3, top: 22, deck: 39, step: 2 } },
+      BRIDGE: { lx: 3, rx: 11, legW: 2, top: 20, deck: 30, sag: 28, vx: 58, vr: 38, far: 0.22, ropes: 5 } },
   };
   let COLS, ROWS, renderArt = () => {}, buttons = [];
 
@@ -854,7 +917,9 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
             else if (strut) put(r, c, "=", "gg");
           }
         }
-      }
+      };
+      tower(far, 1, 2);
+      tower(1, legW, Math.max(3, Math.round((deck - bt) / 3)));
     }
 
     // Spindrift blowing off the summit
@@ -893,9 +958,7 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
           const edgeX = x === L || x === R, edgeY = y === T || y === B;
           put(x, y, edgeX && edgeY ? "+" : edgeY ? "-" : edgeX ? "|" : " ", "cgf");
         }
-      };
-      tower(far, 1, 2);
-      tower(1, legW, Math.max(3, Math.round((deck - bt) / 3)));
+      }
       // Every day is drawn, quiet ones as faint dots, so the matrix reads as a graph
       contrib.rows.forEach((row, y) => row.forEach((d, x) => d && put(x, y, GRAPH[d.level], "cg" + d.level)));
       // Name on the top edge (the whole plaque links to the profile), total beside it, and
@@ -1102,7 +1165,6 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
     });
 
     const total = data.total.lastYear ?? days.reduce((n, d) => n + d.count, 0);
-    window.__setContrib?.({ rows, user, total });
 
     // Todos los textos del gráfico; se vuelve a llamar al cambiar de idioma
     window.__refreshGraphText = () => {
@@ -1169,3 +1231,5 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
     // Si la API falla, la sección queda sin gráfico
   }
 })();
+
+

@@ -69,6 +69,30 @@ body {
 .controls { display: flex; align-items: center; flex: 0 0 auto; }
 .control-buttons { display: flex; align-items: center; gap: 20px; }
 
+.portrait {
+  width: 132px;
+  height: 132px;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: transparent;
+}
+.portrait img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 82%; }
+/* The portrait, the plain name and the short meta line belong to the landing only; the
+   mountain page keeps the terminal-face name and no photo */
+html:not([data-view="start"]) .portrait { display: none; }
+html[data-view="start"] .meta-role { display: none; }
+html[data-view="start"] .name { font-family: var(--font); font-size: 18px; letter-spacing: .06em; }
+html[data-view="start"] .portrait { width: 104px; height: 104px; }
+html[data-view="start"] .meta { margin-top: 12px; flex-direction: column; gap: 3px; font-size: 12px; }
+html[data-view="start"] .meta .dot { display: none; }
+/* Desktop landing: photo and name sit in the same centered column as the text below */
+@media (min-width: 641px) {
+  html[data-view="start"] .top { display: block; position: relative; }
+  html[data-view="start"] .identity { max-width: 480px; margin: 0 auto; gap: 20px; }
+  html[data-view="start"] .controls { position: absolute; top: 0; right: 0; }
+}
+
 .name {
   /* VT323 is a terminal bitmap face: it sits with the text-mode characters of the mountain.
      Its glyphs are small for their em, hence the size. */
@@ -124,23 +148,7 @@ body {
 }
 .dot { opacity: .5; }
 
-.lang-toggle {
-  background: none;
-  border: 0;
-  cursor: pointer;
-  padding: 6px;
-  margin: -6px;
-  font: inherit;
-  font-size: 12px;
-  letter-spacing: .1em;
-  color: var(--muted);
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  transition: color .2s;
-}
-.lang-toggle .on { color: var(--fg); }
-.lang-toggle:hover { color: var(--fg); }
+
 
 .theme-toggle {
   background: none;
@@ -352,7 +360,8 @@ p a:focus-visible,
 
 /* Vistas: mountain (portada), home (sobre mí) y journey. El atributo data-view de <html> decide cuál se ve. */
 .view { display: none; }
-html:not([data-view]) .view[data-view="mountain"],
+html:not([data-view]) .view[data-view="start"],
+html[data-view="start"] .view[data-view="start"],
 html[data-view="mountain"] .view[data-view="mountain"],
 html[data-view="home"] .view[data-view="home"],
 html[data-view="journey"] .view[data-view="journey"] { display: block; }
@@ -460,6 +469,42 @@ html:not([data-view]) .route [data-nav="mountain"] { display: none; }
 
 /* Portada: la montaña ASCII. El ancho manda; la letra se calcula para que 120 columnas llenen el contenedor. */
 .view[data-view="mountain"] { margin-top: 8px; }
+/* Landing body: one narrow centered column of short paragraphs, a card and a row of links */
+.intro { max-width: 480px; margin: 12vh auto 0; }
+.intro .block { margin-bottom: 28px; }
+.intro .contrib { margin: 0 0 28px; }
+.intro p { font-size: 13px; line-height: 1.65; }
+.social { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 16px; font-size: 12px; }
+.social a { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); background-image: none; padding-bottom: 0; }
+.social a:hover, .social a:focus-visible { color: var(--fg); outline: none; }
+/* Leave room so the fixed mini mountain never covers the last paragraph */
+.view[data-view="start"] { padding-bottom: 96px; }
+/* A small mountain pinned to the bottom-right corner: the way into the full timeline */
+.mini-mtn {
+  position: fixed;
+  right: 20px;
+  bottom: 18px;
+  z-index: 5;
+  display: block;
+  padding: 8px 10px 6px;
+  background: var(--bg);
+  background-image: none;
+  text-align: right;
+  color: var(--muted);
+  transition: color .2s;
+}
+.mini-art { font-size: 11px; line-height: 1; letter-spacing: 0; text-align: left; margin-left: auto; width: max-content; }
+.mini-label { display: block; margin-top: 6px; font-size: 10px; letter-spacing: .14em; }
+.mini-label::after { content: " →"; }
+.mm-t { color: var(--c4); }
+.mm-s { color: var(--fg); }
+.mm-r { color: var(--c2); }
+.mini-mtn:hover,
+.mini-mtn:focus-visible { color: var(--fg); outline: none; }
+.mini-mtn:hover .mm-s,
+.mini-mtn:focus-visible .mm-s { color: var(--c4); }
+.back { display: inline-block; margin-bottom: 18px; font-size: 12px; letter-spacing: .1em; color: var(--muted); }
+
 .mtn {
   position: relative;
   left: 50%;
@@ -676,15 +721,6 @@ html.mtn-open { overflow: hidden; }
     -webkit-mask-image: linear-gradient(#000 95%, transparent);
     mask-image: linear-gradient(#000 95%, transparent);
   }
-  #contrib {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: 0;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
 }
 
 /* On desktop the mountain runs edge to edge so no empty sky is left on the sides */
@@ -699,6 +735,7 @@ html.mtn-open { overflow: hidden; }
   .page { padding: 56px 16px 56px; }
   .top { align-items: flex-start; flex-wrap: wrap; row-gap: 16px; }
   .identity { flex: 1 1 100%; gap: 12px; }
+  .portrait, html[data-view="start"] .portrait { width: 80px; height: 80px; }
   .control-buttons { gap: 14px; }
   /* Language and theme sit in the top-right corner, in the page's top padding, so the
      name keeps the whole row below */
