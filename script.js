@@ -343,6 +343,14 @@ if (!reduce) {
     card.addEventListener("focus", run);
   });
   document.querySelectorAll(".clip-action").forEach(addLinkGlitch);
+  // The glitch copy sits at left:0 of its element, so it goes on the label span: on the
+  // whole link it would be drawn over the icon. The link triggers it.
+  document.querySelectorAll(".social a").forEach((link) => {
+    const run = addLinkGlitch(link.querySelector(".social-label"));
+    if (!run) return;
+    link.addEventListener("mouseenter", run);
+    link.addEventListener("focus", run);
+  });
 
   // Años de la trayectoria: glitch morado cada tanto (solo si la vista está a la vista) y al pasar el mouse
   const YEAR_COLORS = ["#a855f7", "#c084fc", "#8b3fe0"];
@@ -1245,4 +1253,21 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
   svg.append(body);
   draw(BODY, 0, body);
   draw(GROUND, BODY.length, svg);
+})();
+
+// Music line: shows what plays on Spotify now, or the last track. A failed request keeps
+// the line hidden, so the page looks the same wherever the function does not run.
+(async function nowPlaying() {
+  const el = document.getElementById("nowPlaying");
+  if (!el) return;
+  try {
+    const r = await fetch("/api/spotify");
+    if (!r.ok) return;
+    const t = await r.json();
+    if (!t.title) return;
+    el.querySelector(".np-state").textContent = t.playing ? "now playing" : "last played";
+    el.querySelector(".np-track").textContent = `${t.title} · ${t.artist}`;
+    if (t.url) el.href = t.url;
+    el.hidden = false;
+  } catch {}
 })();
