@@ -1269,5 +1269,13 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
     el.querySelector(".np-track").textContent = `${t.title} · ${t.artist}`;
     if (t.url) el.href = t.url;
     el.hidden = false;
+
+    // The glitch goes on the track span, after its text is set, because the copy is made
+    // from that text; the link triggers it like the social links do
+    const run = addLinkGlitch(el.querySelector(".np-track"));
+    if (run) {
+      el.addEventListener("mouseenter", run);
+      el.addEventListener("focus", run);
+    }
   } catch {}
 })();
