@@ -343,6 +343,14 @@ if (!reduce) {
     card.addEventListener("focus", run);
   });
   document.querySelectorAll(".clip-action").forEach(addLinkGlitch);
+  // The glitch copy sits at left:0 of its element, so it goes on the label span: on the
+  // whole link it would be drawn over the icon. The link triggers it.
+  document.querySelectorAll(".social a").forEach((link) => {
+    const run = addLinkGlitch(link.querySelector(".social-label"));
+    if (!run) return;
+    link.addEventListener("mouseenter", run);
+    link.addEventListener("focus", run);
+  });
 
   // Años de la trayectoria: glitch morado cada tanto (solo si la vista está a la vista) y al pasar el mouse
   const YEAR_COLORS = ["#a855f7", "#c084fc", "#8b3fe0"];
