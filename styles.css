@@ -480,6 +480,13 @@ html:not([data-view]) .route [data-nav="mountain"] { display: none; }
 .social { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 16px; font-size: 12px; }
 .social a { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); background-image: none; padding-bottom: 0; }
 .social a:hover, .social a:focus-visible { color: var(--fg); outline: none; }
+/* Music: one quiet line under the links; the track name is the only part that can shrink */
+.now-playing { display: flex; align-items: baseline; gap: 8px; margin-top: 18px; font-size: 12px; color: var(--muted); background-image: none; padding-bottom: 0; min-width: 0; }
+.now-playing[hidden] { display: none; }
+.now-playing:hover, .now-playing:focus-visible { color: var(--fg); outline: none; }
+.np-note { color: var(--purple); }
+.np-state { flex: 0 0 auto; letter-spacing: .14em; text-transform: uppercase; opacity: .7; }
+.np-track { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* Projects: compact rows with a thin border, the same family as the other cards */
 .repos-title { margin-bottom: 10px; font-size: 12px; font-weight: 400; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
 .repos-title::before { content: "~/"; color: var(--purple); }

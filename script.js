@@ -1254,3 +1254,20 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
   draw(BODY, 0, body);
   draw(GROUND, BODY.length, svg);
 })();
+
+// Music line: shows what plays on Spotify now, or the last track. A failed request keeps
+// the line hidden, so the page looks the same wherever the function does not run.
+(async function nowPlaying() {
+  const el = document.getElementById("nowPlaying");
+  if (!el) return;
+  try {
+    const r = await fetch("/api/spotify");
+    if (!r.ok) return;
+    const t = await r.json();
+    if (!t.title) return;
+    el.querySelector(".np-state").textContent = t.playing ? "now playing" : "last played";
+    el.querySelector(".np-track").textContent = `${t.title} · ${t.artist}`;
+    if (t.url) el.href = t.url;
+    el.hidden = false;
+  } catch {}
+})();
