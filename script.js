@@ -110,7 +110,7 @@ const ES_HTML = {
   h_map: "Mapa",
   j1_title: "Reffactor",
   j1_text:
-    "Desarrollé de principio a fin un motor de pago de comisiones para seguros de salud, desde escribir código hasta hablar directamente con el cliente.",
+    "A los 16 fui ingeniero de software a cargo de todo el proyecto: un motor de pago de comisiones para seguros de salud, desde escribir código hasta hablar directamente con el cliente.",
   dropout_title: "Dropout Capital",
   j3_when: "2.º medio",
   j3_title: "Dejé el colegio",
