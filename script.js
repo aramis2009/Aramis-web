@@ -99,47 +99,45 @@ const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 // El inglés es el que está escrito en el HTML; aquí solo vive el español.
 const ES_HTML = {
   age: "17 años",
-  role: "Ingeniero de software en Reffactor",
+  role: "Ingeniero de software en Dropout Capital",
   to_journey: "Trayectoria",
-  back_map: "← Mapa",
   back_start: "← Inicio",
   h_today: "Hoy",
   h_edu: "Educación",
   h_links: "Enlaces",
-  nav_journey: "Trayectoria →",
   nav_home: "Sobre mí",
   nav_map: "← Mapa",
   h_map: "Mapa",
-  h_journey: "Trayectoria",
-  j1_title: "Ingeniero de software · Reffactor",
+  j1_title: "Reffactor",
   j1_text:
-    "A cargo de principio a fin de un motor de pago de comisiones para seguros de salud: desde escribir código hasta hablar directamente con el cliente.",
+    "Desarrollé de principio a fin un motor de pago de comisiones para seguros de salud, desde escribir código hasta hablar directamente con el cliente.",
+  dropout_title: "Dropout Capital",
   j3_when: "2.º medio",
   j3_title: "Dejé el colegio",
   j3_text:
     "Dejé el colegio para enfocarme en mis proyectos, y ahora termino la enseñanza media con exámenes libres.",
   alfi_when: "Mediados de 2026",
-  alfi_title: "alfi.ai · proyecto propio",
+  alfi_title: "alfi.ai",
   alfi_text:
-    "Un agente que vive dentro de tu chat y te ayuda a no perder el contexto de la conversación, pensado para trabajos en grupo.",
+    "Proyecto propio: un agente que vive dentro de tu chat y te ayuda a no perder el contexto de la conversación, pensado para trabajos en grupo.",
   visit_site: "Ver sitio →",
   watch_video: "Ver video",
   crm_when: "Principios de 2026",
-  crm_title: "CRM para una óptica",
+  crm_title: "CRM para clínica óptica",
   crm_text:
-    "Desarrollé mi primer CRM para una óptica en Temuco, Chile. Le ayudó al cliente a tener sus ventas, usuarios y más de forma ordenada, cuando antes lo tenía todo en papel.",
+    "Proyecto freelance a los 16 años: desarrollé un CRM para una clínica óptica en Temuco, Chile. Le ayudó al cliente a tener sus ventas, usuarios y más de forma ordenada, cuando antes lo tenía todo en papel.",
   imp_title: "Impresos Berton",
   imp_text: "Rediseñé toda la página web de la empresa de mi familia.",
-  water_title: "waterMarket · mi primer proyecto propio",
+  water_title: "waterMarket",
   water_text:
-    "Un marketplace de recargas de bidones de agua y mi primer proyecto propio. Automatizaba la venta de las recargas para que el cliente no tuviera que gastar su tiempo haciéndolo a mano: solo 3 clics y compras.",
+    "Mi primer proyecto, a los 14 o 15 años: un marketplace de recargas de bidones de agua. Automatizaba la venta de las recargas para que el cliente no tuviera que gastar su tiempo haciéndolo a mano: solo 3 clics y compras.",
   games_when: "Diciembre de 2023",
   games_title: "Mis primeros juegos",
   games_text: "Empecé a programar a los 13 viendo videos, y en el camino creé tres juegos.",
   fortnite_title: "Jugador de Fortnite",
   fortnite_text: "Más de 20.000 horas jugadas en Fortnite.",
   p_today:
-    'Soy ingeniero de software en <a data-link="reffactor">Reffactor</a> desde los 16 años. Estoy a cargo de principio a fin de un motor de pago de comisiones para seguros de salud: desde escribir el código hasta hablar directamente con el cliente.',
+    'Ingeniero de software en <a data-link="dropout">Dropout Capital</a>',
   p_edu:
     'Dejé el colegio en 2.º medio y ahora doy exámenes libres para terminar la enseñanza media. Así puedo organizar mejor mi tiempo y dedicar más tiempo a mis proyectos y al trabajo.',
   p_links:
@@ -159,8 +157,7 @@ const STR = {
     inYear: (n) => `${n} contributions in the last year`,
     ariaYear: (n) => `${n} GitHub contributions in the last year`,
     dateLocale: "en-US",
-    description: "Software engineer at Reffactor.",
-    journeyTitle: "Journey",
+    description: "Software engineer at Dropout Capital.",
   },
   es: {
     copied: "Copiado ✓",
@@ -173,8 +170,7 @@ const STR = {
     inYear: (n) => `${n} contribuciones en el último año`,
     ariaYear: (n) => `${n} contribuciones en GitHub en el último año`,
     dateLocale: "es",
-    description: "Ingeniero de software en Reffactor.",
-    journeyTitle: "Trayectoria",
+    description: "Ingeniero de software en Dropout Capital.",
   },
 };
 
@@ -201,14 +197,10 @@ function applyLanguage(lang) {
   for (const sel of ['meta[name="description"]', 'meta[property="og:description"]']) {
     document.querySelector(sel)?.setAttribute("content", strs().description);
   }
-  updateTitle();
   // El glitch de los enlaces de navegación copia su texto: ponerlo al día
   document.querySelectorAll(".link-glitch[data-i18n]").forEach((a) => (a.dataset.text = a.textContent.trim()));
 }
 
-function updateTitle() {
-  document.title = root.dataset.view === "journey" ? `${strs().journeyTitle} — Aramis Berton` : "Aramis Berton";
-}
 if (LANG !== "en") applyLanguage(LANG);
 
 // Copiar el email al hacer clic (mailto no funciona sin app de correo)
@@ -351,34 +343,6 @@ if (!reduce) {
     link.addEventListener("mouseenter", run);
     link.addEventListener("focus", run);
   });
-
-  // Años de la trayectoria: glitch morado cada tanto (solo si la vista está a la vista) y al pasar el mouse
-  const YEAR_COLORS = ["#a855f7", "#c084fc", "#8b3fe0"];
-  document.querySelectorAll(".year-title").forEach((el, n) => {
-    el.classList.add("link-glitch");
-    el.dataset.text = el.textContent.trim();
-    let running = false;
-    const run = () => {
-      if (running) return;
-      running = true;
-      el.classList.add("glitching");
-      let i = 0;
-      const id = setInterval(() => {
-        jitter(el, YEAR_COLORS);
-        if (++i >= 9) {
-          clearInterval(id);
-          el.classList.remove("glitching");
-          running = false;
-        }
-      }, 50);
-    };
-    el.addEventListener("mouseenter", run);
-    const loop = () => setTimeout(() => {
-      if (root.dataset.view === "journey" && !document.hidden) run();
-      loop();
-    }, rnd(3500, 7000));
-    setTimeout(loop, 1200 + n * 700); // desfasados para que no coincidan
-  });
 }
 
 // Videos de los juegos: cerrados por defecto; al abrirlos arrancan solos y al cerrarlos se pausan
@@ -486,10 +450,10 @@ if (!reduce) {
   atBottom();
 }
 
-// ---------- Vistas (home / journey) con un glitch grande entre las dos ----------
-// El nombre y el retrato se quedan arriba; cambia todo lo de abajo. La vista actual
-// vive en root.dataset.view y se refleja en la URL (#journey), así que el botón
-// "atrás" y los enlaces compartidos funcionan.
+// ---------- Views (start / mountain), with a big glitch between them ----------
+// The name stays on top and everything below changes. The current view lives in
+// root.dataset.view and is mirrored in the URL (#map), so the back button and shared
+// links work.
 
 // Varias franjas horizontales a la vez, como un clip-path (un solo polígono en zigzag)
 function bands(strength) {
@@ -587,15 +551,14 @@ function bigGlitch(onMid) {
   });
 }
 
-const HASH_OF = { start: "", mountain: "#map", home: "#about", journey: "#journey" };
-// The landing page is the bare start view; #map opens the mountain and #journey the timeline
-// (old #about links land on the start view)
-const viewFromHash = () => (location.hash === "#journey" ? "journey" : location.hash === "#map" ? "mountain" : "start");
+const HASH_OF = { start: "", mountain: "#map", home: "#about" };
+// The landing page is the bare start view; #map opens the mountain. Old #journey links
+// (the former list page) open the mountain too, and old #about links land on the start view
+const viewFromHash = () => (["#map", "#journey"].includes(location.hash) ? "mountain" : "start");
 let switching = false;
 
 function setView(name) {
   root.dataset.view = name;
-  updateTitle();
   window.scrollTo(0, 0);
   const h = document.querySelector(`.view[data-view="${name}"] h2`);
   if (h) { h.setAttribute("tabindex", "-1"); h.focus({ preventScroll: true }); }
@@ -627,7 +590,6 @@ function goTo(name, { push = true } = {}) {
 }
 
 root.dataset.view = viewFromHash();
-updateTitle();
 document.querySelectorAll("a[data-nav]:not(.mini-mtn)").forEach(addLinkGlitch);
 document.addEventListener("click", (e) => {
   const a = e.target.closest("a[data-nav]");
@@ -654,7 +616,7 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
   const VIEWS = {
     // Full-bleed: 200 columns keep the glyph size of the old 140 over a 2000px-wide cover
     // ROWS and DROP both add to the row offset: together they leave a few rows of sky above the summit, which was cut flat at row 0 before
-    wide: { COLS: 200, ROWS: 67, X0: -1.5, W: 6, RISE: 68, DROP: 11.4, K: 1.38, SNOW: 0.46, START: 0.175, XPROG: 0.54, ZIG: 7, GAP: 3, HORIZON: 0.66 },
+    wide: { COLS: 200, ROWS: 67, X0: -1.5, W: 6, RISE: 68, DROP: 11.4, K: 1.38, SNOW: 0.46, HORIZON: 0.66 },
   };
   // Phones use the same terrain as desktop; CSS crops it around the route and the summit
   // (see .mtn-stage), so the mountain keeps its shape instead of becoming a close-up
@@ -685,16 +647,22 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
   window.__setContrib = (data) => { contrib = data; renderArt(); };
   inFoot.addEventListener("change", () => renderArt());
 
-  // The journey entries from base camp up to where the climb stands today
+  // The journey entries from base camp up to where the climb stands today.
+  // `at` is a hand-placed [column, row] on the art grid: the climb stops on the second peak,
+  // far below the summit, to show how much is still ahead (the seeded terrain never moves).
+  // `via` bends the trail between a point and the next one without adding a marker.
+  // `phone` replaces both on narrow screens: the columns are much tighter there, so the
+  // climb starts at the bottom, in front of the mountain, and zigzags up to the same peak.
   const POINTS = [
-    { key: "fortnite_title", year: "2018" },
-    { key: "games_title", year: "2023" },
-    { key: "water_title", year: "2024" },
-    { key: "imp_title", year: "2025" },
-    { key: "crm_title", year: "2026" },
-    { key: "alfi_title", year: "2026", repeat: true },
-    { key: "j3_title", year: "2026", repeat: true },
-    { key: "j1_title", year: null },
+    { key: "fortnite_title", year: "2018", at: [8, 49], phone: [70, 62] },
+    { key: "games_title", year: "2023", at: [13, 44], phone: [46, 58], via: [[17, 42]] },
+    { key: "water_title", year: "2024", at: [20, 39], phone: [22, 53], via: [[23, 40]] },
+    { key: "imp_title", year: "2025", at: [27, 42], phone: [40, 48] },
+    { key: "crm_title", year: "2026", at: [34, 37], phone: [64, 44] },
+    { key: "alfi_title", year: "2026", repeat: true, at: [40, 36], phone: [46, 39] },
+    { key: "j3_title", year: "2026", repeat: true, at: [45, 33], phone: [26, 35] },
+    { key: "j1_title", year: "2026", repeat: true, at: [50, 29], phone: [40, 29], via: [[51, 26]] },
+    { key: "dropout_title", year: null, at: [53, 23], phone: [53, 23] },
   ];
   POINTS.forEach((p) => (p.li = document.querySelector(`[data-i18n="${p.key}"]`)?.closest("li")));
 
@@ -862,29 +830,24 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
     const summitCols = top.map((r, c) => (r === summitRow ? c : -1)).filter((c) => c >= 0);
     const summitX = summitCols[summitCols.length >> 1];
 
-    const startX = Math.round(COLS * view.START), baseRow = ROWS - 5, last = POINTS.length - 1;
-    // The route starts at the trailhead and "now" is only about a third of the way up: the summit stands for the biggest goal, with most of the climb still ahead
-    const PROGRESS = 0.34;
-    POINTS.forEach((p, i) => {
-      const t = (i / last) * PROGRESS;
-      // Horizontal progress is decoupled from altitude: on desktop the trailhead sits far
-      // out on the left flank, so the walk crosses a long way before it gains height
-      const tx = (i / last) * view.XPROG;
-      // Switchbacks, like a real route
-      const zig = i === 0 || i === last ? 0 : (i % 2 ? view.ZIG : -view.ZIG);
-      p.x = Math.round(startX + (summitX - startX) * tx + zig);
-      p.y = Math.max(top[p.x] + 1, Math.round(baseRow + (summitRow - baseRow) * Math.pow(t, 0.85)));
-      // Markers are 32px tall: keep a minimum row gap so neighbours never overlap, even
-      // where the skyline clamp would otherwise pile several of them on the same row
-      if (i > 0) p.y = Math.max(top[p.x] + 1, Math.min(p.y, POINTS[i - 1].y - view.GAP));
-    });
+    const phone = narrow.matches;
+    POINTS.forEach((p) => ([p.x, p.y] = phone ? p.phone : p.at));
+    const trail = POINTS.flatMap((p) => (phone ? [p.phone] : [p.at, ...(p.via || [])])).map(([x, y]) => ({ x, y }));
+    const last = trail.length - 1;
     const route = new Set();
     for (let i = 0; i < last; i++) {
-      const a = POINTS[i], b = POINTS[i + 1];
-      const n = Math.max(Math.abs(b.x - a.x), Math.abs(b.y - a.y));
-      for (let k = 0; k <= n; k++) {
-        const x = Math.round(a.x + ((b.x - a.x) * k) / n);
-        const y = Math.max(top[x], Math.round(a.y + ((b.y - a.y) * k) / n));
+      const p0 = trail[Math.max(0, i - 1)];
+      const p1 = trail[i];
+      const p2 = trail[i + 1];
+      const p3 = trail[Math.min(last, i + 2)];
+      const steps = Math.max(Math.abs(p2.x - p1.x), Math.abs(p2.y - p1.y)) * 2;
+      for (let k = 0; k <= steps; k++) {
+        const t = k / steps, t2 = t * t, t3 = t2 * t;
+        const curve = (a, b, c, d) => 0.5 * (
+          2 * b + (-a + c) * t + (2 * a - 5 * b + 4 * c - d) * t2 + (-a + 3 * b - 3 * c + d) * t3
+        );
+        const x = Math.round(curve(p0.x, p1.x, p2.x, p3.x));
+        const y = Math.round(curve(p0.y, p1.y, p2.y, p3.y));
         route.add(y * COLS + x);
       }
     }
@@ -1041,7 +1004,7 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
     footLink.style.fontSize = art.style.fontSize;
   }
 
-  // Labels follow the language (the titles live in the timeline entries)
+  // Labels follow the language (the titles live in the journey entries)
   function syncLabels() {
     POINTS.forEach((p, i) => {
       const b = buttons[i];
@@ -1065,7 +1028,7 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
   new ResizeObserver(fit).observe(fig);
   document.fonts?.ready.then(fit);
 
-  // Panel: the real timeline nodes are moved in (so their video handlers keep working)
+  // Panel: the real journey nodes are moved in (so their video handlers keep working)
   // and moved back on close.
   let current = -1, opener = null;
 

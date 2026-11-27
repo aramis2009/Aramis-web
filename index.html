@@ -4,10 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Aramis Berton</title>
-  <meta name="description" content="Aramis Berton — software engineer at Reffactor." />
+  <meta name="description" content="Aramis Berton — software engineer at Dropout Capital." />
   <meta name="theme-color" content="#000000" />
   <meta property="og:title" content="Aramis Berton" />
-  <meta property="og:description" content="Software engineer at Reffactor." />
+  <meta property="og:description" content="Software engineer at Dropout Capital." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='black'/><text x='50' y='70' font-family='monospace' font-size='64' fill='white' text-anchor='middle'>_</text></svg>" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -22,7 +22,7 @@
       if (t) document.documentElement.dataset.theme = t;
     } catch (e) {}
     // The landing page is just the name and the mini mountain; #map opens the big mountain
-    document.documentElement.dataset.view = location.hash === "#journey" ? "journey" : location.hash === "#map" ? "mountain" : "start";
+    document.documentElement.dataset.view = ["#map", "#journey"].includes(location.hash) ? "mountain" : "start";
   </script>
 </head>
 <body>
@@ -43,7 +43,7 @@
             <span class="dot" aria-hidden="true">·</span>
             <span>Concepción, Chile</span>
             <span class="dot meta-role" aria-hidden="true">·</span>
-            <span class="meta-role" data-i18n="role">Software engineer at Reffactor</span>
+            <span class="meta-role" data-i18n="role">Software engineer at Dropout Capital</span>
           </p>
 
         </div>
@@ -75,16 +75,14 @@
       <section class="block">
         <p data-i18n="p_today">
           Software engineer at
-          <a data-link="reffactor" href="https://reffactor.com/" target="_blank" rel="noopener">Reffactor</a>
-          since I was 16. I build a health insurance commission payment engine end to end,
-          client included.
+          <a data-link="dropout" href="https://www.dropout.cl" target="_blank" rel="noopener">Dropout Capital</a>
         </p>
       </section>
 
       <section class="block">
         <p data-i18n="p_edu">
-          I left school in 10th grade and am finishing high school through independent
-          exams, to focus on my projects and work.
+          I'm finishing high school through independent
+          exams to focus on work.
         </p>
       </section>
 
@@ -146,22 +144,21 @@
 
     </div>
 
-    <div class="view" data-view="journey">
-      <section class="block">
-        <a class="back" data-nav="mountain" href="#map" data-i18n="back_map">← Map</a>
-        <h2 data-i18n="h_journey">Journey</h2>
-
-        <!-- Para agregar un hito: copia un <li> y suma sus textos (EN aquí, ES en ES_HTML de script.js).
-             Los años son filas <li class="year">. Van del más reciente al más antiguo.
-             El <li class="now"> es el que va relleno: dónde estás ahora. -->
-        <ol class="timeline">
-          <li class="year">
-            <h3 class="year-title">2026</h3>
+    <!-- Never shown on its own: script.js moves each entry into the panel of its point on the
+         mountain. To add a milestone, add an <li> here (EN here, ES in ES_HTML in script.js)
+         and its point in POINTS. The "block" class opts the text into the scramble effect. -->
+    <div class="block" id="journeyData" hidden>
+        <ul>
+          <li>
+            <h4 data-i18n="dropout_title">Dropout Capital</h4>
+            <a class="entry-link" href="https://www.dropout.cl" target="_blank" rel="noopener"
+              data-i18n="visit_site">Visit site →</a>
           </li>
-          <li class="now">
-            <h4 data-i18n="j1_title">Software engineer · Reffactor</h4>
+
+          <li>
+            <h4 data-i18n="j1_title">Reffactor</h4>
             <p data-i18n="j1_text">
-              Owning a health insurance commission payment engine end to end,
+              I built a health insurance commission payment engine end to end,
               from writing code to speaking directly with the client.
             </p>
             <a class="entry-link" href="https://reffactor.com" target="_blank" rel="noopener"
@@ -178,9 +175,9 @@
           </li>
           <li>
             <span class="when" data-i18n="alfi_when">Mid 2026</span>
-            <h4 data-i18n="alfi_title">alfi.ai · my own project</h4>
+            <h4 data-i18n="alfi_title">alfi.ai</h4>
             <p data-i18n="alfi_text">
-              An agent that lives inside your chat and helps you keep the context
+              My own project: an agent that lives inside your chat and helps you keep the context
               of the conversation, built for group work.
             </p>
             <a class="entry-link" href="https://alfi-page.vercel.app" target="_blank" rel="noopener"
@@ -188,37 +185,28 @@
           </li>
           <li>
             <span class="when" data-i18n="crm_when">Early 2026</span>
-            <h4 data-i18n="crm_title">CRM for an optical shop</h4>
+            <h4 data-i18n="crm_title">Optical clinic CRM</h4>
             <p data-i18n="crm_text">
-              Built my first CRM for an optical shop in Temuco, Chile. It helped the client
-              keep their sales, customers and more organized; before, everything was on paper.
+              A freelance project at 16: I built a CRM for an optical clinic in Temuco, Chile. It helped the
+              client keep their sales, customers and more organized; before, everything was on paper.
             </p>
           </li>
 
-          <li class="year">
-            <h3 class="year-title">2025</h3>
-          </li>
           <li>
             <!-- Falta la URL de Impresos Berton -->
             <h4 data-i18n="imp_title">Impresos Berton</h4>
             <p data-i18n="imp_text">Redesigned the whole website of my family's company.</p>
           </li>
 
-          <li class="year">
-            <h3 class="year-title">2024</h3>
-          </li>
           <li>
-            <h4 data-i18n="water_title">waterMarket · my first project</h4>
+            <h4 data-i18n="water_title">waterMarket</h4>
             <p data-i18n="water_text">
-              A marketplace for water jug refills, and my first project of my own. It automated
-              selling the refills so customers didn't have to spend their time doing it by hand:
-              just 3 clicks and you buy.
+              My first project, at 14–15: a marketplace for water jug refills. It automated selling the
+              refills so customers didn't have to spend their time doing it by hand: just 3 clicks and
+              you buy.
             </p>
           </li>
 
-          <li class="year">
-            <h3 class="year-title">2023</h3>
-          </li>
           <li>
             <span class="when" data-i18n="games_when">December 2023</span>
             <h4 data-i18n="games_title">My first games</h4>
@@ -265,9 +253,6 @@
             </div>
           </li>
 
-          <li class="year">
-            <h3 class="year-title">2018 – 2023</h3>
-          </li>
           <li>
             <h4 data-i18n="fortnite_title">Fortnite player</h4>
             <p data-i18n="fortnite_text">More than 20,000 hours played in Fortnite.</p>
@@ -298,8 +283,7 @@
               </details>
             </div>
           </li>
-        </ol>
-      </section>
+        </ul>
     </div>
   </main>
 

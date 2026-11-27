@@ -358,74 +358,26 @@ p a:focus-visible,
 }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-/* Vistas: mountain (portada), home (sobre mí) y journey. El atributo data-view de <html> decide cuál se ve. */
+/* Views: the <html> data-view attribute decides which one is shown */
 .view { display: none; }
 html:not([data-view]) .view[data-view="start"],
 html[data-view="start"] .view[data-view="start"],
 html[data-view="mountain"] .view[data-view="mountain"],
-html[data-view="home"] .view[data-view="home"],
-html[data-view="journey"] .view[data-view="journey"] { display: block; }
+html[data-view="home"] .view[data-view="home"] { display: block; }
 [tabindex="-1"]:focus { outline: none; }
 
 /* Enlaces entre vistas */
 .route { display: flex; gap: 14px; margin-top: 14px; font-size: 12px; letter-spacing: .1em; }
 .route a { color: var(--muted); }
 .route a:hover,
-.route a:focus-visible,
-.timeline .entry-link:hover,
-.timeline .entry-link:focus-visible {
+.route a:focus-visible {
   color: var(--fg);
   background-image: linear-gradient(90deg, var(--gold), var(--purple));
   outline: none;
 }
 html[data-view="mountain"] .route [data-nav="mountain"],
-html[data-view="home"] .route [data-nav="home"],
-html[data-view="journey"] .route [data-nav="journey"] { display: none; }
+html[data-view="home"] .route [data-nav="home"] { display: none; }
 html:not([data-view]) .route [data-nav="mountain"] { display: none; }
-
-/* Trayectoria: una sección por año. Todo va en dorado y solo el hito actual (.now)
-   lleva el marcador relleno, para mostrar dónde estás ahora. */
-.timeline {
-  list-style: none;
-  margin: 6px 0 0 4px;
-  padding: 0 0 0 26px;
-  border-left: 1px solid var(--line);
-}
-.timeline li { position: relative; padding-bottom: 26px; }
-.timeline li:last-child { padding-bottom: 0; }
-.timeline li::before {
-  content: "";
-  position: absolute;
-  left: -31px;
-  top: 6px;
-  width: 9px;
-  height: 9px;
-  background: var(--bg);
-  border: 1px solid var(--c4);
-}
-.timeline li.now::before { background: var(--c4); }
-/* Las filas de año llevan una rayita en vez de un cuadrado */
-.timeline li.year { padding-bottom: 12px; }
-.timeline li.year::before {
-  left: -27px;
-  top: 12px;
-  width: 12px;
-  height: 1px;
-  border: 0;
-  background: var(--purple);
-}
-.timeline .year-title {
-  font-size: 15px;
-  font-weight: 400;
-  letter-spacing: .12em;
-  color: var(--fg);
-  text-shadow: 2px 0 color-mix(in srgb, var(--purple) 60%, transparent);
-}
-.timeline .year-title.link-glitch::before,
-.timeline .year-title.link-glitch::after { text-shadow: none; }
-.timeline .when { display: block; font-size: 12px; letter-spacing: .1em; color: var(--muted); }
-.timeline h4 { font-size: 14px; font-weight: 400; letter-spacing: .06em; color: var(--c4); margin: 4px 0 6px; }
-.timeline p { color: var(--muted); max-width: 70ch; }
 
 /* Videos cortos de los juegos: cerrados por defecto (miniatura + nombre); el clic despliega el video */
 .clips { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; margin-top: 14px; }
@@ -465,12 +417,11 @@ html:not([data-view]) .route [data-nav="mountain"] { display: none; }
   border: 1px solid var(--c4);
   margin-top: 10px;
 }
-.timeline .entry-link { display: inline-block; margin-top: 8px; font-size: 12px; letter-spacing: .1em; color: var(--muted); }
 
 /* Portada: la montaña ASCII. El ancho manda; la letra se calcula para que 120 columnas llenen el contenedor. */
 .view[data-view="mountain"] { margin-top: 8px; }
 /* Landing body: one narrow centered column of short paragraphs, a card and a row of links */
-.intro { max-width: 480px; margin: 12vh auto 0; }
+.intro { max-width: 480px; margin: 7vh auto 0; }
 .intro .block { margin-bottom: 28px; }
 .intro .contrib { margin: 0 0 28px; }
 .intro p { font-size: 13px; line-height: 1.65; }
@@ -508,7 +459,7 @@ html:not([data-view]) .route [data-nav="mountain"] { display: none; }
 .repo-desc { grid-column: 1 / -1; font-size: 12px; line-height: 1.5; color: var(--muted); }
 /* Leave room so the fixed mini mountain never covers the last paragraph */
 .view[data-view="start"] { padding-bottom: 96px; }
-/* A small mountain pinned to the bottom-right corner: the way into the full timeline */
+/* A small mountain pinned to the bottom-right corner: the way into the full route */
 .mini-mtn {
   position: fixed;
   right: 20px;
@@ -770,10 +721,10 @@ html.mtn-open { overflow: hidden; }
      name keeps the whole row below */
   .top { position: relative; }
   .controls { position: absolute; top: -42px; right: 0; }
-  /* The stage is wider than the screen and shifted left, so only the middle of the range
-     shows (the route and the summit); taller rows stretch it so the points do not crowd */
+  /* The stage is wider than the screen, so the right side of the range is cropped away
+     while the whole route and the summit stay in view; taller rows stretch it so the points do not crowd */
   .mtn { overflow: hidden; }
-  .mtn-stage { width: 165%; margin-left: -22%; }
+  .mtn-stage { width: 175%; margin-left: -3%; }
   .mtn-art { line-height: 1.9; font-weight: 600; }
   /* Years sit beside their dot on a solid chip instead of on top of the rock */
   .pt-year {
