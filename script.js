@@ -95,113 +95,16 @@ const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const DIGITS = "0123456789";
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-// ---------- Idioma (EN / ES) ----------
-// El inglés es el que está escrito en el HTML; aquí solo vive el español.
-const ES_HTML = {
-  age: "17 años",
-  role: "Ingeniero de software en Dropout Capital",
-  to_journey: "Trayectoria",
-  back_start: "← Inicio",
-  h_today: "Hoy",
-  h_edu: "Educación",
-  h_links: "Enlaces",
-  nav_home: "Sobre mí",
-  nav_map: "← Mapa",
-  h_map: "Mapa",
-  j1_title: "Reffactor",
-  j1_text:
-    "A los 16 fui ingeniero de software a cargo de todo el proyecto: un motor de pago de comisiones para seguros de salud, desde escribir código hasta hablar directamente con el cliente.",
-  dropout_title: "Dropout Capital",
-  j3_when: "2.º medio",
-  j3_title: "Dejé el colegio",
-  j3_text:
-    "Dejé el colegio para enfocarme en mis proyectos, y ahora termino la enseñanza media con exámenes libres.",
-  alfi_when: "Mediados de 2026",
-  alfi_title: "alfi.ai",
-  alfi_text:
-    "Proyecto propio: un agente que vive dentro de tu chat y te ayuda a no perder el contexto de la conversación, pensado para trabajos en grupo.",
-  visit_site: "Ver sitio →",
-  watch_video: "Ver video",
-  crm_when: "Principios de 2026",
-  crm_title: "CRM para clínica óptica",
-  crm_text:
-    "Proyecto freelance a los 16 años: desarrollé un CRM para una clínica óptica en Temuco, Chile. Le ayudó al cliente a tener sus ventas, usuarios y más de forma ordenada, cuando antes lo tenía todo en papel.",
-  imp_title: "Impresos Berton",
-  imp_text: "Rediseñé toda la página web de la empresa de mi familia.",
-  water_title: "waterMarket",
-  water_text:
-    "Mi primer proyecto, a los 14 o 15 años: un marketplace de recargas de bidones de agua. Automatizaba la venta de las recargas para que el cliente no tuviera que gastar su tiempo haciéndolo a mano: solo 3 clics y compras.",
-  games_when: "Diciembre de 2023",
-  games_title: "Mis primeros juegos",
-  games_text: "Empecé a programar a los 13 viendo videos, y en el camino creé tres juegos.",
-  fortnite_title: "Jugador de Fortnite",
-  fortnite_text: "Más de 20.000 horas jugadas en Fortnite.",
-  p_today:
-    'Ingeniero de software en <a data-link="dropout">Dropout Capital</a>',
-  p_edu:
-    'Dejé el colegio en 2.º medio y ahora doy exámenes libres para terminar la enseñanza media. Así puedo organizar mejor mi tiempo y dedicar más tiempo a mis proyectos y al trabajo.',
-  p_links:
-    'No dudes en escribirme por <a data-link="email">email</a>, o encuéntrame en <a data-link="x">X</a>, <a data-link="instagram">Instagram</a> y <a data-link="linkedin">LinkedIn</a>.',
+// Strings assembled at runtime; everything static is written straight into the HTML
+const TEXT = {
+  copied: "Copied ✓",
+  less: "less",
+  more: "more",
+  now: "now",
+  contributions: (n) => `${n} contribution${n === 1 ? "" : "s"}`,
+  inYear: (n) => `${n} contributions in the last year`,
+  ariaYear: (n) => `${n} GitHub contributions in the last year`,
 };
-
-// Textos sueltos (gráfico de GitHub, avisos, etiquetas de accesibilidad)
-const STR = {
-  en: {
-    copied: "Copied ✓",
-    themeLabel: "Toggle theme",
-    langLabel: "Traducir al español",
-    less: "less",
-    more: "more",
-    now: "now",
-    contributions: (n) => `${n} contribution${n === 1 ? "" : "s"}`,
-    inYear: (n) => `${n} contributions in the last year`,
-    ariaYear: (n) => `${n} GitHub contributions in the last year`,
-    dateLocale: "en-US",
-    description: "Software engineer at Dropout Capital.",
-  },
-  es: {
-    copied: "Copiado ✓",
-    themeLabel: "Cambiar tema",
-    langLabel: "Translate to English",
-    less: "menos",
-    more: "más",
-    now: "ahora",
-    contributions: (n) => `${n} ${n === 1 ? "contribución" : "contribuciones"}`,
-    inYear: (n) => `${n} contribuciones en el último año`,
-    ariaYear: (n) => `${n} contribuciones en GitHub en el último año`,
-    dateLocale: "es",
-    description: "Ingeniero de software en Dropout Capital.",
-  },
-};
-
-let LANG = "en";
-// The site is English only now; the Spanish strings stay for a possible return of the toggle
-const strs = () => STR[LANG];
-
-const i18nEls = [...document.querySelectorAll("[data-i18n]")];
-const EN_HTML = new Map(i18nEls.map((el) => [el, el.innerHTML]));
-// Los enlaces se escriben una sola vez en el HTML; el español los reutiliza
-const LINKS = {};
-document.querySelectorAll("[data-link]").forEach((a) => (LINKS[a.dataset.link] = a.cloneNode(false)));
-
-function applyLanguage(lang) {
-  LANG = lang;
-  i18nEls.forEach((el) => {
-    el.innerHTML = lang === "en" ? EN_HTML.get(el) : ES_HTML[el.dataset.i18n];
-    el.querySelectorAll("a[data-link]").forEach((a) => {
-      for (const { name, value } of LINKS[a.dataset.link].attributes) a.setAttribute(name, value);
-    });
-  });
-  root.lang = lang;
-  toggle.setAttribute("aria-label", strs().themeLabel);
-  for (const sel of ['meta[name="description"]', 'meta[property="og:description"]']) {
-    document.querySelector(sel)?.setAttribute("content", strs().description);
-  }
-  // El glitch de los enlaces de navegación copia su texto: ponerlo al día
-  document.querySelectorAll(".link-glitch[data-i18n]").forEach((a) => (a.dataset.text = a.textContent.trim()));
-}
-
-if (LANG !== "en") applyLanguage(LANG);
 
 // Copiar el email al hacer clic (mailto no funciona sin app de correo)
 const toast = document.getElementById("toast");
@@ -219,7 +122,7 @@ document.addEventListener("click", async (e) => {
   const value = a.dataset.copy;
   try {
     await navigator.clipboard.writeText(value);
-    showToast(`${strs().copied} ${value}`);
+    showToast(`${TEXT.copied} ${value}`);
   } catch {
     // Sin acceso al portapapeles: se abre la app de correo con mailto
     location.href = a.href;
@@ -654,17 +557,17 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
   // `phone` replaces both on narrow screens: the columns are much tighter there, so the
   // climb starts at the bottom, in front of the mountain, and zigzags up to the same peak.
   const POINTS = [
-    { key: "fortnite_title", year: "2018", at: [8, 49], phone: [70, 62] },
-    { key: "games_title", year: "2023", at: [13, 44], phone: [46, 58], via: [[17, 42]] },
-    { key: "water_title", year: "2024", at: [20, 39], phone: [22, 53], via: [[23, 40]] },
-    { key: "imp_title", year: "2025", at: [27, 42], phone: [40, 48] },
-    { key: "crm_title", year: "2026", at: [34, 37], phone: [64, 44] },
-    { key: "alfi_title", year: "2026", repeat: true, at: [40, 36], phone: [46, 39] },
-    { key: "j3_title", year: "2026", repeat: true, at: [45, 33], phone: [26, 35] },
-    { key: "j1_title", year: "2026", repeat: true, at: [50, 29], phone: [40, 29], via: [[51, 26]] },
-    { key: "dropout_title", year: null, at: [53, 23], phone: [53, 23] },
+    { id: "fortnite", year: "2018", at: [8, 49], phone: [70, 62] },
+    { id: "games", year: "2023", at: [13, 44], phone: [46, 58], via: [[17, 42]] },
+    { id: "water", year: "2024", at: [20, 39], phone: [22, 53], via: [[23, 40]] },
+    { id: "imp", year: "2025", at: [27, 42], phone: [40, 48] },
+    { id: "crm", year: "2026", at: [34, 37], phone: [64, 44] },
+    { id: "alfi", year: "2026", repeat: true, at: [40, 36], phone: [46, 39] },
+    { id: "j3", year: "2026", repeat: true, at: [45, 33], phone: [26, 35] },
+    { id: "j1", year: "2026", repeat: true, at: [50, 29], phone: [40, 29], via: [[51, 26]] },
+    { id: "dropout", year: null, at: [53, 23], phone: [53, 23] },
   ];
-  POINTS.forEach((p) => (p.li = document.querySelector(`[data-i18n="${p.key}"]`)?.closest("li")));
+  POINTS.forEach((p) => (p.li = document.querySelector(`li[data-point="${p.id}"]`)));
 
   // Seeded so the mountain looks the same on every visit
   let seed = 7;
@@ -915,14 +818,13 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
       contrib.rows.forEach((row, y) => row.forEach((d, x) => d && put(x, y, GRAPH[d.level], "cg" + d.level)));
       // Name on the top edge (the whole plaque links to the profile), total beside it, and
       // the legend on the bottom edge
-      const t = strs();
       text(0, T, ` @${contrib.user} `, "cgt");
-      const total = ` ${t.contributions(contrib.total)} `;
+      const total = ` ${TEXT.contributions(contrib.total)} `;
       text(weeks - total.length, T, total, "cgm");
-      const legend = [" ", ...t.less, " ", ...GRAPH.flatMap((g) => [g, " "]), ...t.more, " "];
+      const legend = [" ", ...TEXT.less, " ", ...GRAPH.flatMap((g) => [g, " "]), ...TEXT.more, " "];
       legend.forEach((ch, i) => {
         const gi = GRAPH.indexOf(ch);
-        put(weeks - legend.length + i, B, ch, gi >= 0 && i > t.less.length + 1 ? "cg" + gi : "cgm");
+        put(weeks - legend.length + i, B, ch, gi >= 0 && i > TEXT.less.length + 1 ? "cg" + gi : "cgm");
       });
       footName.textContent = `@${contrib.user}`;
       footName.dataset.text = footName.textContent;
@@ -1004,7 +906,7 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
     footLink.style.fontSize = art.style.fontSize;
   }
 
-  // Labels follow the language (the titles live in the journey entries)
+  // Labels are read from the journey entries, which own the titles
   function syncLabels() {
     POINTS.forEach((p, i) => {
       const b = buttons[i];
@@ -1013,13 +915,11 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
       const h4 = p.li.querySelector("h4");
       const title = (h4?.querySelector(".sr-only") || h4)?.textContent.trim() || "";
       // A year shown by the point just below is not repeated; screen readers still get it
-      b.querySelector(".pt-year").textContent = p.repeat ? "" : (p.year ?? strs().now);
+      b.querySelector(".pt-year").textContent = p.repeat ? "" : (p.year ?? TEXT.now);
       b.querySelector(".pt-name").textContent = title;
-      b.setAttribute("aria-label", `${p.year ?? strs().now} — ${title}`);
+      b.setAttribute("aria-label", `${p.year ?? TEXT.now} — ${title}`);
     });
   }
-  // The plaque caption is part of the art, so a language change redraws it too
-  window.__refreshMountain = () => { syncLabels(); renderArt(); };
 
   const narrow = matchMedia("(max-width: 640px)");
   build(narrow.matches ? VIEWS.narrow : VIEWS.wide);
@@ -1118,23 +1018,18 @@ addEventListener("popstate", () => goTo(viewFromHash(), { push: false }));
 
     const total = data.total.lastYear ?? days.reduce((n, d) => n + d.count, 0);
 
-    // Todos los textos del gráfico; se vuelve a llamar al cambiar de idioma
-    window.__refreshGraphText = () => {
-      const t = strs();
-      const fmtDate = new Intl.DateTimeFormat(t.dateLocale, { month: "short", day: "numeric", year: "numeric" });
-      meta.innerHTML =
-        `<a href="https://github.com/${user}" target="_blank" rel="noopener">@${user}</a>` +
-        `<span>${t.contributions(total)}</span>`;
-      meta.querySelectorAll("a").forEach(addLinkGlitch);
-      legend.innerHTML =
-        t.less + GLYPHS.map((g, i) => `<span class="l${i}">${g}</span>`).join("") + t.more;
-      grid.title = t.inYear(total);
-      fig.setAttribute("aria-label", t.ariaYear(total));
-      grid.querySelectorAll("span[data-date]").forEach((s) => {
-        s.title = `${t.contributions(+s.dataset.count)} · ${fmtDate.format(new Date(s.dataset.date + "T00:00:00"))}`;
-      });
-    };
-    window.__refreshGraphText();
+    const fmtDate = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" });
+    meta.innerHTML =
+      `<a href="https://github.com/${user}" target="_blank" rel="noopener">@${user}</a>` +
+      `<span>${TEXT.contributions(total)}</span>`;
+    meta.querySelectorAll("a").forEach(addLinkGlitch);
+    legend.innerHTML =
+      TEXT.less + GLYPHS.map((g, i) => `<span class="l${i}">${g}</span>`).join("") + TEXT.more;
+    grid.title = TEXT.inYear(total);
+    fig.setAttribute("aria-label", TEXT.ariaYear(total));
+    grid.querySelectorAll("span[data-date]").forEach((s) => {
+      s.title = `${TEXT.contributions(+s.dataset.count)} · ${fmtDate.format(new Date(s.dataset.date + "T00:00:00"))}`;
+    });
     fig.hidden = false;
 
     if (reduce) return;

@@ -39,11 +39,11 @@
             data-alt="GOAT" data-text="Aramis Berton">Aramis Berton</span><span class="cursor">_</span></h1>
 
           <p class="meta">
-            <span data-i18n="age">17 y/o</span>
+            <span>17 y/o</span>
             <span class="dot" aria-hidden="true">·</span>
             <span>Concepción, Chile</span>
             <span class="dot meta-role" aria-hidden="true">·</span>
-            <span class="meta-role" data-i18n="role">Software engineer at Dropout Capital</span>
+            <span class="meta-role">Software engineer at Dropout Capital</span>
           </p>
 
         </div>
@@ -51,8 +51,6 @@
 
       <div class="controls">
         <div class="control-buttons">
-          
-
           <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
             <svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" fill="none"
               stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
@@ -73,14 +71,14 @@
     <div class="view" data-view="start">
       <div class="intro">
       <section class="block">
-        <p data-i18n="p_today">
+        <p>
           Software engineer at
-          <a data-link="dropout" href="https://www.dropout.cl" target="_blank" rel="noopener">Dropout Capital</a>
+          <a href="https://www.dropout.cl" target="_blank" rel="noopener">Dropout Capital</a>
         </p>
       </section>
 
       <section class="block">
-        <p data-i18n="p_edu">
+        <p>
           I'm finishing high school through independent
           exams to focus on work.
         </p>
@@ -126,13 +124,13 @@
       <!-- A tiny pixel panther in the bottom-right corner opens the big mountain with the whole route -->
       <a class="mini-mtn" href="#map" data-nav="mountain">
         <svg class="mini-sprite" aria-hidden="true" width="88" height="48" viewBox="0 0 22 12" shape-rendering="crispEdges"></svg>
-        <span class="mini-label" data-i18n="to_journey">Journey</span>
+        <span class="mini-label">Journey</span>
       </a>
     </div>
 
     <div class="view" data-view="mountain">
-      <a class="back" data-nav="start" href="./" data-i18n="back_start">← Home</a>
-      <h2 class="sr-only" data-i18n="h_map">Map</h2>
+      <a class="back" data-nav="start" href="./">← Home</a>
+      <h2 class="sr-only">Map</h2>
       <!-- Drawn by script.js; every point opens one entry of the journey -->
       <figure class="mtn" id="mtn">
         <div class="mtn-stage">
@@ -145,72 +143,69 @@
     </div>
 
     <!-- Never shown on its own: script.js moves each entry into the panel of its point on the
-         mountain. To add a milestone, add an <li> here (EN here, ES in ES_HTML in script.js)
-         and its point in POINTS. The "block" class opts the text into the scramble effect. -->
+         mountain. To add a milestone, add an <li data-point="id"> here and a point with the
+         same id in POINTS. The "block" class opts the text into the scramble effect. -->
     <div class="block" id="journeyData" hidden>
         <ul>
-          <li>
-            <h4 data-i18n="dropout_title">Dropout Capital</h4>
-            <a class="entry-link" href="https://www.dropout.cl" target="_blank" rel="noopener"
-              data-i18n="visit_site">Visit site →</a>
+          <li data-point="dropout">
+            <h4>Dropout Capital</h4>
+            <a class="entry-link" href="https://www.dropout.cl" target="_blank" rel="noopener">Visit site →</a>
           </li>
 
-          <li>
-            <h4 data-i18n="j1_title">Reffactor</h4>
-            <p data-i18n="j1_text">
+          <li data-point="j1">
+            <h4>Reffactor</h4>
+            <p>
               At 16, I was a software engineer in charge of the whole project: a health insurance
               commission payment engine, from writing code to speaking directly with the client.
             </p>
-            <a class="entry-link" href="https://reffactor.com" target="_blank" rel="noopener"
-              data-i18n="visit_site">Visit site →</a>
+            <a class="entry-link" href="https://reffactor.com" target="_blank" rel="noopener">Visit site →</a>
           </li>
 
-          <li>
-            <span class="when" data-i18n="j3_when">10th grade</span>
-            <h4 data-i18n="j3_title">Left school</h4>
-            <p data-i18n="j3_text">
+          <li data-point="j3">
+            <span class="when">10th grade</span>
+            <h4>Left school</h4>
+            <p>
               Left school to focus on my projects, and now finishing high school
               through independent exams.
             </p>
           </li>
-          <li>
-            <span class="when" data-i18n="alfi_when">Mid 2026</span>
-            <h4 data-i18n="alfi_title">alfi.ai</h4>
-            <p data-i18n="alfi_text">
+          <li data-point="alfi">
+            <span class="when">Mid 2026</span>
+            <h4>alfi.ai</h4>
+            <p>
               My own project: an agent that lives inside your chat and helps you keep the context
               of the conversation, built for group work.
             </p>
-            <a class="entry-link" href="https://alfi-page.vercel.app" target="_blank" rel="noopener"
-              data-i18n="visit_site">Visit site →</a>
+            <a class="entry-link" href="https://alfi-page.vercel.app" target="_blank" rel="noopener">Visit site →</a>
           </li>
-          <li>
-            <span class="when" data-i18n="crm_when">Early 2026</span>
-            <h4 data-i18n="crm_title">Optical clinic CRM</h4>
-            <p data-i18n="crm_text">
+          <li data-point="crm">
+            <span class="when">Early 2026</span>
+            <h4>Optical clinic CRM</h4>
+            <p>
               A freelance project at 16: I built a CRM for an optical clinic in Temuco, Chile. It helped the
               client keep their sales, customers and more organized; before, everything was on paper.
             </p>
           </li>
 
-          <li>
+          <li data-point="imp">
             <!-- Falta la URL de Impresos Berton -->
-            <h4 data-i18n="imp_title">Impresos Berton</h4>
-            <p data-i18n="imp_text">Redesigned the whole website of my family's company.</p>
+            <h4>Impresos Berton</h4>
+            <p>Redesigned the whole website of my family's company.</p>
           </li>
 
-          <li>
-            <h4 data-i18n="water_title">waterMarket</h4>
-            <p data-i18n="water_text">
+          <li data-point="water">
+            <h4>waterMarket</h4>
+            <p>
               My first project, at 14–15: a marketplace for water jug refills. It automated selling the
               refills so customers didn't have to spend their time doing it by hand: just 3 clicks and
               you buy.
             </p>
           </li>
 
-          <li>
-            <span class="when" data-i18n="games_when">December 2023</span>
-            <h4 data-i18n="games_title">My first games</h4>
-            <p data-i18n="games_text">
+          <li data-point="games">
+            <span class="when">December 2023</span>
+            <h4>My first games</h4>
+            <p>
               I started programming at 13 by watching videos, and built three games along the way.
             </p>
             <div class="clips">
@@ -220,7 +215,7 @@
                     width="56" height="56" loading="lazy">
                   <span class="clip-text">
                     <span class="clip-name">Shooter</span>
-                    <span class="clip-action" data-i18n="watch_video">Watch video</span>
+                    <span class="clip-action">Watch video</span>
                   </span>
                 </summary>
                 <video src="assets/games/shooter.mp4" poster="assets/games/shooter-poster.jpg"
@@ -232,7 +227,7 @@
                     width="56" height="56" loading="lazy">
                   <span class="clip-text">
                     <span class="clip-name">Pong</span>
-                    <span class="clip-action" data-i18n="watch_video">Watch video</span>
+                    <span class="clip-action">Watch video</span>
                   </span>
                 </summary>
                 <video src="assets/games/pong.mp4" poster="assets/games/pong-poster.jpg"
@@ -244,7 +239,7 @@
                     width="56" height="56" loading="lazy">
                   <span class="clip-text">
                     <span class="clip-name">Snake</span>
-                    <span class="clip-action" data-i18n="watch_video">Watch video</span>
+                    <span class="clip-action">Watch video</span>
                   </span>
                 </summary>
                 <video src="assets/games/snake.mp4" poster="assets/games/snake-poster.jpg"
@@ -253,9 +248,9 @@
             </div>
           </li>
 
-          <li>
-            <h4 data-i18n="fortnite_title">Fortnite player</h4>
-            <p data-i18n="fortnite_text">More than 20,000 hours played in Fortnite.</p>
+          <li data-point="fortnite">
+            <h4>Fortnite player</h4>
+            <p>More than 20,000 hours played in Fortnite.</p>
             <div class="clips">
               <details class="clip clip--wide" name="clips">
                 <summary>
@@ -263,7 +258,7 @@
                     width="56" height="56" loading="lazy">
                   <span class="clip-text">
                     <span class="clip-name">1 vs 3</span>
-                    <span class="clip-action" data-i18n="watch_video">Watch video</span>
+                    <span class="clip-action">Watch video</span>
                   </span>
                 </summary>
                 <video src="assets/fortnite/1vs3.mp4" poster="assets/fortnite/1vs3-poster.jpg"
@@ -275,7 +270,7 @@
                     width="56" height="56" loading="lazy">
                   <span class="clip-text">
                     <span class="clip-name">Clutch</span>
-                    <span class="clip-action" data-i18n="watch_video">Watch video</span>
+                    <span class="clip-action">Watch video</span>
                   </span>
                 </summary>
                 <video src="assets/fortnite/clutch.mp4" poster="assets/fortnite/clutch-poster.jpg"
